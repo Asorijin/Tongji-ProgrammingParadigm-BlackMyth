@@ -171,14 +171,14 @@ Ablack_moneyCharacter::~Ablack_moneyCharacter() {}
 // End Class Ablack_moneyCharacter
 
 // Begin Registration
-struct Z_CompiledInDeferFile_FID_black_money_Source_black_money_black_moneyCharacter_h_Statics
+struct Z_CompiledInDeferFile_FID_Repo_Source_black_money_black_moneyCharacter_h_Statics
 {
 	static constexpr FClassRegisterCompiledInInfo ClassInfo[] = {
 		{ Z_Construct_UClass_Ablack_moneyCharacter, Ablack_moneyCharacter::StaticClass, TEXT("Ablack_moneyCharacter"), &Z_Registration_Info_UClass_Ablack_moneyCharacter, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(Ablack_moneyCharacter), 1840340396U) },
 	};
 };
-static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_black_money_Source_black_money_black_moneyCharacter_h_4047923676(TEXT("/Script/black_money"),
-	Z_CompiledInDeferFile_FID_black_money_Source_black_money_black_moneyCharacter_h_Statics::ClassInfo, UE_ARRAY_COUNT(Z_CompiledInDeferFile_FID_black_money_Source_black_money_black_moneyCharacter_h_Statics::ClassInfo),
+static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Repo_Source_black_money_black_moneyCharacter_h_4047923676(TEXT("/Script/black_money"),
+	Z_CompiledInDeferFile_FID_Repo_Source_black_money_black_moneyCharacter_h_Statics::ClassInfo, UE_ARRAY_COUNT(Z_CompiledInDeferFile_FID_Repo_Source_black_money_black_moneyCharacter_h_Statics::ClassInfo),
 	nullptr, 0,
 	nullptr, 0);
 // End Registration
