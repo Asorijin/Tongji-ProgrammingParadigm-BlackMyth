@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="E:\UE5\UE_5.5\Engine\Source\Runtime\Online\Experimental\EventLoopTests\EventLoopUnitTests.Target.cs" />
+    <None Include="E:\UE5\UE_5.5\Engine\Source\Runtime\Online\Experimental\EventLoopTests\EventLoopUnitTests.Build.cs" />
+    <Filter Include="Tests">
+      <UniqueIdentifier>{90792DE5-2961-3341-98F9-76EBE4AF3A75}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="E:\UE5\UE_5.5\Engine\Source\Runtime\Online\Experimental\EventLoopTests\Tests\TestGroupEvents.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <Filter Include="Tests\EventLoop">
+      <UniqueIdentifier>{8A6C8A5F-E622-3E5E-AFCF-0A247EAF0650}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="E:\UE5\UE_5.5\Engine\Source\Runtime\Online\Experimental\EventLoopTests\Tests\EventLoop\BSDSocketTypesPrivate.h">
+      <Filter>Tests\EventLoop</Filter>
+    </ClCompile>
+    <ClCompile Include="E:\UE5\UE_5.5\Engine\Source\Runtime\Online\Experimental\EventLoopTests\Tests\EventLoop\EventLoopHandleTests.cpp">
+      <Filter>Tests\EventLoop</Filter>
+    </ClCompile>
+    <ClCompile Include="E:\UE5\UE_5.5\Engine\Source\Runtime\Online\Experimental\EventLoopTests\Tests\EventLoop\EventLoopIOManagerBSDSocketSelectTests.cpp">
+      <Filter>Tests\EventLoop</Filter>
+    </ClCompile>
+    <ClCompile Include="E:\UE5\UE_5.5\Engine\Source\Runtime\Online\Experimental\EventLoopTests\Tests\EventLoop\EventLoopLLTModule.cpp">
+      <Filter>Tests\EventLoop</Filter>
+    </ClCompile>
+    <ClCompile Include="E:\UE5\UE_5.5\Engine\Source\Runtime\Online\Experimental\EventLoopTests\Tests\EventLoop\EventLoopManagedStorageTests.cpp">
+      <Filter>Tests\EventLoop</Filter>
+    </ClCompile>
+    <ClCompile Include="E:\UE5\UE_5.5\Engine\Source\Runtime\Online\Experimental\EventLoopTests\Tests\EventLoop\EventLoopTests.cpp">
+      <Filter>Tests\EventLoop</Filter>
+    </ClCompile>
+    <ClCompile Include="E:\UE5\UE_5.5\Engine\Source\Runtime\Online\Experimental\EventLoopTests\Tests\EventLoop\EventLoopTimerTests.cpp">
+      <Filter>Tests\EventLoop</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

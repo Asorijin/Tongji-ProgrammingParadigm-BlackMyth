@@ -1,0 +1,8 @@
+{
+	"SourceFiles": [
+		"D:\\UE_Project\\black_money\\Source\\black_money\\black_money.Build.cs",
+		"D:\\UE_Project\\black_money\\Source\\black_money.Target.cs",
+		"D:\\UE_Project\\black_money\\Source\\black_moneyEditor.Target.cs"
+	],
+	"EngineVersion": "5.5.4"
+}
