@@ -85,6 +85,8 @@ void Ablack_moneyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &Ablack_moneyCharacter::Look);
+		// 绑定 Ctrl -> Dodge
+		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::Dodge);
 	}
 	else
 	{
@@ -125,5 +127,66 @@ void Ablack_moneyCharacter::Look(const FInputActionValue& Value)
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
+	}
+}
+// 闪避功能
+void Ablack_moneyCharacter::Dodge()
+{
+	// 检查是否可以闪避
+	if (!CanDodge())
+	{
+		return;
+	}
+
+	// 计算闪避方向：优先使用最近的移动输入方向；若无，则使用角色前向
+	FVector DodgeDirection = GetLastMovementInputVector().GetSafeNormal();
+	if (DodgeDirection.IsNearlyZero())
+	{
+		DodgeDirection = GetActorForwardVector();
+	}
+
+	// 仅保留水平分量，避免 Z 轴抬升/下坠影响
+	DodgeDirection.Z = 0.0f;
+	DodgeDirection = DodgeDirection.GetSafeNormal();
+
+	// 应用冲量进行闪避（覆盖 XY 速度，但不覆盖 Z）
+	LaunchCharacter(DodgeDirection * DodgeStrength, /*bXYOverride*/ true, /*bZOverride*/ false);
+
+	// 设置状态
+	bIsDodging = true;
+	bInvulnerableDuringDodge = true;
+
+	// 定时结束闪避
+	GetWorldTimerManager().SetTimer(
+		DodgeTimerHandle,
+		this,
+		&Ablack_moneyCharacter::EndDodge,
+		DodgeDuration,
+		/*bLoop*/ false
+	);
+}
+
+bool Ablack_moneyCharacter::CanDodge() const
+{
+	// 不在闪避中且拥有控制器和移动组件
+	if (bIsDodging || Controller == nullptr || GetCharacterMovement() == nullptr)
+	{
+		return false;
+	}
+
+	// 如需限定地面闪避可启用：
+	// return GetCharacterMovement()->IsMovingOnGround();
+	return true;
+}
+
+void Ablack_moneyCharacter::EndDodge()
+{
+	bIsDodging = false;
+	bInvulnerableDuringDodge = false;
+
+	// 清理定时器
+	if (GetWorldTimerManager().IsTimerActive(DodgeTimerHandle))
+	{
+		GetWorldTimerManager().ClearTimer(DodgeTimerHandle);
 	}
 }
