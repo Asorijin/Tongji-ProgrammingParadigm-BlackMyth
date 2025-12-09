@@ -11,7 +11,10 @@
     <None Include="..\..\Source\black_moneyEditor.Target.cs">
       <Filter>Source</Filter>
     </None>
+    <None Include="..\..\.gitattributes" />
+    <None Include="..\..\.gitignore" />
     <None Include="..\..\.vsconfig" />
+    <None Include="..\..\README.md" />
     <Filter Include="Config">
       <UniqueIdentifier>{FA535FFB-25E1-3D20-B416-52F9BE21E06E}</UniqueIdentifier>
     </Filter>
@@ -29,6 +32,12 @@
     </None>
     <None Include="..\..\Config\DefaultInput.ini">
       <Filter>Config</Filter>
+    </None>
+    <Filter Include="Config\Android">
+      <UniqueIdentifier>{1797D593-7CC5-3812-9193-8AAD12A3DA98}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Config\Android\AndroidInput.ini">
+      <Filter>Config\Android</Filter>
     </None>
     <Filter Include="Source\black_money">
       <UniqueIdentifier>{851411BC-A7FA-3DE7-A508-DF3F65F96D34}</UniqueIdentifier>
@@ -54,11 +63,29 @@
     <ClCompile Include="..\..\Source\black_money\black_moneyGameMode.h">
       <Filter>Source\black_money</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\black_money\Monster.cpp">
-      <Filter>Source\black_money</Filter>
+    <Filter Include="Source\black_money\Private">
+      <UniqueIdentifier>{62A89938-AA22-326A-A4A1-CA438F92ED01}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\black_money\Private\EventCenter.cpp">
+      <Filter>Source\black_money\Private</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\black_money\Monster.h">
-      <Filter>Source\black_money</Filter>
+    <ClCompile Include="..\..\Source\black_money\Private\FUIPanelManager.cpp">
+      <Filter>Source\black_money\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\black_money\Private\UIBasePanel.cpp">
+      <Filter>Source\black_money\Private</Filter>
+    </ClCompile>
+    <Filter Include="Source\black_money\Public">
+      <UniqueIdentifier>{F167699F-B7AE-355B-9B4A-F94448C5F9EE}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\black_money\Public\EventCenter.h">
+      <Filter>Source\black_money\Public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\black_money\Public\FUIPanelManager.h">
+      <Filter>Source\black_money\Public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\black_money\Public\UIBasePanel.h">
+      <Filter>Source\black_money\Public</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
