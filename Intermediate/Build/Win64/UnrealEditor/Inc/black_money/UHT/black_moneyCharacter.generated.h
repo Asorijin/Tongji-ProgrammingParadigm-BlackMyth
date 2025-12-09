@@ -14,7 +14,7 @@ PRAGMA_DISABLE_DEPRECATION_WARNINGS
 #endif
 #define BLACK_MONEY_black_moneyCharacter_generated_h
 
-#define FID_Repo_Source_black_money_black_moneyCharacter_h_21_INCLASS_NO_PURE_DECLS \
+#define FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_black_moneyCharacter_h_21_INCLASS_NO_PURE_DECLS \
 private: \
 	static void StaticRegisterNativesAblack_moneyCharacter(); \
 	friend struct Z_Construct_UClass_Ablack_moneyCharacter_Statics; \
@@ -23,7 +23,7 @@ public: \
 	DECLARE_SERIALIZER(Ablack_moneyCharacter)
 
 
-#define FID_Repo_Source_black_money_black_moneyCharacter_h_21_ENHANCED_CONSTRUCTORS \
+#define FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_black_moneyCharacter_h_21_ENHANCED_CONSTRUCTORS \
 private: \
 	/** Private move- and copy-constructors, should never be used */ \
 	Ablack_moneyCharacter(Ablack_moneyCharacter&&); \
@@ -35,12 +35,12 @@ public: \
 	NO_API virtual ~Ablack_moneyCharacter();
 
 
-#define FID_Repo_Source_black_money_black_moneyCharacter_h_18_PROLOG
-#define FID_Repo_Source_black_money_black_moneyCharacter_h_21_GENERATED_BODY \
+#define FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_black_moneyCharacter_h_18_PROLOG
+#define FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_black_moneyCharacter_h_21_GENERATED_BODY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	FID_Repo_Source_black_money_black_moneyCharacter_h_21_INCLASS_NO_PURE_DECLS \
-	FID_Repo_Source_black_money_black_moneyCharacter_h_21_ENHANCED_CONSTRUCTORS \
+	FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_black_moneyCharacter_h_21_INCLASS_NO_PURE_DECLS \
+	FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_black_moneyCharacter_h_21_ENHANCED_CONSTRUCTORS \
 private: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
@@ -48,7 +48,7 @@ PRAGMA_ENABLE_DEPRECATION_WARNINGS
 template<> BLACK_MONEY_API UClass* StaticClass<class Ablack_moneyCharacter>();
 
 #undef CURRENT_FILE_ID
-#define CURRENT_FILE_ID FID_Repo_Source_black_money_black_moneyCharacter_h
+#define CURRENT_FILE_ID FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_black_moneyCharacter_h
 
 
 PRAGMA_ENABLE_DEPRECATION_WARNINGS

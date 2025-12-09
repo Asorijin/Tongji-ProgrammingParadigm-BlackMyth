@@ -78,14 +78,14 @@ Ablack_moneyGameMode::~Ablack_moneyGameMode() {}
 // End Class Ablack_moneyGameMode
 
 // Begin Registration
-struct Z_CompiledInDeferFile_FID_Repo_Source_black_money_black_moneyGameMode_h_Statics
+struct Z_CompiledInDeferFile_FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_black_moneyGameMode_h_Statics
 {
 	static constexpr FClassRegisterCompiledInInfo ClassInfo[] = {
 		{ Z_Construct_UClass_Ablack_moneyGameMode, Ablack_moneyGameMode::StaticClass, TEXT("Ablack_moneyGameMode"), &Z_Registration_Info_UClass_Ablack_moneyGameMode, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(Ablack_moneyGameMode), 1279691557U) },
 	};
 };
-static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Repo_Source_black_money_black_moneyGameMode_h_717812827(TEXT("/Script/black_money"),
-	Z_CompiledInDeferFile_FID_Repo_Source_black_money_black_moneyGameMode_h_Statics::ClassInfo, UE_ARRAY_COUNT(Z_CompiledInDeferFile_FID_Repo_Source_black_money_black_moneyGameMode_h_Statics::ClassInfo),
+static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_black_moneyGameMode_h_717812827(TEXT("/Script/black_money"),
+	Z_CompiledInDeferFile_FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_black_moneyGameMode_h_Statics::ClassInfo, UE_ARRAY_COUNT(Z_CompiledInDeferFile_FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_black_moneyGameMode_h_Statics::ClassInfo),
 	nullptr, 0,
 	nullptr, 0);
 // End Registration
