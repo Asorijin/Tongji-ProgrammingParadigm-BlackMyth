@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
+#include "Tools.h"
 #include "EventCenter.generated.h"
 
 /**
@@ -17,12 +17,16 @@ private:
 	void GenerateMonster();
 	void ChangeBGM();
 	void PlayMusic(std::string musicName);
-
+	
+	
 public:
+	UPROPERTY()
+	FVector pawnLastLocation;
+
+	UEventCenter();
+	void SwitchToLevel(const FString& LevelName, FVector SpawnLocation);
 	void MakeDamage(TSubclassOf<AActor> makeDamager, TSubclassOf<AActor> takeDamager, float damageNumber);
-	//需要先实现道具类数据结构体
-	void UseTools();
-	void GetTools(size_t toolNumber);
-	//需要先实现装备结构体
+	void UseTools(TArray<int>* attributeVector);
+	void GetTools(TSubclassOf<ATools>* tool,int toolNumber);
 	void ChangeEquipment();
 };

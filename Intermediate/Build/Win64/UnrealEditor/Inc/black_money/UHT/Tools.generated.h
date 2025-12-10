@@ -14,7 +14,7 @@ PRAGMA_DISABLE_DEPRECATION_WARNINGS
 #endif
 #define BLACK_MONEY_Tools_generated_h
 
-#define FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_Public_Tools_h_12_INCLASS_NO_PURE_DECLS \
+#define FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_Public_Tools_h_11_INCLASS_NO_PURE_DECLS \
 private: \
 	static void StaticRegisterNativesATools(); \
 	friend struct Z_Construct_UClass_ATools_Statics; \
@@ -23,7 +23,7 @@ public: \
 	DECLARE_SERIALIZER(ATools)
 
 
-#define FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_Public_Tools_h_12_ENHANCED_CONSTRUCTORS \
+#define FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_Public_Tools_h_11_ENHANCED_CONSTRUCTORS \
 private: \
 	/** Private move- and copy-constructors, should never be used */ \
 	ATools(ATools&&); \
@@ -35,12 +35,12 @@ public: \
 	NO_API virtual ~ATools();
 
 
-#define FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_Public_Tools_h_9_PROLOG
-#define FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_Public_Tools_h_12_GENERATED_BODY \
+#define FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_Public_Tools_h_8_PROLOG
+#define FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_Public_Tools_h_11_GENERATED_BODY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_Public_Tools_h_12_INCLASS_NO_PURE_DECLS \
-	FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_Public_Tools_h_12_ENHANCED_CONSTRUCTORS \
+	FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_Public_Tools_h_11_INCLASS_NO_PURE_DECLS \
+	FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_Public_Tools_h_11_ENHANCED_CONSTRUCTORS \
 private: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
