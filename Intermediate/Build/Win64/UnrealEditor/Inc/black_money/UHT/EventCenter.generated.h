@@ -24,8 +24,6 @@ public: \
 
 
 #define FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_Public_EventCenter_h_15_ENHANCED_CONSTRUCTORS \
-	/** Standard constructor, called after all reflected properties have been initialized */ \
-	NO_API UEventCenter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()); \
 private: \
 	/** Private move- and copy-constructors, should never be used */ \
 	UEventCenter(UEventCenter&&); \
@@ -33,7 +31,7 @@ private: \
 public: \
 	DECLARE_VTABLE_PTR_HELPER_CTOR(NO_API, UEventCenter); \
 	DEFINE_VTABLE_PTR_HELPER_CTOR_CALLER(UEventCenter); \
-	DEFINE_DEFAULT_OBJECT_INITIALIZER_CONSTRUCTOR_CALL(UEventCenter) \
+	DEFINE_DEFAULT_CONSTRUCTOR_CALL(UEventCenter) \
 	NO_API virtual ~UEventCenter();
 
 
