@@ -1,5 +1,5 @@
-#include "CoreMinimal.h"
 #include "FUIPanelManager.h"
+#include "CoreMinimal.h"
 #include "UIBasePanel.h" 
 #include "UObject/UObjectBaseUtility.h"
 TMap<UClass*, UUIBasePanel*> FUIPanelManager::PanelInstances;
