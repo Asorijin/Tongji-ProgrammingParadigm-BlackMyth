@@ -69,10 +69,16 @@
     <ClCompile Include="..\..\Source\black_money\Private\black_moneyGameInstance.cpp">
       <Filter>Source\black_money\Private</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\black_money\Private\CharacterConfig.cpp">
+      <Filter>Source\black_money\Private</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\black_money\Private\EventCenter.cpp">
       <Filter>Source\black_money\Private</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\black_money\Private\FUIPanelManager.cpp">
+      <Filter>Source\black_money\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\black_money\Private\ToolHp.cpp">
       <Filter>Source\black_money\Private</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\black_money\Private\Tools.cpp">
@@ -87,10 +93,16 @@
     <ClCompile Include="..\..\Source\black_money\Public\black_moneyGameInstance.h">
       <Filter>Source\black_money\Public</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\black_money\Public\CharacterConfig.h">
+      <Filter>Source\black_money\Public</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\black_money\Public\EventCenter.h">
       <Filter>Source\black_money\Public</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\black_money\Public\FUIPanelManager.h">
+      <Filter>Source\black_money\Public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\black_money\Public\ToolHp.h">
       <Filter>Source\black_money\Public</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\black_money\Public\Tools.h">
