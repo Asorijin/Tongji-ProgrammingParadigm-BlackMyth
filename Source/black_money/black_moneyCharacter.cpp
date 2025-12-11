@@ -1,12 +1,12 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #include "black_moneyCharacter.h"
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SphereComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Controller.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
@@ -20,7 +20,7 @@ Ablack_moneyCharacter::Ablack_moneyCharacter()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-		
+
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -52,6 +52,16 @@ Ablack_moneyCharacter::Ablack_moneyCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+	// 创建检测球体组件
+	DetectionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("DetectionSphere"));
+	DetectionSphere->SetupAttachment(RootComponent);
+	DetectionSphere->SetSphereRadius(500.0f);
+	DetectionSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	DetectionSphere->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	// 设置可视化
+	DetectionSphere->SetHiddenInGame(false);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -75,7 +85,7 @@ void Ablack_moneyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 {
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
-		
+
 		// Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
@@ -107,7 +117,7 @@ void Ablack_moneyCharacter::Move(const FInputActionValue& Value)
 
 		// get forward vector
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	
+
 		// get right vector 
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
@@ -189,4 +199,73 @@ void Ablack_moneyCharacter::EndDodge()
 	{
 		GetWorldTimerManager().ClearTimer(DodgeTimerHandle);
 	}
+}
+
+void Ablack_moneyCharacter::BeginPlay() {
+
+	Super::BeginPlay();
+
+}
+
+void Ablack_moneyCharacter::Tick(float deltaTime) {
+
+	nearbyObjects = std::move(GetNearbyObjectsWithTag(searchTags, 500.0f));
+
+	for (const AActor* actor : nearbyObjects) {
+		if (actor->ActorHasTag(FName("LandTemple"))) {
+			if (GEngine)
+			{
+				FString Message = FString::Printf(TEXT("检测到 %d 个LandTem物体"), 1);
+
+				GEngine->AddOnScreenDebugMessage(
+					-1,                    // Key (-1表示自动分配)
+					1.0f,                  // 显示时间(秒)
+					FColor::Green,         // 颜色
+					Message                // 文字内容
+				);
+			}
+		}
+	}
+}
+
+TArray<AActor*> Ablack_moneyCharacter::GetNearbyObjectsWithTag(TArray<FName> tagNames, float radius) const {
+
+	TArray<AActor*> result;
+
+	UWorld* world = GetWorld();
+	FVector sphereCenter = GetActorLocation();
+	TArray<TEnumAsByte<EObjectTypeQuery>> objectTypes = {
+			UEngineTypes::ConvertToObjectType(ECC_WorldStatic),
+			UEngineTypes::ConvertToObjectType(ECC_WorldDynamic),
+			UEngineTypes::ConvertToObjectType(ECC_Pawn),
+			UEngineTypes::ConvertToObjectType(ECC_PhysicsBody)
+	};
+
+	if (!world || radius <= 0.0f) {
+		return result;
+	}
+
+	TArray<AActor*> OverlappingActors;
+	UKismetSystemLibrary::SphereOverlapActors(
+		world,
+		sphereCenter,
+		radius,
+		objectTypes,
+		AActor::StaticClass(),  // 只检测Actor
+		{},
+		OverlappingActors
+	);
+
+	// 过滤有特定Tag的Actor
+	for (AActor* Actor : OverlappingActors)
+	{
+		for (const FName tagName : tagNames) {
+			if (Actor && Actor->ActorHasTag(tagName))
+			{
+				result.Add(Actor);
+			}
+		}
+	}
+
+	return result;
 }
