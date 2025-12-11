@@ -9,6 +9,8 @@ ALandTemple::ALandTemple()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 	
+    
+
 	meshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("meshComponent"));
 
     static ConstructorHelpers::FObjectFinder<UStaticMesh> CustomMeshFinder(
@@ -32,7 +34,7 @@ ALandTemple::ALandTemple()
         // 回退到默认网格
         UE_LOG(LogTemp, Warning, TEXT("Custom mesh not found, using default cube"));
         static ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultMeshFinder(
-            TEXT("/Engine/BasicShapes/Cube.Cube")
+            TEXT("/Engine/BasicShapes/Sphere.Sphere")
         );
         if (DefaultMeshFinder.Succeeded())
         {
@@ -46,6 +48,9 @@ void ALandTemple::BeginPlay()
 {
 	Super::BeginPlay();
 	
+    Tags.Add(FName("LandTemple"));
+
+    
 }
 
 // Called every frame
