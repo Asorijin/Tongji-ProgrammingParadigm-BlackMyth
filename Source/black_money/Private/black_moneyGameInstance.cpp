@@ -3,13 +3,17 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "black_moneyGameInstance.h"
+#include "CharacterConfig.h"
 
 void Ublack_moneyGameInstance::Init() {
-    Super::Init();
+    UGameInstance::Init();
 
+    
     eventCenter = NewObject<UEventCenter>(this);
-    if (eventCenter)
-    {
-        eventCenter->AddToRoot();
-    }
+    
+    characterConfig = NewObject<UCharacterConfig>(this);
+    
+}
+void Ublack_moneyGameInstance::Shutdown() {
+    UGameInstance::Shutdown();
 }
