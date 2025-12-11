@@ -5,7 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "TimerManager.h"
+#include <Components/SphereComponent.h>
 #include "black_moneyCharacter.generated.h"
+
 
 class USpringArmComponent;
 class UCameraComponent;
@@ -48,6 +51,7 @@ class Ablack_moneyCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* DodgeAction;
 
+	
 public:
 	Ablack_moneyCharacter();
 	
@@ -68,7 +72,8 @@ protected:
 	/** 闪避结束回调 */
 	void EndDodge();
 
-	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	USphereComponent* DetectionSphere;
 
 protected:
 
@@ -81,6 +86,10 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	void BeginPlay() override;
+
+	void Tick(float deltaTime) override;
 private:
 	/** 闪避强度（水平冲量） */
 	UPROPERTY(EditAnywhere, Category = "Dodge")
@@ -100,5 +109,11 @@ private:
 
 	/** 定时器句柄，用于结束闪避 */
 	FTimerHandle DodgeTimerHandle;
+
+	TArray<AActor*> GetNearbyObjectsWithTag(TArray<FName> tagNames, float radius) const;
+
+	TArray<AActor*> nearbyObjects;
+
+	TArray<FName> searchTags = {FName("LandTemple")};
 };
 
