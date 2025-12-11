@@ -79,10 +79,10 @@ AToolHp::~AToolHp() {}
 struct Z_CompiledInDeferFile_FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_Public_ToolHp_h_Statics
 {
 	static constexpr FClassRegisterCompiledInInfo ClassInfo[] = {
-		{ Z_Construct_UClass_AToolHp, AToolHp::StaticClass, TEXT("AToolHp"), &Z_Registration_Info_UClass_AToolHp, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(AToolHp), 2798053788U) },
+		{ Z_Construct_UClass_AToolHp, AToolHp::StaticClass, TEXT("AToolHp"), &Z_Registration_Info_UClass_AToolHp, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(AToolHp), 120854395U) },
 	};
 };
-static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_Public_ToolHp_h_552783662(TEXT("/Script/black_money"),
+static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_Public_ToolHp_h_1693881908(TEXT("/Script/black_money"),
 	Z_CompiledInDeferFile_FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_Public_ToolHp_h_Statics::ClassInfo, UE_ARRAY_COUNT(Z_CompiledInDeferFile_FID_Tongji_ProgrammingParadigm_BlackMyth_Source_black_money_Public_ToolHp_h_Statics::ClassInfo),
 	nullptr, 0,
 	nullptr, 0);

@@ -1,7 +1,6 @@
 #include "FUIPanelManager.h"
 #include "CoreMinimal.h"
 #include "UIBasePanel.h" 
-#include "UObject/UObjectBaseUtility.h"
 TMap<UClass*, UUIBasePanel*> FUIPanelManager::PanelInstances;
 UUIBasePanel* FUIPanelManager::GetOrCreatePanel(UWorld* World, TSubclassOf<UUIBasePanel> PanelClass)
 {

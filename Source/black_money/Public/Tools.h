@@ -18,6 +18,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	//0:hp  1:mp  2:attack  3:defence  4:speed
+	UPROPERTY()
 	TArray<int> attributeVector = {0,0,0,0,0};
 
 	UPROPERTY()
