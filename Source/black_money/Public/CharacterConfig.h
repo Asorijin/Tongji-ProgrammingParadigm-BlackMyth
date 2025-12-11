@@ -4,25 +4,25 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "ToolHp.h"
 #include "CharacterConfig.generated.h"
-
 USTRUCT()
 struct FEquipment{
 
 	GENERATED_USTRUCT_BODY()
 public:
 	UPROPERTY()
-	int32 head = 0;
+	int32 _head = 0;
 	UPROPERTY()
-	int32 body = 0;
+	int32 _body = 0;
 	UPROPERTY()
-	int32 boot = 0;
+	int32 _boot = 0;
 	UPROPERTY()
-	int32 weapon = 0;
+	int32 _weapon = 0;
 };
 
 /**
- * 初步计划是Character类在初始化时使用该类读取配置文件，初始化数值
+ * 初步计划是Character类在初始化时使用该类（通过GameInstance间接，不可以直接Character类include该类）读取配置文件，初始化数值
  * 游戏过程中角色的数值存储在该类中
  */
 UCLASS()
