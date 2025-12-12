@@ -30,18 +30,22 @@ class BLACK_MONEY_API UCharacterConfig : public UObject
 {
 	GENERATED_BODY()
 private:
-	int _maxHp;
-	int _maxMp;
+	int32 _maxHp;
+	int32 _maxMp;
+	FString filePath;
 public:
-	int _hp;
-	int _mp;
-	int _attack;
-	int _defence;
-	int _speed;
+	int32 _hp;
+	int32 _mp;
+	int32 _attack;
+	int32 _defence;
+	int32 _speed;
 	FEquipment _equipment;
-	bool _fightState;
+	bool _fightState = false;
 
 	UCharacterConfig();
-	void ReadConfigData();
+	void Initialize();
+
+	//写文件操作放在和土地庙的时候，在显示土地庙面板前写入，直到写入完成再打开面板
 	void WriteConfigData();
+	
 };

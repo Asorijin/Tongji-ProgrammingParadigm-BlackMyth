@@ -7,6 +7,8 @@
 #include "Logging/LogMacros.h"
 #include "TimerManager.h"
 #include <Components/SphereComponent.h>
+#include <Components/AudioComponent.h>
+#include "CharacterConfig.h"
 #include "black_moneyCharacter.generated.h"
 
 
@@ -75,6 +77,19 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	USphereComponent* DetectionSphere;
 
+	//控制音乐\循环音效
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UAudioComponent* AudioComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	USoundBase* BackGroundMusic;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	USoundBase* nextBackGroundMusic;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UCharacterConfig* characterConfig;
+
 protected:
 
 	virtual void NotifyControllerChanged() override;
@@ -110,10 +125,18 @@ private:
 	/** 定时器句柄，用于结束闪避 */
 	FTimerHandle DodgeTimerHandle;
 
+	//根据指定TAG获取周围物体
 	TArray<AActor*> GetNearbyObjectsWithTag(TArray<FName> tagNames, float radius) const;
 
+	//获取到的指定TAG物体
 	TArray<AActor*> nearbyObjects;
 
+	//目标物体的TAG
 	TArray<FName> searchTags = {FName("LandTemple")};
+
+	//改变音乐
+	void ChangeMusic(FName musicName);
+
+	const UCharacterConfig* ShareCharacterConfig();
 };
 
