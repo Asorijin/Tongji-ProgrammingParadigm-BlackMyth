@@ -22,8 +22,6 @@ class BLACK_MONEY_API UEventCenter : public UObject
 	GENERATED_BODY()
 private:
 	void GenerateMonster();
-	void ChangeBGM();
-	void PlayMusic(std::string musicName);
 	FVector pawnLastLocation;
 	FToolsNumber* toolsNumber;
 public:
