@@ -11,7 +11,6 @@ void Ublack_moneyGameInstance::Init() {
     
     eventCenter = NewObject<UEventCenter>(this);
     
-    characterConfig = NewObject<UCharacterConfig>(this);
     
 }
 void Ublack_moneyGameInstance::Shutdown() {
