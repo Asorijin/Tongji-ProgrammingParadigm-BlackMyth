@@ -10,12 +10,6 @@ UEventCenter::UEventCenter() {
 void UEventCenter::GenerateMonster() {
 
 }
-void UEventCenter::ChangeBGM() {
-
-}
-void UEventCenter::PlayMusic(std::string musicName) {
-
-}
 
 void UEventCenter::MakeDamage(TSubclassOf<AActor> makeDamager, TSubclassOf<AActor> takeDamager, int damageNumber) {
 
