@@ -1,8 +1,8 @@
 #include "black_moneyCharacter.h"
 #include "Engine/LocalPlayer.h"
+#include "Engine/AssetManager.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Components/SphereComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Controller.h"
@@ -62,6 +62,12 @@ Ablack_moneyCharacter::Ablack_moneyCharacter()
 
 	// 设置可视化
 	DetectionSphere->SetHiddenInGame(false);
+
+	//创建音乐组件
+	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
+	AudioComponent->SetupAttachment(RootComponent);
+	AudioComponent->bAutoActivate = false;
+
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -204,6 +210,9 @@ void Ablack_moneyCharacter::EndDodge()
 void Ablack_moneyCharacter::BeginPlay() {
 
 	Super::BeginPlay();
+	
+	characterConfig = NewObject<UCharacterConfig>();
+	characterConfig->Initialize();
 
 }
 
@@ -268,4 +277,33 @@ TArray<AActor*> Ablack_moneyCharacter::GetNearbyObjectsWithTag(TArray<FName> tag
 	}
 
 	return result;
+}
+
+void Ablack_moneyCharacter::ChangeMusic(FName musicName) {
+
+	AudioComponent->FadeOut(0.5f, 0.0f);
+
+	FString Path = FString::Printf(TEXT("/Game/Music/%s.%s"),
+		*musicName.ToString(),
+		*musicName.ToString());
+
+	UAssetManager::GetStreamableManager().RequestAsyncLoad(
+		FSoftObjectPath(Path),
+		FStreamableDelegate::CreateLambda([this, Path]()
+			{
+				nextBackGroundMusic = Cast<USoundBase>(FSoftObjectPath(Path).ResolveObject());
+				if (nextBackGroundMusic)
+				{
+					AudioComponent->SetSound(nextBackGroundMusic);
+					AudioComponent->Play();
+					AudioComponent->FadeIn(0.5f, 0.0f);
+					BackGroundMusic = nextBackGroundMusic;
+					nextBackGroundMusic = nullptr;
+				}
+			})
+	);
+}
+
+const UCharacterConfig* Ablack_moneyCharacter::ShareCharacterConfig() {
+	return characterConfig;
 }
