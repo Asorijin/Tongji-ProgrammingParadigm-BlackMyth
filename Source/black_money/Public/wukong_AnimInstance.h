@@ -27,4 +27,19 @@ public:
 	//角色速度
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
 	float Speed;
+	// 是否在空中（跳跃/下落）
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	bool bIsInAir;
+	//判断是否在最高点(跳跃到落下的过渡)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	bool bIsAtJumpApex;
+	
+	// 是否正在闪避
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	bool bIsDodging;
+	//是否攻击
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack")
+	bool bIsAttacking;
+
+	
 };

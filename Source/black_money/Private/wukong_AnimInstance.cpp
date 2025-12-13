@@ -19,9 +19,37 @@ void Uwukong_AnimInstance::NativeInitializeAnimation()
 void Uwukong_AnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
-	if(wukongCharacter&&wukongMovement)
+	// 防止未初始化读取脏值
+	Speed = 0.0f;
+	bIsDodging = false;
+
+	// 确保角色指针和移动组件存在（允许在运行时补充）
+	if (!wukongCharacter)
 	{
-		//获取角色速度
-		Speed = wukongMovement->Velocity.Size();
+		wukongCharacter = Cast<Ablack_moneyCharacter>(TryGetPawnOwner());
+		if (wukongCharacter)
+		{
+			wukongMovement = wukongCharacter->GetCharacterMovement();
+		}
+	}
+
+	if (wukongCharacter && wukongMovement)
+	{
+		// 水平速度（忽略 Z）
+		const FVector Velocity = wukongMovement->Velocity;
+		const FVector HorizontalVelocity = FVector(Velocity.X, Velocity.Y, 0.0f);
+
+		// 速度大小（用于 速度判断）
+		Speed = HorizontalVelocity.Size();
+
+		// 是否在空中（跳跃/下落）
+		bIsInAir = wukongMovement->IsFalling();
+		// 判断是否在跳跃最高点（上升到下降的过渡）
+		bIsAtJumpApex = bIsInAir && (wukongMovement->Velocity.Z <= 0.0f);
+		
+		// 从角色获取闪避状态
+		bIsDodging = wukongCharacter->IsDodging();
+		//从角色获取攻击状态
+		bIsAttacking = wukongCharacter->IsAttacking();
 	}
 }
