@@ -53,6 +53,9 @@ class Ablack_moneyCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* DodgeAction;
 
+	//添加攻击动作
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* AttackAction;
 	
 public:
 	Ablack_moneyCharacter();
@@ -73,6 +76,10 @@ protected:
 
 	/** 闪避结束回调 */
 	void EndDodge();
+
+	//攻击功能
+	void Attack();
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	USphereComponent* DetectionSphere;
@@ -102,6 +109,11 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+	//判断是否处于闪避中
+	FORCEINLINE bool IsDodging() const { return bIsDodging; };
+	//判断是否处于攻击状态
+	FORCEINLINE bool IsAttacking() const { return bIsAttacking; };
+
 	void BeginPlay() override;
 
 	void Tick(float deltaTime) override;
@@ -112,7 +124,9 @@ private:
 
 	/** 闪避持续时间（免伤持续时间） */
 	UPROPERTY(EditAnywhere, Category = "Dodge")
-	float DodgeDuration = 0.35f;
+
+	float DodgeDuration = 0.2f;
+
 
 	/** 是否处于闪避中 */
 	UPROPERTY(VisibleAnywhere, Category = "Dodge")
@@ -124,6 +138,20 @@ private:
 
 	/** 定时器句柄，用于结束闪避 */
 	FTimerHandle DodgeTimerHandle;
+
+	//是否处于攻击状态
+	bool bIsAttacking = false;
+	//攻击次数
+	int ComboIndex = 0;
+	// 连击窗口时间（秒）： 0.6f 秒内按下才会触发连击
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	float ComboResetTime = 0.6f;
+
+	// 用于重置连击的计时器
+	FTimerHandle ComboResetTimerHandle;
+	// 攻击连击蒙太奇（蓝图中指定）
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	class UAnimMontage* AttackMontage;
 
 	//根据指定TAG获取周围物体
 	TArray<AActor*> GetNearbyObjectsWithTag(TArray<FName> tagNames, float radius) const;
@@ -138,5 +166,9 @@ private:
 	void ChangeMusic(FName musicName);
 
 	const UCharacterConfig* ShareCharacterConfig();
+
+	private:
+		// 重置连击状态
+		void ResetCombo();
 };
 

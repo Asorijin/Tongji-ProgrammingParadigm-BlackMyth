@@ -10,6 +10,9 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include"Animation/AnimMontage.h"
+
+
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -103,6 +106,10 @@ void Ablack_moneyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &Ablack_moneyCharacter::Look);
 		// 绑定 Ctrl -> Dodge
 		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::Dodge);
+
+		//绑定攻击动作
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::Attack);
+
 	}
 	else
 	{
@@ -206,6 +213,75 @@ void Ablack_moneyCharacter::EndDodge()
 		GetWorldTimerManager().ClearTimer(DodgeTimerHandle);
 	}
 }
+
+// 重置连击计时器
+void Ablack_moneyCharacter::ResetCombo()
+{
+	ComboIndex = 0;
+	bIsAttacking = false;
+}
+//攻击功能
+void Ablack_moneyCharacter::Attack()
+{
+	// 闪避中不能攻击
+	if (bIsDodging)
+	{
+		return;
+	}
+
+	// 如果当前不在攻击蒙太奇里，或者已过连击窗口被清零，则从 1 开始
+	if (ComboIndex <= 0)
+	{
+		ComboIndex = 1;
+	}
+	else
+	{
+		// 在连击窗口内再按一次：+1
+		++ComboIndex;
+
+		// 超过 4 则重新从 1 开始
+		if (ComboIndex > 4)
+		{
+			ComboIndex = 1;
+		}
+	}
+
+	bIsAttacking = true;
+
+	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+	{
+		if (AttackMontage)
+		{
+			FName SectionName;
+			switch (ComboIndex)
+			{
+			case 1: SectionName = FName("Attack1"); break;
+			case 2: SectionName = FName("Attack2"); break;
+			case 3: SectionName = FName("Attack3"); break;
+			case 4: SectionName = FName("Attack4"); break;
+			default: SectionName = FName("Attack1"); break;
+			}
+
+			if (!AnimInstance->Montage_IsPlaying(AttackMontage))
+			{
+				AnimInstance->Montage_Play(AttackMontage);
+			}
+
+			AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);
+		}
+	}
+
+	// 每次成功触发攻击，都重置“连击计时器”
+	GetWorldTimerManager().ClearTimer(ComboResetTimerHandle);
+	GetWorldTimerManager().SetTimer(
+		ComboResetTimerHandle,
+		this,
+		&Ablack_moneyCharacter::ResetCombo,
+		ComboResetTime,
+		/*bLoop*/ false);
+	
+}
+
 
 void Ablack_moneyCharacter::BeginPlay() {
 
