@@ -14,7 +14,11 @@
 !/Plugins/**
 
 
-!/Content/**
+# Only allow .uasset and .umap files from /Content dir.
+# They're tracked by git-lfs, don't forget to track other
+# files if adding them here.
+!/Content/**/*.uasset
+!/Content/**/*.umap
 
 
 # Allow any files from /RawContent dir.
