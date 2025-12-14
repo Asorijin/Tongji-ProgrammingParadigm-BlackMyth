@@ -52,6 +52,7 @@ class Ablack_moneyCharacter : public ACharacter
 	// 添加 DodgeAction 指针
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* DodgeAction;
+
 	//添加攻击动作
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* AttackAction;
@@ -75,6 +76,7 @@ protected:
 
 	/** 闪避结束回调 */
 	void EndDodge();
+
 	//攻击功能
 	void Attack();
 
@@ -106,10 +108,12 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
 	//判断是否处于闪避中
 	FORCEINLINE bool IsDodging() const { return bIsDodging; };
 	//判断是否处于攻击状态
 	FORCEINLINE bool IsAttacking() const { return bIsAttacking; };
+
 	void BeginPlay() override;
 
 	void Tick(float deltaTime) override;
@@ -120,7 +124,9 @@ private:
 
 	/** 闪避持续时间（免伤持续时间） */
 	UPROPERTY(EditAnywhere, Category = "Dodge")
+
 	float DodgeDuration = 0.2f;
+
 
 	/** 是否处于闪避中 */
 	UPROPERTY(VisibleAnywhere, Category = "Dodge")
@@ -132,6 +138,7 @@ private:
 
 	/** 定时器句柄，用于结束闪避 */
 	FTimerHandle DodgeTimerHandle;
+
 	//是否处于攻击状态
 	bool bIsAttacking = false;
 	//攻击次数
@@ -145,6 +152,7 @@ private:
 	// 攻击连击蒙太奇（蓝图中指定）
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	class UAnimMontage* AttackMontage;
+
 	//根据指定TAG获取周围物体
 	TArray<AActor*> GetNearbyObjectsWithTag(TArray<FName> tagNames, float radius) const;
 
@@ -158,6 +166,7 @@ private:
 	void ChangeMusic(FName musicName);
 
 	const UCharacterConfig* ShareCharacterConfig();
+
 	private:
 		// 重置连击状态
 		void ResetCombo();

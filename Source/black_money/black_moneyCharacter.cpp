@@ -12,6 +12,8 @@
 #include "InputActionValue.h"
 #include"Animation/AnimMontage.h"
 
+
+
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 //////////////////////////////////////////////////////////////////////////
@@ -104,8 +106,10 @@ void Ablack_moneyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &Ablack_moneyCharacter::Look);
 		// 绑定 Ctrl -> Dodge
 		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::Dodge);
+
 		//绑定攻击动作
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::Attack);
+
 	}
 	else
 	{
@@ -209,6 +213,7 @@ void Ablack_moneyCharacter::EndDodge()
 		GetWorldTimerManager().ClearTimer(DodgeTimerHandle);
 	}
 }
+
 // 重置连击计时器
 void Ablack_moneyCharacter::ResetCombo()
 {
@@ -276,6 +281,7 @@ void Ablack_moneyCharacter::Attack()
 		/*bLoop*/ false);
 	
 }
+
 
 void Ablack_moneyCharacter::BeginPlay() {
 
