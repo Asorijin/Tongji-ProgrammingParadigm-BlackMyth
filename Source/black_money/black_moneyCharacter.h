@@ -143,12 +143,11 @@ private:
 	bool bIsAttacking = false;
 	//攻击次数
 	int ComboIndex = 0;
-	// 连击窗口时间（秒）： 0.6f 秒内按下才会触发连击
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	float ComboResetTime = 0.6f;
+	// 是否已经在当前段的“可连击窗口”里
+	bool bCanQueueNextCombo = false;
 
-	// 用于重置连击的计时器
-	FTimerHandle ComboResetTimerHandle;
+	// 玩家是否在本段期间按过攻击键（排队标志）
+	bool bQueuedNextCombo = false;
 	// 攻击连击蒙太奇（蓝图中指定）
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	class UAnimMontage* AttackMontage;
@@ -166,9 +165,12 @@ private:
 	void ChangeMusic(FName musicName);
 
 	const UCharacterConfig* ShareCharacterConfig();
+	protected:
+		UFUNCTION(BlueprintCallable, Category = "Combat")
+		void EnableComboWindow();
 
-	private:
-		// 重置连击状态
-		void ResetCombo();
+		UFUNCTION(BlueprintCallable, Category = "Combat")
+		void OnAttackSectionEnded();
+	
 };
 
