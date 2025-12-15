@@ -5,9 +5,22 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "EnemyConfig.h"
-#include "BaseEnemy.generated.h"
 
 class USphereComponent;
+
+/**
+ * 受击状态枚举
+ * 必须在.generated.h之前定义，以便UE反射系统识别
+ */
+UENUM(BlueprintType)
+enum class EEnemyHitState : uint8
+{
+	Normal		UMETA(DisplayName = "Normal"),     // 正常状态
+	Hit			UMETA(DisplayName = "Hit"),        // 受击硬直状态
+	Invulnerable UMETA(DisplayName = "Invulnerable") // 无敌状态（受击后短暂无敌）
+};
+
+#include "BaseEnemy.generated.h"
 
 /**
  * 怪物基类
@@ -47,8 +60,13 @@ public:
 	UEnemyConfig* GetEnemyConfig() const { return EnemyConfig; }
 
 	// 受击处理（通过事件中心调用）
+	// 注意：重写基类APawn的TakeDamage函数，但使用不同的参数类型
+	// 为了避免与基类函数冲突，我们使用ReceiveDamage作为主要接口
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	virtual void TakeDamage(int32 DamageAmount);
+	virtual void ReceiveDamage(int32 DamageAmount, AActor* DamageCauser = nullptr);
+
+	// 重写基类的TakeDamage函数，内部调用ReceiveDamage
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	// 死亡处理
 	UFUNCTION(BlueprintCallable, Category = "Combat")
@@ -58,12 +76,57 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	bool IsDead() const;
 
+	// 获取当前受击状态
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	EEnemyHitState GetHitState() const { return CurrentHitState; }
+
+	// 检查是否处于受击硬直状态
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	bool IsInHitStun() const { return CurrentHitState == EEnemyHitState::Hit; }
+
+	// 检查是否无敌
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	bool IsInvulnerable() const { return CurrentHitState == EEnemyHitState::Invulnerable; }
+
 protected:
 	// 是否已死亡
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	bool bIsDead = false;
 
+	// 当前受击状态
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	EEnemyHitState CurrentHitState = EEnemyHitState::Normal;
+
+	// 受击硬直时间（秒）
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	float HitStunDuration = 0.3f;
+
+	// 受击后无敌时间（秒）
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	float InvulnerableDuration = 0.5f;
+
+	// 受击硬直计时器
+	FTimerHandle HitStunTimerHandle;
+
+	// 无敌状态计时器
+	FTimerHandle InvulnerableTimerHandle;
+
 	// 初始化占位符模型（Mannequin）
 	void InitializePlaceholderMesh();
+
+	// 进入受击硬直状态
+	void EnterHitStun();
+
+	// 结束受击硬直状态
+	void EndHitStun();
+
+	// 进入无敌状态
+	void EnterInvulnerable();
+
+	// 结束无敌状态
+	void EndInvulnerable();
+
+	// 获取事件中心（用于通知生命值变化等）
+	class UEventCenter* GetEventCenter() const;
 };
 
