@@ -107,16 +107,16 @@ void UEventCenter::GetTools(AActor* tool, int toolNumber) {
 	// 工具指针应该通过EventCenter处理
 	// 这里应该是一个工具模型的实例ATools，工具中的行为由工具模型实际使用在游戏中
 	// 如果拾取的是同一种工具，工具中的工具数量+1，否则实例化模型
-	if (tool->IsA(AToolHp::StaticClass())) {
+    if (tool->IsA(AToolHp::StaticClass())) {
 		if (toolsNumber)
 		{
-			toolsNumber->hpTools += 1;
+        toolsNumber->hpTools += 1;
 		}
-	}
-	else {
+    }
+    else {
 		// 其他类型工具的处理
-	}
-	tool->Destroy();
+    }
+    tool->Destroy();
 }
 
 void UEventCenter::ChangeEquipment() {
@@ -125,18 +125,18 @@ void UEventCenter::ChangeEquipment() {
 
 void UEventCenter::SwitchToLevel(const FString& LevelName, FVector SpawnLocation) {
 	// 目前只设定了关卡和生成点，还需要在角色BeginPlay中调用移动才能将角色移动到新位置
-	pawnLastLocation = SpawnLocation;
+    pawnLastLocation = SpawnLocation;
 
-	if (UWorld* World = GetWorld())
-	{
-		UGameplayStatics::OpenLevel(World, FName(*LevelName));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("SwitchToLevel: No valid world!"));
-	}
+    if (UWorld* World = GetWorld())
+    {
+        UGameplayStatics::OpenLevel(World, FName(*LevelName));
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("SwitchToLevel: No valid world!"));
+    }
 }
 
 const FVector UEventCenter::GetSpawnLocation() {
-	return pawnLastLocation;
+    return pawnLastLocation;
 }

@@ -10,6 +10,8 @@
 #include "black_moneyGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Engine/Engine.h"
 
 ABaseEnemy::ABaseEnemy(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -267,5 +269,84 @@ UEventCenter* ABaseEnemy::GetEventCenter() const
 		}
 	}
 	return nullptr;
+}
+
+TArray<AActor*> ABaseEnemy::GetAttackTargetsInRange(float AttackRange) const
+{
+	// 默认查找"Player"标签
+	TArray<FName> DefaultTags;
+	DefaultTags.Add(FName("Player"));
+	return GetAttackTargetsInRangeWithTags(AttackRange, DefaultTags);
+}
+
+TArray<AActor*> ABaseEnemy::GetAttackTargetsInRangeWithTags(float AttackRange, const TArray<FName>& TargetTags) const
+{
+	TArray<AActor*> Result;
+
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GetAttackTargetsInRangeWithTags: No valid world!"));
+		return Result;
+	}
+
+	// 如果没有指定范围，使用AttackRangeSphere的半径
+	float ActualRange = AttackRange;
+	if (ActualRange <= 0.0f && AttackRangeSphere)
+	{
+		ActualRange = AttackRangeSphere->GetScaledSphereRadius();
+	}
+	
+	// 如果还是没有有效范围，使用配置中的攻击范围
+	if (ActualRange <= 0.0f && EnemyConfig)
+	{
+		ActualRange = EnemyConfig->AttackRange;
+	}
+
+	// 如果还是没有，使用默认值
+	if (ActualRange <= 0.0f)
+	{
+		ActualRange = 150.0f; // 默认攻击范围
+	}
+
+	FVector SphereCenter = GetActorLocation();
+
+	// 设置检测的对象类型（参考Character类的实现）
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Pawn)); // 主要检测Pawn类型（玩家和怪物）
+
+	// 执行球形范围检测
+	TArray<AActor*> OverlappingActors;
+	UKismetSystemLibrary::SphereOverlapActors(
+		World,
+		SphereCenter,
+		ActualRange,
+		ObjectTypes,
+		AActor::StaticClass(),  // 查找所有Actor
+		TArray<AActor*>(),      // 忽略列表（空，不忽略任何对象）
+		OverlappingActors
+	);
+
+	// 筛选出具有指定标签的Actor
+	for (AActor* Actor : OverlappingActors)
+	{
+		if (!Actor || Actor == this) // 排除自身
+		{
+			continue;
+		}
+
+		// 检查是否具有目标标签
+		for (const FName& TagName : TargetTags)
+		{
+			if (Actor->ActorHasTag(TagName))
+			{
+				Result.Add(Actor);
+				break; // 找到一个匹配的标签即可，避免重复添加
+			}
+		}
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("GetAttackTargetsInRangeWithTags: Found %d targets in range %.2f"), Result.Num(), ActualRange);
+	return Result;
 }
 
