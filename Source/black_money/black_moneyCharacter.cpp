@@ -310,14 +310,14 @@ void Ablack_moneyCharacter::Tick(float deltaTime) {
 		if (actor->ActorHasTag(FName("LandTemple"))) {
 			if (GEngine)
 			{
-				FString Message = FString::Printf(TEXT("检测到 %d 个LandTem物体"), 1);
+				//FString Message = FString::Printf(TEXT("检测到 %d 个LandTem物体"), 1);
 
-				GEngine->AddOnScreenDebugMessage(
-					-1,                    // Key (-1表示自动分配)
-					1.0f,                  // 显示时间(秒)
-					FColor::Green,         // 颜色
-					Message                // 文字内容
-				);
+				//GEngine->AddOnScreenDebugMessage(
+				//	-1,                    // Key (-1表示自动分配)
+				//	1.0f,                  // 显示时间(秒)
+				//	FColor::Green,         // 颜色
+				//	Message                // 文字内容
+				//);
 			}
 		}
 	}
