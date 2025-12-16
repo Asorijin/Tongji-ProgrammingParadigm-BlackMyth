@@ -128,5 +128,23 @@ protected:
 
 	// 获取事件中心（用于通知生命值变化等）
 	class UEventCenter* GetEventCenter() const;
+
+
+	/**
+	 * 获取攻击范围内的受击目标（便捷方法，默认查找Player标签）
+	 * 参考角色类的GetNearbyObjectsWithTag方法实现
+	 * @param AttackRange 攻击范围半径（如果<=0，则使用AttackRangeSphere的半径）
+	 * @return 攻击范围内的受击对象列表（默认查找"Player"标签）
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	TArray<AActor*> GetAttackTargetsInRange(float AttackRange = 0.0f) const;
+
+	/**
+	 * 获取攻击范围内的受击目标（完整版本，C++内部使用）
+	 * @param AttackRange 攻击范围半径（如果<=0，则使用AttackRangeSphere的半径）
+	 * @param TargetTags 目标标签列表
+	 * @return 攻击范围内的受击对象列表
+	 */
+	TArray<AActor*> GetAttackTargetsInRangeWithTags(float AttackRange, const TArray<FName>& TargetTags) const;
 };
 

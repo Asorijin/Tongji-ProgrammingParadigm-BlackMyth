@@ -56,6 +56,7 @@ public:
 	 * @param takeDamager 受伤害对象类型
 	 * @param damageNumber 伤害数值
 	 */
+
 	void MakeDamage(TSubclassOf<AActor*> makeDamager, TArray<TSubclassOf<AActor*>> takeDamager, int damageNumber);
 
 	/**

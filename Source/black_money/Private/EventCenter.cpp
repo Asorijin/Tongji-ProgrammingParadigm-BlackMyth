@@ -41,13 +41,18 @@ void UEventCenter::GetTools(AActor* tool, int toolNumber) {
 	tool->Destroy();
 }
 
+
 void UEventCenter::ChangeEquipment() {
 	// 需要实现装备结构
 }
 
 void UEventCenter::SwitchToLevel(const FString& LevelName, FVector SpawnLocation) {
 	// 目前只设定了关卡和生成点，还需要在角色BeginPlay中调用移动才能将角色移动到新位置
+<<<<<<< HEAD
 	pawnLastLocation = SpawnLocation;
+=======
+    pawnLastLocation = SpawnLocation;
+>>>>>>> f45d162c5e976b269c667c2381fcf4542a1f5877
 
 	if (UWorld* World = GetWorld())
 	{
@@ -60,5 +65,9 @@ void UEventCenter::SwitchToLevel(const FString& LevelName, FVector SpawnLocation
 }
 
 const FVector UEventCenter::GetSpawnLocation() {
+<<<<<<< HEAD
 	return pawnLastLocation;
+=======
+    return pawnLastLocation;
+>>>>>>> f45d162c5e976b269c667c2381fcf4542a1f5877
 }
