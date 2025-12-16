@@ -1,8 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "EventCenter.h"
-#include <Kismet/GameplayStatics.h>
+#include "Kismet/GameplayStatics.h"
+#include "BaseEnemy.h"
+#include "Engine/World.h"
+#include "GameFramework/Pawn.h"
+
+// å‰å‘å£°æ˜ï¼Œé¿å…å¾ªç¯ä¾èµ–
+class Ablack_moneyCharacter;
+
 UEventCenter::UEventCenter() {
 	
 }
@@ -11,44 +17,48 @@ void UEventCenter::GenerateMonster() {
 
 }
 
-void UEventCenter::MakeDamage(TSubclassOf<AActor> makeDamager, TSubclassOf<AActor> takeDamager, int damageNumber) {
-
+void UEventCenter::MakeDamage(TSubclassOf<AActor*> makeDamager, TArray<TSubclassOf<AActor*>> takeDamager, int damageNumber) {
+	
 }
 
 void UEventCenter::UseTools(TArray<int>* attributeVector) {
 
 }
-void UEventCenter::GetTools(AActor* tool,int toolNumber) {
-    //µÀ¾ßÖ¸ÕëÓ¦ÓÉEventCenter³ÖÓĞ
-    //¹ÖÎïµôÂäÒ»¸öÓĞÄ£ĞÍµÄÊµÌåATools£¬ÊôĞÔÀà³ÖÓĞµÄ×÷Îª²»¿É¼ûÄ£ĞÍÊµ¼Ê¹ÒÔØÔÚÓÎÏ·ÖĞ
-    //ÕâÀï¼ìÑéµÀ¾ßÊôÓÚÄÄÒ»ÖÖµÀ¾ß£¬Ïò³ÖÓĞµÄµÀ¾ßÊıÁ¿+1ºó£¬Ïú»ÙÊµÌåÄ£ĞÍ
-    if (tool->IsA(AToolHp::StaticClass())) {
-        toolsNumber->hpTools += 1;
-    }
-    else {
-        
-    }
-    tool->Destroy();
-}
-//ĞèÒªÏÈÊµÏÖ×°±¸½á¹¹Ìå
-void UEventCenter::ChangeEquipment() {
 
+void UEventCenter::GetTools(AActor* tool, int toolNumber) {
+	// å·¥å…·æŒ‡é’ˆåº”è¯¥é€šè¿‡EventCenterå¤„ç†
+	// è¿™é‡Œåº”è¯¥æ˜¯ä¸€ä¸ªå·¥å…·æ¨¡å‹çš„å®ä¾‹AToolsï¼Œå·¥å…·ä¸­çš„è¡Œä¸ºç”±å·¥å…·æ¨¡å‹å®é™…ä½¿ç”¨åœ¨æ¸¸æˆä¸­
+	// å¦‚æœæ‹¾å–çš„æ˜¯åŒä¸€ç§å·¥å…·ï¼Œå·¥å…·ä¸­çš„å·¥å…·æ•°é‡+1ï¼Œå¦åˆ™å®ä¾‹åŒ–æ¨¡å‹
+	if (tool->IsA(AToolHp::StaticClass())) {
+		if (toolsNumber)
+		{
+			toolsNumber->hpTools += 1;
+		}
+	}
+	else {
+		// å…¶ä»–ç±»å‹å·¥å…·çš„å¤„ç†
+	}
+	tool->Destroy();
+}
+
+void UEventCenter::ChangeEquipment() {
+	// éœ€è¦å®ç°è£…å¤‡ç»“æ„
 }
 
 void UEventCenter::SwitchToLevel(const FString& LevelName, FVector SpawnLocation) {
-    //Ä¿Ç°ÎªÖ¹½öÉè¶¨ÁË¹Ø¿¨ºÍ³öÉúµã£¬»¹ĞèÒªÔÚ½ÇÉ«BeginPlayÖĞµ÷ÓÃÒÆ¶¯£¬²ÅÄÜ½«½ÇÉ«ÒÆ¶¯¹ıÈ¥
-    pawnLastLocation = SpawnLocation;
+	// ç›®å‰åªè®¾å®šäº†å…³å¡å’Œç”Ÿæˆç‚¹ï¼Œè¿˜éœ€è¦åœ¨è§’è‰²BeginPlayä¸­è°ƒç”¨ç§»åŠ¨æ‰èƒ½å°†è§’è‰²ç§»åŠ¨åˆ°æ–°ä½ç½®
+	pawnLastLocation = SpawnLocation;
 
-    if (UWorld* World = GetWorld())
-    {
-        UGameplayStatics::OpenLevel(World, FName(*LevelName));
-    }
-    else
-    {
-        UE_LOG(LogTemp, Warning, TEXT("SwitchToLevel: No valid world!"));
-    }
+	if (UWorld* World = GetWorld())
+	{
+		UGameplayStatics::OpenLevel(World, FName(*LevelName));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SwitchToLevel: No valid world!"));
+	}
 }
 
 const FVector UEventCenter::GetSpawnLocation() {
-    return pawnLastLocation;
+	return pawnLastLocation;
 }
