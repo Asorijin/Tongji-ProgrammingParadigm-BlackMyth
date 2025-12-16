@@ -119,8 +119,10 @@ void Ablack_moneyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 void Ablack_moneyCharacter::Move(const FInputActionValue& Value)
 {
+	
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
+	
 
 	if (Controller != nullptr)
 	{
@@ -223,42 +225,43 @@ void Ablack_moneyCharacter::Attack()
 		return;
 	}
 
-	// 第一击：当前没有连击
-	if (ComboIndex <= 0 || !AttackMontage)
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	const bool bMontagePlaying = (AnimInstance && AttackMontage && AnimInstance->Montage_IsPlaying(AttackMontage));
+
+	// 起手条件：不在攻击中 / 连击已清零 / 没有蒙太奇 / 蒙太奇没在播
+	if (!bIsAttacking || ComboIndex <= 0 || !AttackMontage || !bMontagePlaying)
 	{
 		ComboIndex = 1;
 		bIsAttacking = true;
-		bQueuedNextCombo = false;
 		bCanQueueNextCombo = false;
 
-		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+		if (AnimInstance && AttackMontage)
 		{
 			AnimInstance->Montage_Play(AttackMontage);
 			AnimInstance->Montage_JumpToSection(FName(TEXT("Attack1")), AttackMontage);
 		}
-
-		// 这里可以不再用 ComboResetTime 计时器，改用 AnimNotify 结束时 ResetCombo
 		return;
 	}
 
-	// 后续攻击：当前正在播某一段
-	// 如果还没到可连击窗口，只记下“排队”
+	// 已在攻击中：只有在连击窗口开放时，按键才生效
 	if (!bCanQueueNextCombo)
 	{
-		bQueuedNextCombo = true;
 		return;
 	}
 
-	// 已经到可连击窗口，可以切到下一段
-	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+	// 可以连击：切到下一段
+	if (AnimInstance && AttackMontage && AnimInstance->Montage_IsPlaying(AttackMontage))
 	{
-		// 计算下一个段数
 		int32 NextComboIndex = ComboIndex + 1;
 		if (NextComboIndex > 4)
 		{
 			NextComboIndex = 1;
 		}
-
+		FString DebugMsg = FString::Printf(TEXT("Jump Combo %d -> %d"), ComboIndex, NextComboIndex);
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, DebugMsg);
+		}
 		FName NextSectionName;
 		switch (NextComboIndex)
 		{
@@ -269,41 +272,25 @@ void Ablack_moneyCharacter::Attack()
 		default: NextSectionName = FName(TEXT("Attack1")); break;
 		}
 
-		if (AnimInstance->Montage_IsPlaying(AttackMontage))
-		{
-			ComboIndex = NextComboIndex;
-			bQueuedNextCombo = false;
-			bCanQueueNextCombo = false;
-
-			AnimInstance->Montage_JumpToSection(NextSectionName, AttackMontage);
-		}
+		ComboIndex = NextComboIndex;
+		bCanQueueNextCombo = false;
+		AnimInstance->Montage_JumpToSection(NextSectionName, AttackMontage);
 	}
 }
 void Ablack_moneyCharacter::EnableComboWindow()
 {
+	// 当前段到达“可连击”时间点
 	bCanQueueNextCombo = true;
-
-	// 如果玩家已经在本段期间提前按过攻击键，则立即切到下一段
-	if (bQueuedNextCombo)
-	{
-		Attack(); // 复用 Attack 里的“跳到下一段”逻辑
-	}
 }
 
 void Ablack_moneyCharacter::OnAttackSectionEnded()
 {
-	// 段尾再检查一次：如果还有排队并且允许连击，就再跳一次
-	if (bQueuedNextCombo && bCanQueueNextCombo)
-	{
-		Attack();
-		return;
-	}
+	// 当前段彻底结束，若此时仍未连击，则整套攻击结束
+	bCanQueueNextCombo = false;
 
-	// 否则这套连击结束，全部重置
+	// 真正结束连击
 	ComboIndex = 0;
 	bIsAttacking = false;
-	bQueuedNextCombo = false;
-	bCanQueueNextCombo = false;
 }
 
 void Ablack_moneyCharacter::BeginPlay() {

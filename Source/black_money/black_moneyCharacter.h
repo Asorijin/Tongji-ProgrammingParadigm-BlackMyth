@@ -165,7 +165,7 @@ private:
 	void ChangeMusic(FName musicName);
 
 	const UCharacterConfig* ShareCharacterConfig();
-	protected:
+	public:
 		UFUNCTION(BlueprintCallable, Category = "Combat")
 		void EnableComboWindow();
 
