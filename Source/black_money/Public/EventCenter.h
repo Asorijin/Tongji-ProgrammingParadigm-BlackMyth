@@ -56,15 +56,8 @@ public:
 	 * @param takeDamager 受伤害对象类型
 	 * @param damageNumber 伤害数值
 	 */
-	void MakeDamage(TSubclassOf<AActor> makeDamager, TSubclassOf<AActor> takeDamager, int damageNumber);
 
-	/**
-	 * 造成伤害（使用Actor指针，推荐使用）
-	 * @param DamageCauser 造成伤害的Actor
-	 * @param DamageReceiver 受到伤害的Actor
-	 * @param DamageAmount 伤害数值
-	 */
-	void MakeDamageToActor(AActor* DamageCauser, AActor* DamageReceiver, int32 DamageAmount);
+	void MakeDamage(TSubclassOf<AActor*> makeDamager, TArray<TSubclassOf<AActor*>> takeDamager, int damageNumber);
 
 	/**
 	 * 使用工具
