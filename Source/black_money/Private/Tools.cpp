@@ -1,13 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Tools.h"
+#include "black_money/black_moneyCharacter.h"
 #include "black_moneyGameInstance.h"
 // Sets default values
 ATools::ATools()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
-
+	PrimaryActorTick.bCanEverTick = true;
+    
 }
 
 // Called when the game starts or when spawned
@@ -25,15 +26,5 @@ void ATools::Tick(float DeltaTime)
 
 
 void ATools::UseTools() {
-	if (toolNumber > 0) {
-		Cast<Ublack_moneyGameInstance>(GetGameInstance())->eventCenter->UseTools(&attributeVector);
-		toolNumber--;
-	}
-	else {
-		UE_LOG(LogTemp, Warning, TEXT("Tool: toolNumber wrong!"));
-	}
-}
-
-int ATools::GetToolNumber() {
-	return toolNumber;
+	Cast<UEventCenter>(Cast<Ublack_moneyGameInstance>(GetGameInstance())->GetEventCenter())->UseTools(this);
 }

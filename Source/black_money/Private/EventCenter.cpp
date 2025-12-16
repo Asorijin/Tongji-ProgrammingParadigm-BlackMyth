@@ -3,6 +3,7 @@
 #include "EventCenter.h"
 #include "Kismet/GameplayStatics.h"
 #include "BaseEnemy.h"
+#include "ToolHp.h"
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
 
@@ -21,7 +22,7 @@ void UEventCenter::MakeDamage(TSubclassOf<AActor*> makeDamager, TArray<TSubclass
 	
 }
 
-void UEventCenter::UseTools(TArray<int>* attributeVector) {
+void UEventCenter::UseTools(AActor* tool) {
 
 }
 

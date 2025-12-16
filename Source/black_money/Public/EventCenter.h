@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ToolHp.h"
 #include "EventCenter.generated.h"
 
 USTRUCT()
@@ -63,7 +62,7 @@ public:
 	 * 使用工具
 	 * @param attributeVector 属性向量数组
 	 */
-	void UseTools(TArray<int>* attributeVector);
+	void UseTools(AActor* tool);
 
 	/**
 	 * 拾取工具
