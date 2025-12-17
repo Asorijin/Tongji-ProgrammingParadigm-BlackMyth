@@ -109,10 +109,6 @@ void AToolHp::Tick(float DeltaTime)
     }
 }
 
-void AToolHp::UseTools() {
-	ATools::UseTools();
-}
-
 void AToolHp::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
     UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -122,6 +118,7 @@ void AToolHp::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherA
         if (OtherActor->IsA(Ablack_moneyCharacter::StaticClass()))
         {
             InteractionWidget->SetVisibility(true);
+            Cast<Ablack_moneyCharacter>(OtherActor)->nearbyInteraction.Add(this);
         }
     }
 }
@@ -134,6 +131,8 @@ void AToolHp::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
         if (Cast<ACharacter>(OtherActor))
         {
             InteractionWidget->SetVisibility(false);
+            if (Cast<Ablack_moneyCharacter>(OtherActor)->nearbyInteraction.Contains(this))
+                Cast<Ablack_moneyCharacter>(OtherActor)->nearbyInteraction.Remove(this);
         }
     }
 }

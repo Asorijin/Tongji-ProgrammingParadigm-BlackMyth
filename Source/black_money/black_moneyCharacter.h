@@ -59,7 +59,6 @@ class Ablack_moneyCharacter : public ACharacter
 	
 public:
 	Ablack_moneyCharacter();
-	
 
 protected:
 
@@ -79,7 +78,6 @@ protected:
 
 	//攻击功能
 	void Attack();
-
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	USphereComponent* DetectionSphere;
@@ -113,10 +111,15 @@ public:
 	FORCEINLINE bool IsDodging() const { return bIsDodging; };
 	//判断是否处于攻击状态
 	FORCEINLINE bool IsAttacking() const { return bIsAttacking; };
+	//获取附近可交互物体
+	TSet<AActor*> nearbyInteraction;
+
 
 	void BeginPlay() override;
 
 	void Tick(float deltaTime) override;
+
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 private:
 	/** 闪避强度（水平冲量） */
 	UPROPERTY(EditAnywhere, Category = "Dodge")
@@ -161,10 +164,15 @@ private:
 	//目标物体的TAG
 	TArray<FName> searchTags = {FName("LandTemple")};
 
+	
 	//改变音乐
 	void ChangeMusic(FName musicName);
 
 	const UCharacterConfig* ShareCharacterConfig();
+
+	//按F触发与物体互动事件，需要绑定按键
+	void TriggerNearByInteractions();
+
 	public:
 		UFUNCTION(BlueprintCallable, Category = "Combat")
 		void EnableComboWindow();
