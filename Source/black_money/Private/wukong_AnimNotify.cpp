@@ -32,12 +32,12 @@ void Uwukong_AnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 
 	case EStatusType::EnableHit:
 		// ¿ªÆôÉËº¦ÅÐ¶¨
-		// Character->StartAttackHit();
+		 Character->StartAttackHit();
 		break;
 
 	case EStatusType::DisableHit:
 		// ¹Ø±ÕÉËº¦ÅÐ¶¨
-		// Character->EndAttackHit();
+		 Character->EndAttackHit();
 		break;
 
 	default:

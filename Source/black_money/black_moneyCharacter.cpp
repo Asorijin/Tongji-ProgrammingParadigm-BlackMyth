@@ -14,7 +14,9 @@
 #include "Tools.h"
 #include "LandTemple.h"
 #include "black_moneyGameInstance.h"
-
+#include "Components/BoxComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "EventCenter.h"
 
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -65,6 +67,17 @@ Ablack_moneyCharacter::Ablack_moneyCharacter()
 	DetectionSphere->SetSphereRadius(500.0f);
 	DetectionSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	DetectionSphere->SetCollisionResponseToAllChannels(ECR_Overlap);
+	// 创建武器碰撞盒
+	WeaponHitBox = CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponHitBox"));
+	WeaponHitBox->SetupAttachment(GetMesh(), TEXT("weapon_r"));
+	WeaponHitBox->InitBoxExtent(FVector(10.f, 30.f, 10.f));
+
+	WeaponHitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);    // 默认关闭
+	WeaponHitBox->SetCollisionObjectType(ECC_Pawn);
+	WeaponHitBox->SetCollisionResponseToAllChannels(ECR_Ignore);
+	WeaponHitBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);  // 与 Pawn 重叠
+
+	WeaponHitBox->SetHiddenInGame(false);//便于调试查看，最后改为true
 
 	// 设置可视化
 	DetectionSphere->SetHiddenInGame(false);
@@ -295,13 +308,89 @@ void Ablack_moneyCharacter::OnAttackSectionEnded()
 	ComboIndex = 0;
 	bIsAttacking = false;
 }
+void Ablack_moneyCharacter::OnWeaponHitBoxBeginOverlap(
+	UPrimitiveComponent* OverlappedComp,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult& SweepResult)
+{
+	// 只在攻击状态且当前 HitBox 开启时才生效
+	if (!bIsAttacking || !WeaponHitBox ||
+		WeaponHitBox->GetCollisionEnabled() == ECollisionEnabled::NoCollision)
+	{
+		return;
+	}
+	// 排除无效对象和自身
+	if (!OtherActor || OtherActor == this)
+	{
+		return;
+	}
 
+	// 一次攻击窗口内防止重复命中
+	if (AlreadyHitActors.Contains(OtherActor))
+	{
+		return;
+	}
+	AlreadyHitActors.Add(OtherActor);
+
+
+	// 通过 EventCenter 结算伤害
+	if (EventCenter)
+	{
+		EventCenter->MakeDamage(
+			OtherActor,          // 被伤害对象
+			AttackDamage,        // 伤害数值
+			GetController(),     // Instigator
+			this                 // 角色自己
+		);
+	}
+}
+
+void Ablack_moneyCharacter::StartAttackHit()
+{
+	if (!WeaponHitBox)
+	{
+		return;
+	}
+
+	AlreadyHitActors.Empty();
+
+	WeaponHitBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	WeaponHitBox->SetCollisionResponseToAllChannels(ECR_Ignore);
+	WeaponHitBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	WeaponHitBox->SetHiddenInGame(false);
+}
+void Ablack_moneyCharacter::EndAttackHit()
+{
+	if (!WeaponHitBox)
+	{
+		return;
+	}
+
+	WeaponHitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	WeaponHitBox->SetHiddenInGame(true);
+	AlreadyHitActors.Empty();
+}
 void Ablack_moneyCharacter::BeginPlay() {
 
 	Super::BeginPlay();
-	
+
 	characterConfig = NewObject<UCharacterConfig>();
 	characterConfig->Initialize();
+
+	// 绑定武器碰撞重叠委托
+	if (WeaponHitBox)
+	{
+		WeaponHitBox->OnComponentBeginOverlap.AddDynamic(this,&Ablack_moneyCharacter::OnWeaponHitBoxBeginOverlap);
+	}
+
+	// 从 GameInstance 获取 EventCenter（按你 TriggerNearByInteractions 里的用法）
+	if (Ublack_moneyGameInstance* GI = Cast<Ublack_moneyGameInstance>(GetGameInstance()))
+	{
+		EventCenter = GI->GetEventCenter();
+	}
 
 }
 
