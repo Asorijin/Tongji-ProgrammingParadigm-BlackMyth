@@ -8,9 +8,7 @@
 void Ublack_moneyGameInstance::Init() {
     UGameInstance::Init();
 
-    
     eventCenter = NewObject<UEventCenter>(this);
-    
     
 }
 void Ublack_moneyGameInstance::Shutdown() {

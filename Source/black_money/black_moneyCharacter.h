@@ -112,12 +112,14 @@ public:
 	//判断是否处于攻击状态
 	FORCEINLINE bool IsAttacking() const { return bIsAttacking; };
 	//获取附近可交互物体
-	TSet<UObject*> nearbyInteraction;
+	TSet<AActor*> nearbyInteraction;
 
 
 	void BeginPlay() override;
 
 	void Tick(float deltaTime) override;
+
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 private:
 	/** 闪避强度（水平冲量） */
 	UPROPERTY(EditAnywhere, Category = "Dodge")
@@ -167,6 +169,10 @@ private:
 	void ChangeMusic(FName musicName);
 
 	const UCharacterConfig* ShareCharacterConfig();
+
+	//按F触发与物体互动事件，需要绑定按键
+	void TriggerNearByInteractions();
+
 	public:
 		UFUNCTION(BlueprintCallable, Category = "Combat")
 		void EnableComboWindow();
