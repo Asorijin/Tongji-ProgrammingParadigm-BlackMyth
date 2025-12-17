@@ -59,7 +59,6 @@ class Ablack_moneyCharacter : public ACharacter
 	
 public:
 	Ablack_moneyCharacter();
-	
 
 protected:
 
@@ -79,7 +78,6 @@ protected:
 
 	//攻击功能
 	void Attack();
-
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	USphereComponent* DetectionSphere;
@@ -113,6 +111,9 @@ public:
 	FORCEINLINE bool IsDodging() const { return bIsDodging; };
 	//判断是否处于攻击状态
 	FORCEINLINE bool IsAttacking() const { return bIsAttacking; };
+	//获取附近可交互物体
+	TSet<UObject*> nearbyInteraction;
+
 
 	void BeginPlay() override;
 
@@ -161,6 +162,7 @@ private:
 	//目标物体的TAG
 	TArray<FName> searchTags = {FName("LandTemple")};
 
+	
 	//改变音乐
 	void ChangeMusic(FName musicName);
 
