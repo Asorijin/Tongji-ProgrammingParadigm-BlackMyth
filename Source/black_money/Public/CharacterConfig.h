@@ -6,21 +6,6 @@
 #include "UObject/NoExportTypes.h"
 #include "ToolHp.h"
 #include "CharacterConfig.generated.h"
-USTRUCT()
-struct FEquipment{
-
-	GENERATED_USTRUCT_BODY()
-public:
-	UPROPERTY()
-	int32 _head = 0;
-	UPROPERTY()
-	int32 _body = 0;
-	UPROPERTY()
-	int32 _boot = 0;
-	UPROPERTY()
-	int32 _weapon = 0;
-};
-
 /**
  * 初步计划是Character类在初始化时使用该类（通过GameInstance间接，不可以直接Character类include该类）读取配置文件，初始化数值
  * 游戏过程中角色的数值存储在该类中
@@ -30,16 +15,14 @@ class BLACK_MONEY_API UCharacterConfig : public UObject
 {
 	GENERATED_BODY()
 private:
-	int32 _maxHp;
-	int32 _maxMp;
-	FString filePath;
+	int32 _maxHp = 100;
+	int32 _maxMp = 100;
+	FString filePath = FPaths::ProjectSavedDir() / TEXT("Config/GameConfigs/CharacterConfig.txt");
 public:
-	int32 _hp;
-	int32 _mp;
-	int32 _attack;
-	int32 _defence;
-	int32 _speed;
-	FEquipment _equipment;
+	int32 _hp = 100;
+	int32 _mp = 100;
+	int32 _attack = 30;
+	int32 _defence = 30;
 	bool _fightState = false;
 
 	UCharacterConfig();

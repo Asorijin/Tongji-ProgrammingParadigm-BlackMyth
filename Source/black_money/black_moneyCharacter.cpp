@@ -11,6 +11,9 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include"Animation/AnimMontage.h"
+#include "Tools.h"
+#include "LandTemple.h"
+#include "black_moneyGameInstance.h"
 
 
 
@@ -323,6 +326,10 @@ void Ablack_moneyCharacter::Tick(float deltaTime) {
 	}
 }
 
+void Ablack_moneyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason) {
+	characterConfig->WriteConfigData();
+	ACharacter::EndPlay(EndPlayReason);
+}
 TArray<AActor*> Ablack_moneyCharacter::GetNearbyObjectsWithTag(TArray<FName> tagNames, float radius) const {
 
 	TArray<AActor*> result;
@@ -392,4 +399,18 @@ void Ablack_moneyCharacter::ChangeMusic(FName musicName) {
 
 const UCharacterConfig* Ablack_moneyCharacter::ShareCharacterConfig() {
 	return characterConfig;
+}
+
+void Ablack_moneyCharacter::TriggerNearByInteractions() {
+
+	AActor* firstObject = *nearbyInteraction.begin();
+
+	if (firstObject->IsA(TSubclassOf<ATools>())) {
+		Cast<Ublack_moneyGameInstance>(GetGameInstance())->GetEventCenter()->GetTools(firstObject,1);
+	}
+	else if (firstObject->IsA(ALandTemple::StaticClass())) {
+
+	}
+	nearbyInteraction.Remove(firstObject);
+	firstObject->Destroy();
 }

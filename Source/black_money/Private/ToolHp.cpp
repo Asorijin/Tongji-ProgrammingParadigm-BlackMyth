@@ -109,10 +109,6 @@ void AToolHp::Tick(float DeltaTime)
     }
 }
 
-void AToolHp::UseTools() {
-	ATools::UseTools();
-}
-
 void AToolHp::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
     UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {

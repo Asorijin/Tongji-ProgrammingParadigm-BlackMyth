@@ -23,8 +23,3 @@ void ATools::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-
-
-void ATools::UseTools() {
-	Cast<UEventCenter>(Cast<Ublack_moneyGameInstance>(GetGameInstance())->GetEventCenter())->UseTools(this);
-}

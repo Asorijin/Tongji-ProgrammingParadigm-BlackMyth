@@ -29,6 +29,9 @@ private:
 	// 角色最后位置（用于关卡切换时保存位置）
 	FVector pawnLastLocation;
 	
+	// 角色最后关卡
+	FString levelName;
+
 	// 工具数量统计
 	FToolsNumber* toolsNumber;
 
@@ -50,7 +53,6 @@ public:
 	const FVector GetSpawnLocation();
 
 	/**
-	 * 造成伤害（使用类类型，兼容旧接口）
 	 * @param makeDamager 造成伤害行为的对象类型
 	 * @param takeDamager 受伤害对象类型
 	 * @param damageNumber 伤害数值
@@ -59,15 +61,15 @@ public:
 	void MakeDamage(TSubclassOf<AActor*> makeDamager, TArray<TSubclassOf<AActor*>> takeDamager, int damageNumber);
 
 	/**
-	 * 使用工具
-	 * @param attributeVector 属性向量数组
+	 * 使用道具
+	 * @param tool 道具指针
 	 */
 	void UseTools(AActor* tool);
 
 	/**
-	 * 拾取工具
-	 * @param tool 工具对象
-	 * @param toolNumber 工具编号
+	 * 拾取道具
+	 * @param tool 道具对象
+	 * @param toolNumber 道具编号
 	 */
 	void GetTools(AActor* tool, int toolNumber);
 
