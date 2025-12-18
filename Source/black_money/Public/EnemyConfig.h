@@ -37,7 +37,7 @@ public:
 
 	// 移动速度
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Stats")
-	float MoveSpeed = 300.0f;
+	float MoveSpeed = 150.0f;
 
 	// 攻击速度
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Stats")

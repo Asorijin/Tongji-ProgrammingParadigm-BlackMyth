@@ -12,6 +12,9 @@
 #include "TimerManager.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Engine/Engine.h"
+#include "GameFramework/Character.h"
+#include "NavigationSystem.h"
+#include "AI/NavigationSystemBase.h"
 
 ABaseEnemy::ABaseEnemy(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -25,11 +28,11 @@ ABaseEnemy::ABaseEnemy(const FObjectInitializer& ObjectInitializer)
 	bUseControllerRotationRoll = false;
 
 	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
+	GetCharacterMovement()->bOrientRotationToMovement = false; // 改为false，手动控制朝向
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 1080.0f, 0.0f); // 提高转向速度（从500改为1080度/秒）
 	GetCharacterMovement()->JumpZVelocity = 600.0f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+	GetCharacterMovement()->MaxWalkSpeed = 150.0f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.0f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.0f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
@@ -75,11 +78,40 @@ void ABaseEnemy::BeginPlay()
 			EnemyConfig->Initialize();
 		}
 	}
+
+	// 初始化AI状态
+	CurrentAIState = EEnemyAIState::Idle;
+	AIUpdateTimer = 0.0f;
+
+	// 尝试获取玩家角色引用
+	PlayerCharacter = GetPlayerCharacter();
 }
 
 void ABaseEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// 如果已死亡，不更新AI和移动
+	if (bIsDead || CurrentAIState == EEnemyAIState::Dead)
+	{
+		return;
+	}
+
+	// 如果处于Chase状态，每帧都执行移动（确保移动连续）
+	if (CurrentAIState == EEnemyAIState::Chase && !bIsDead)
+	{
+		ChasePlayer(DeltaTime);
+	}
+
+	// 累积AI更新计时器
+	AIUpdateTimer += DeltaTime;
+
+	// 按间隔更新AI（优化性能，状态决策不需要每帧执行）
+	if (AIUpdateTimer >= AIUpdateInterval)
+	{
+		UpdateAI(DeltaTime);
+		AIUpdateTimer = 0.0f;
+	}
 }
 
 float ABaseEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
@@ -129,6 +161,9 @@ void ABaseEnemy::Die()
 
 	bIsDead = true;
 	UE_LOG(LogTemp, Log, TEXT("Enemy %s died"), *GetName());
+
+	// 切换到死亡AI状态
+	SetAIState(EEnemyAIState::Dead);
 
 	// 通过事件中心通知死亡事件
 	if (UEventCenter* EventCenter = GetEventCenter())
@@ -191,6 +226,9 @@ void ABaseEnemy::EnterHitStun()
 	}
 
 	CurrentHitState = EEnemyHitState::Hit;
+
+	// 切换到受击AI状态
+	SetAIState(EEnemyAIState::Hit);
 
 	// 停止移动
 	if (GetCharacterMovement())
@@ -348,5 +386,323 @@ TArray<AActor*> ABaseEnemy::GetAttackTargetsInRangeWithTags(float AttackRange, c
 
 	UE_LOG(LogTemp, Log, TEXT("GetAttackTargetsInRangeWithTags: Found %d targets in range %.2f"), Result.Num(), ActualRange);
 	return Result;
+}
+
+// ========== AI系统实现 ==========
+
+void ABaseEnemy::SetAIState(EEnemyAIState NewState)
+{
+	if (CurrentAIState == NewState)
+	{
+		return; // 状态未改变
+	}
+
+	EEnemyAIState OldState = CurrentAIState;
+	CurrentAIState = NewState;
+
+	UE_LOG(LogTemp, Log, TEXT("Enemy %s AI State changed: %d -> %d"), *GetName(), (int32)OldState, (int32)NewState);
+
+	// 状态切换时的处理
+	switch (NewState)
+	{
+	case EEnemyAIState::Idle:
+		StopMovement();
+		break;
+	case EEnemyAIState::Chase:
+		// 开始追击时，确保玩家引用有效
+		if (!PlayerCharacter)
+		{
+			PlayerCharacter = GetPlayerCharacter();
+		}
+		break;
+	case EEnemyAIState::Attack:
+		StopMovement(); // 攻击时停止移动
+		break;
+	case EEnemyAIState::Dead:
+		StopMovement();
+		break;
+	default:
+		break;
+	}
+}
+
+bool ABaseEnemy::IsPlayerInAttackRange() const
+{
+	if (!PlayerCharacter || !EnemyConfig)
+	{
+		return false;
+	}
+
+	float Distance = GetDistanceToPlayer();
+	float AttackRange = EnemyConfig->AttackRange;
+
+	return Distance <= AttackRange;
+}
+
+bool ABaseEnemy::IsPlayerDetected() const
+{
+	// 这是一个const方法，只检查不修改状态
+	// 检查玩家引用是否存在且在检测范围内
+	if (!PlayerCharacter || !IsValid(PlayerCharacter))
+	{
+		return false;
+	}
+
+	// 检查玩家是否在检测范围内
+	if (!DetectionSphere)
+	{
+		return false;
+	}
+
+	// 计算距离
+	float Distance = GetDistanceToPlayer();
+	float DetectionRange = EnemyConfig ? EnemyConfig->DetectionRange : 1000.0f;
+
+	// 检查玩家是否在检测范围内
+	return Distance <= DetectionRange;
+}
+
+ACharacter* ABaseEnemy::GetPlayerCharacter() const
+{
+	// 使用UGameplayStatics获取玩家角色
+	if (UWorld* World = GetWorld())
+	{
+		return Cast<ACharacter>(UGameplayStatics::GetPlayerCharacter(World, 0));
+	}
+	return nullptr;
+}
+
+void ABaseEnemy::UpdateAI(float DeltaTime)
+{
+	// 如果处于受击硬直状态，切换到Hit状态
+	if (CurrentHitState == EEnemyHitState::Hit)
+	{
+		if (CurrentAIState != EEnemyAIState::Hit)
+		{
+			SetAIState(EEnemyAIState::Hit);
+		}
+		return; // 受击时暂停AI更新
+	}
+
+	// 如果受击状态结束，恢复AI状态
+	if (CurrentAIState == EEnemyAIState::Hit && CurrentHitState == EEnemyHitState::Normal)
+	{
+		// 重新决定状态
+		EEnemyAIState NextState = DetermineNextState();
+		SetAIState(NextState);
+	}
+
+	// 如果已死亡，切换到Dead状态
+	if (bIsDead)
+	{
+		SetAIState(EEnemyAIState::Dead);
+		return;
+	}
+
+	// 更新玩家引用（玩家可能重新生成）
+	if (!PlayerCharacter || !IsValid(PlayerCharacter))
+	{
+		PlayerCharacter = GetPlayerCharacter();
+	}
+
+	// 根据当前状态执行相应行为
+	switch (CurrentAIState)
+	{
+	case EEnemyAIState::Idle:
+		// 待机状态：检测玩家
+		if (DetectPlayer())
+		{
+			SetAIState(EEnemyAIState::Chase);
+		}
+		break;
+
+	case EEnemyAIState::Chase:
+		// 追击状态：移动到玩家位置
+		if (!PlayerCharacter || !IsValid(PlayerCharacter))
+		{
+			// 玩家不存在，回到待机
+			SetAIState(EEnemyAIState::Idle);
+		}
+		else if (IsPlayerInAttackRange())
+		{
+			// 进入攻击范围，切换到攻击状态
+			SetAIState(EEnemyAIState::Attack);
+		}
+		else if (!DetectPlayer())
+		{
+			// 玩家离开检测范围，回到待机
+			SetAIState(EEnemyAIState::Idle);
+		}
+		else
+		{
+			// 继续追击
+			ChasePlayer(DeltaTime);
+		}
+		break;
+
+	case EEnemyAIState::Attack:
+		// 攻击状态：检查是否还在攻击范围内
+		if (!PlayerCharacter || !IsValid(PlayerCharacter))
+		{
+			SetAIState(EEnemyAIState::Idle);
+		}
+		else if (!IsPlayerInAttackRange())
+		{
+			// 玩家离开攻击范围，继续追击
+			SetAIState(EEnemyAIState::Chase);
+		}
+		// TODO: 在阶段四实现攻击逻辑
+		break;
+
+	case EEnemyAIState::Dodge:
+		// TODO: 在阶段五实现闪避逻辑
+		break;
+
+	case EEnemyAIState::Hit:
+		// 受击状态：已在上面处理
+		break;
+
+	case EEnemyAIState::Dead:
+		// 死亡状态：不执行任何操作
+		break;
+	}
+}
+
+bool ABaseEnemy::DetectPlayer()
+{
+	if (!DetectionSphere || !GetWorld())
+	{
+		return false;
+	}
+
+	// 获取检测范围内的所有Actor
+	TArray<AActor*> OverlappingActors;
+	DetectionSphere->GetOverlappingActors(OverlappingActors, ACharacter::StaticClass());
+
+	// 查找具有"Player"标签的角色
+	for (AActor* Actor : OverlappingActors)
+	{
+		if (ACharacter* Character = Cast<ACharacter>(Actor))
+		{
+			if (Character->ActorHasTag(FName("Player")))
+			{
+				// 更新玩家引用
+				PlayerCharacter = Character;
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+float ABaseEnemy::GetDistanceToPlayer() const
+{
+	if (!PlayerCharacter || !IsValid(PlayerCharacter))
+	{
+		return FLT_MAX; // 返回最大距离，表示玩家不在范围内
+	}
+
+	FVector EnemyLocation = GetActorLocation();
+	FVector PlayerLocation = PlayerCharacter->GetActorLocation();
+	
+	return FVector::Dist(EnemyLocation, PlayerLocation);
+}
+
+void ABaseEnemy::ChasePlayer(float DeltaTime)
+{
+	if (!PlayerCharacter || !IsValid(PlayerCharacter) || !GetCharacterMovement())
+	{
+		return;
+	}
+
+	// 如果处于受击硬直状态，不执行追击
+	if (CurrentHitState == EEnemyHitState::Hit)
+	{
+		return;
+	}
+
+	// 获取玩家位置
+	FVector PlayerLocation = PlayerCharacter->GetActorLocation();
+	FVector EnemyLocation = GetActorLocation();
+
+	// 计算方向向量（忽略Z轴高度差）
+	FVector Direction = PlayerLocation - EnemyLocation;
+	Direction.Z = 0.0f; // 只在水平面移动
+	
+	// 计算距离
+	float Distance = Direction.Size();
+	float AttackRange = EnemyConfig ? EnemyConfig->AttackRange : 150.0f;
+
+	// 如果距离大于攻击范围，继续移动
+	if (Distance > AttackRange)
+	{
+		// 归一化方向向量
+		Direction.Normalize();
+
+		// 直接朝向玩家（正面朝向，而不是朝向移动方向）
+		FRotator TargetRotation = Direction.Rotation();
+		// 使用插值平滑旋转，插值速度为10.0（可以根据需要调整）
+		FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), TargetRotation, DeltaTime, 10.0f);
+		SetActorRotation(NewRotation);
+
+		// 使用AddMovementInput移动（朝向已经设置好了，直接向前移动）
+		AddMovementInput(GetActorForwardVector(), 1.0f);
+
+		// 更新移动速度（从配置中读取）
+		if (EnemyConfig)
+		{
+			GetCharacterMovement()->MaxWalkSpeed = EnemyConfig->MoveSpeed;
+		}
+	}
+	else
+	{
+		// 已在攻击范围内，但仍然朝向玩家（准备攻击）
+		Direction.Normalize();
+		FRotator TargetRotation = Direction.Rotation();
+		FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), TargetRotation, DeltaTime, 10.0f);
+		SetActorRotation(NewRotation);
+
+		// 停止移动
+		StopMovement();
+	}
+}
+
+void ABaseEnemy::StopMovement()
+{
+	if (GetCharacterMovement())
+	{
+		GetCharacterMovement()->StopMovementImmediately();
+	}
+}
+
+EEnemyAIState ABaseEnemy::DetermineNextState() const
+{
+	// 如果已死亡，返回Dead
+	if (bIsDead)
+	{
+		return EEnemyAIState::Dead;
+	}
+
+	// 如果处于受击硬直状态，返回Hit
+	if (CurrentHitState == EEnemyHitState::Hit)
+	{
+		return EEnemyAIState::Hit;
+	}
+
+	// 检查玩家是否存在且在检测范围内
+	if (PlayerCharacter && IsValid(PlayerCharacter))
+	{
+		// 如果玩家在攻击范围内，返回Attack
+		if (IsPlayerInAttackRange())
+		{
+			return EEnemyAIState::Attack;
+		}
+		// 否则返回Chase
+		return EEnemyAIState::Chase;
+	}
+
+	// 默认返回Idle
+	return EEnemyAIState::Idle;
 }
 

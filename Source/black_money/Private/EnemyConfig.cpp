@@ -9,7 +9,7 @@ UEnemyConfig::UEnemyConfig()
 	CurrentHp = 100;
 	Attack = 10;
 	Defence = 5;
-	MoveSpeed = 300.0f;
+	MoveSpeed = 150.0f;
 	AttackSpeed = 1.0f;
 	AttackRange = 150.0f;
 	DetectionRange = 1000.0f;

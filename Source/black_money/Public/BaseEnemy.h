@@ -20,6 +20,21 @@ enum class EEnemyHitState : uint8
 	Invulnerable UMETA(DisplayName = "Invulnerable") // 无敌状态（受击后短暂无敌）
 };
 
+/**
+ * AI状态枚举
+ * 用于管理怪物的AI行为状态
+ */
+UENUM(BlueprintType)
+enum class EEnemyAIState : uint8
+{
+	Idle		UMETA(DisplayName = "Idle"),        // 待机状态
+	Chase		UMETA(DisplayName = "Chase"),       // 追击状态
+	Attack		UMETA(DisplayName = "Attack"),      // 攻击状态
+	Dodge		UMETA(DisplayName = "Dodge"),       // 闪避状态
+	Hit			UMETA(DisplayName = "Hit"),         // 受击状态（与受击硬直状态同步）
+	Dead		UMETA(DisplayName = "Dead")          // 死亡状态
+};
+
 #include "BaseEnemy.generated.h"
 
 /**
@@ -88,6 +103,28 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	bool IsInvulnerable() const { return CurrentHitState == EEnemyHitState::Invulnerable; }
 
+	// ========== AI系统相关方法 ==========
+	
+	// 获取当前AI状态
+	UFUNCTION(BlueprintCallable, Category = "AI")
+	EEnemyAIState GetAIState() const { return CurrentAIState; }
+
+	// 设置AI状态（内部使用，子类可重写）
+	UFUNCTION(BlueprintCallable, Category = "AI")
+	virtual void SetAIState(EEnemyAIState NewState);
+
+	// 检查是否在攻击范围内
+	UFUNCTION(BlueprintCallable, Category = "AI")
+	bool IsPlayerInAttackRange() const;
+
+	// 检查是否检测到玩家
+	UFUNCTION(BlueprintCallable, Category = "AI")
+	bool IsPlayerDetected() const;
+
+	// 获取玩家角色引用
+	UFUNCTION(BlueprintCallable, Category = "AI")
+	class ACharacter* GetPlayerCharacter() const;
+
 protected:
 	// 是否已死亡
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
@@ -110,6 +147,23 @@ protected:
 
 	// 无敌状态计时器
 	FTimerHandle InvulnerableTimerHandle;
+
+	// ========== AI系统相关成员 ==========
+	
+	// 当前AI状态
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	EEnemyAIState CurrentAIState = EEnemyAIState::Idle;
+
+	// 玩家角色引用（缓存，避免每帧查找）
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	class ACharacter* PlayerCharacter = nullptr;
+
+	// AI更新间隔（秒，避免每帧都更新，优化性能）
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	float AIUpdateInterval = 0.1f;
+
+	// AI更新计时器
+	float AIUpdateTimer = 0.0f;
 
 	// 初始化占位符模型（Mannequin）
 	void InitializePlaceholderMesh();
@@ -146,5 +200,26 @@ protected:
 	 * @return 攻击范围内的受击对象列表
 	 */
 	TArray<AActor*> GetAttackTargetsInRangeWithTags(float AttackRange, const TArray<FName>& TargetTags) const;
+
+	// ========== AI系统内部方法 ==========
+	
+	// 更新AI状态（在Tick中调用）
+	virtual void UpdateAI(float DeltaTime);
+
+	// 检测玩家（在DetectionSphere范围内）
+	// 注意：此方法会更新PlayerCharacter引用，所以不是const
+	virtual bool DetectPlayer();
+
+	// 计算到玩家的距离
+	float GetDistanceToPlayer() const;
+
+	// 执行追击移动
+	virtual void ChasePlayer(float DeltaTime);
+
+	// 停止移动
+	void StopMovement();
+
+	// 状态切换逻辑（根据当前情况决定下一个状态）
+	virtual EEnemyAIState DetermineNextState() const;
 };
 
