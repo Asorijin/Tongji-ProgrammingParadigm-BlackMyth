@@ -9,8 +9,9 @@
 #include <Components/SphereComponent.h>
 #include <Components/AudioComponent.h>
 #include "CharacterConfig.h"
+#include"EventCenter.h"
 #include "black_moneyCharacter.generated.h"
-
+class UBoxComponent;
 
 class USpringArmComponent;
 class UCameraComponent;
@@ -144,6 +145,33 @@ private:
 
 	//是否处于攻击状态
 	bool bIsAttacking = false;
+
+	
+
+protected:
+	// 武器碰撞回调
+	UFUNCTION()
+	void OnWeaponHitBoxBeginOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult);
+	// ----- 武器判定组件/数据 -----
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UBoxComponent* WeaponHitBox;
+
+	// 本次攻击已命中的目标，避免重复命中
+	UPROPERTY()
+	TArray<AActor*> AlreadyHitActors;
+
+	// 每次攻击造成的伤害（可在蓝图中调整）
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	float AttackDamage = 20.0f;
+	// 事件中心指针
+	UPROPERTY()
+	UEventCenter* EventCenter = nullptr;
 	//攻击次数
 	int ComboIndex = 0;
 	// 是否已经在当前段的“可连击窗口”里
@@ -179,6 +207,12 @@ private:
 
 		UFUNCTION(BlueprintCallable, Category = "Combat")
 		void OnAttackSectionEnded();
-	
+		//开启伤害判定
+		UFUNCTION(BlueprintCallable, Category = "Combat")
+		void StartAttackHit();
+		//结束伤害判定
+		UFUNCTION(BlueprintCallable, Category = "Combat")
+		void EndAttackHit();
+
 };
 

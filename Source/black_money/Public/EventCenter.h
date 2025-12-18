@@ -53,12 +53,22 @@ public:
 	const FVector GetSpawnLocation();
 
 	/**
-	 * @param makeDamager 造成伤害行为的对象类型
-	 * @param takeDamager 受伤害对象类型
-	 * @param damageNumber 伤害数值
+	 * 造成伤害（类似 UGameplayStatics::ApplyDamage）
+	 * @param DamagedActor   被伤害对象
+	 * @param DamageAmount   伤害数值
+	 * @param EventInstigator 造成伤害的控制器（可为 nullptr）
+	 * @param DamageCauser   造成伤害的 Actor（如角色、武器）
+	 * @param DamageTypeClass 伤害类型（可选，默认 UDamageType）
+	 * @return 实际造成的伤害值
 	 */
-
-	void MakeDamage(TSubclassOf<AActor*> makeDamager, TArray<TSubclassOf<AActor*>> takeDamager, int damageNumber);
+	UFUNCTION(BlueprintCallable, Category = "EventCenter|Damage")
+	float MakeDamage(
+		AActor* DamagedActor,
+		float DamageAmount,
+		AController* EventInstigator = nullptr,
+		AActor* DamageCauser = nullptr,
+		TSubclassOf<UDamageType> DamageTypeClass = nullptr
+		 );
 
 	/**
 	 * 使用道具
@@ -70,6 +80,7 @@ public:
 	 * 拾取道具
 	 * @param tool 道具对象
 	 * @param toolNumber 道具编号
+
 	 */
 	void GetTools(AActor* tool, int toolNumber);
 

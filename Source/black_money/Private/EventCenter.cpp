@@ -6,6 +6,7 @@
 #include "ToolHp.h"
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
+#include "Engine/DamageEvents.h" 
 
 // 前向声明，避免循环依赖
 class Ablack_moneyCharacter;
@@ -18,10 +19,50 @@ void UEventCenter::GenerateMonster() {
 
 }
 
-void UEventCenter::MakeDamage(TSubclassOf<AActor*> makeDamager, TArray<TSubclassOf<AActor*>> takeDamager, int damageNumber) {
-	
-}
+float UEventCenter::MakeDamage(
+	AActor* DamagedActor,
+	float DamageAmount,
+	AController* EventInstigator,
+	AActor* DamageCauser,
+	TSubclassOf<UDamageType> DamageTypeClass)
+{
+	if (!DamagedActor || DamageAmount <= 0.f)
+	{
+		return 0.f;
+	}
 
+	// 如果没传控制器，而 DamageCauser 是 Pawn，就自动取其 Controller
+	if (!EventInstigator && DamageCauser)
+	{
+		if (APawn* PawnCauser = Cast<APawn>(DamageCauser))
+		{
+			EventInstigator = PawnCauser->GetController();
+		}
+	}
+
+	
+	FDamageEvent DamageEvent;
+	// 设置伤害类型
+	DamageEvent.DamageTypeClass = DamageTypeClass ? DamageTypeClass : TSubclassOf<UDamageType>(UDamageType::StaticClass());
+
+	// 调用 Actor 的 TakeDamage
+	const float ActualDamage = DamagedActor->TakeDamage(
+		DamageAmount,
+		DamageEvent,
+		EventInstigator,
+		DamageCauser);
+
+	// 输出日志
+	if (ActualDamage > 0.f)
+	{
+		UE_LOG(LogTemp, Log, TEXT("EventCenter::MakeDamage - %s took %f damage from %s"),
+			*DamagedActor->GetName(),
+			ActualDamage,
+			DamageCauser ? *DamageCauser->GetName() : TEXT("Unknown"));
+	}
+
+	return ActualDamage;
+}
 void UEventCenter::UseTools(AActor* tool) {
 
 }
@@ -45,7 +86,7 @@ void UEventCenter::ChangeEquipment() {
 }
 
 void UEventCenter::SwitchToLevel(const FString& LevelName, FVector SpawnLocation) {
-	
+
 	if (UWorld* World = GetWorld())
 	{
 		// 获取当前关卡的短名称
