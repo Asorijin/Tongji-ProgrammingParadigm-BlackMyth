@@ -1,8 +1,0 @@
-{
-	"BuildId": "37670630",
-	"Modules": 
-	{
-		"VisualStudioBlueprintDebuggerHelper": "UnrealEditor-VisualStudioBlueprintDebuggerHelper.dll",
-		"VisualStudioTools": "UnrealEditor-VisualStudioTools.dll"
-	}
-}
