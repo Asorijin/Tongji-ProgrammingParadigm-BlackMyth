@@ -16,7 +16,9 @@ enum class EStatusType : uint8
 	OpenComboWindow    UMETA(DisplayName = "Open Combo Window"),     // 开启连击判定
 	EndAttackSection   UMETA(DisplayName = "End Attack Section"),    // 当前攻击段结束
 	EnableHit          UMETA(DisplayName = "Enable Hit"),            // 开启伤害判定
-	DisableHit         UMETA(DisplayName = "Disable Hit")            // 关闭伤害判定
+	DisableHit         UMETA(DisplayName = "Disable Hit"),            // 关闭伤害判定
+	EndDodge           UMETA(DisplayName = "End Dodge")              // 闪避结束
+
 };
 UCLASS()
 class BLACK_MONEY_API Uwukong_AnimNotify : public UAnimNotify

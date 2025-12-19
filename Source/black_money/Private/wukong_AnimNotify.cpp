@@ -39,6 +39,9 @@ void Uwukong_AnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 		// ¹Ø±ÕÉËº¦ÅĞ¶¨
 		 Character->EndAttackHit();
 		break;
+	case EStatusType::EndDodge:
+		Character->EndDodge();
+		break;
 
 	default:
 		break;

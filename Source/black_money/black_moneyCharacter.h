@@ -74,8 +74,6 @@ protected:
 	/** 闪避条件检查 */
 	bool CanDodge() const;
 
-	/** 闪避结束回调 */
-	void EndDodge();
 
 	//攻击功能
 	void Attack();
@@ -126,11 +124,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Dodge")
 	float DodgeStrength = 1200.0f;
 
-	/** 闪避持续时间（免伤持续时间） */
-	UPROPERTY(EditAnywhere, Category = "Dodge")
-
-	float DodgeDuration = 0.2f;
-
 
 	/** 是否处于闪避中 */
 	UPROPERTY(VisibleAnywhere, Category = "Dodge")
@@ -140,9 +133,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Dodge")
 	bool bInvulnerableDuringDodge = true;
 
-	/** 定时器句柄，用于结束闪避 */
-	FTimerHandle DodgeTimerHandle;
-
+	
 	//是否处于攻击状态
 	bool bIsAttacking = false;
 
@@ -179,7 +170,11 @@ protected:
 	// 攻击连击蒙太奇（蓝图中指定）
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	class UAnimMontage* AttackMontage;
+	/** 闪避翻滚蒙太奇（在角色蓝图里指定） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dodge", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* DodgeMontage = nullptr;
 
+	float DodgePlayRate = 1.0f;
 	//根据指定TAG获取周围物体
 	TArray<AActor*> GetNearbyObjectsWithTag(TArray<FName> tagNames, float radius) const;
 
@@ -210,6 +205,8 @@ protected:
 		//结束伤害判定
 		UFUNCTION(BlueprintCallable, Category = "Combat")
 		void EndAttackHit();
+		/** 闪避结束回调 */
+		void EndDodge();
 
 };
 
