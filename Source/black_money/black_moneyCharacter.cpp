@@ -171,41 +171,49 @@ void Ablack_moneyCharacter::Look(const FInputActionValue& Value)
 	}
 }
 // 闪避功能
-void Ablack_moneyCharacter::Dodge()
-{
-	// 检查是否可以闪避
-	if (!CanDodge())
-	{
-		return;
-	}
-
-	// 计算闪避方向：优先使用最近的移动输入方向；若无，则使用角色前向
+void Ablack_moneyCharacter::Dodge() { // 检查是否可以闪避 
+	if (!CanDodge()) { return; }
+	// 计算闪避方向：优先使用最近移动输入方向；若无，则使用角色前向
 	FVector DodgeDirection = GetLastMovementInputVector().GetSafeNormal();
 	if (DodgeDirection.IsNearlyZero())
 	{
 		DodgeDirection = GetActorForwardVector();
 	}
-
-	// 仅保留水平分量，避免 Z 轴抬升/下坠影响
+	// 进入闪避状态
+	bIsDodging = true;
+	// 仅保留水平分量
 	DodgeDirection.Z = 0.0f;
 	DodgeDirection = DodgeDirection.GetSafeNormal();
 
 	// 应用冲量进行闪避（覆盖 XY 速度，但不覆盖 Z）
 	LaunchCharacter(DodgeDirection * DodgeStrength, /*bXYOverride*/ true, /*bZOverride*/ false);
 
-	// 设置状态
-	bIsDodging = true;
-	bInvulnerableDuringDodge = true;
+	
+	// 暂时不考虑无敌帧，这个标记先保持 true/false 都无所谓
+	bInvulnerableDuringDodge = false;
 
-	// 定时结束闪避
-	GetWorldTimerManager().SetTimer(
-		DodgeTimerHandle,
-		this,
-		&Ablack_moneyCharacter::EndDodge,
-		DodgeDuration,
-		/*bLoop*/ false
-	);
+	// 播放闪避蒙太奇
+	if (DodgeMontage)
+	{
+		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+		{
+			AnimInstance->Montage_Play(DodgeMontage, DodgePlayRate);
+			if (GEngine)
+			{
+				
+				GEngine->AddOnScreenDebugMessage(
+					/*Key*/ -1,
+					/*Time*/ 2.0f,
+					FColor::Green,
+					TEXT("Dodge: Play ")
+				);
+			}
+			
+		}
+	}
+
 }
+
 
 bool Ablack_moneyCharacter::CanDodge() const
 {
@@ -225,11 +233,6 @@ void Ablack_moneyCharacter::EndDodge()
 	bIsDodging = false;
 	bInvulnerableDuringDodge = false;
 
-	// 清理定时器
-	if (GetWorldTimerManager().IsTimerActive(DodgeTimerHandle))
-	{
-		GetWorldTimerManager().ClearTimer(DodgeTimerHandle);
-	}
 }
 
 
@@ -337,13 +340,16 @@ void Ablack_moneyCharacter::OnWeaponHitBoxBeginOverlap(
 
 
 	// 通过 EventCenter 结算伤害
-	if (EventCenter)
+	// 通过 EventCenter 结算伤害
+	if (EventCenter && characterConfig)
 	{
+		const float DamageValue = static_cast<float>(characterConfig->_attack);
+
 		EventCenter->MakeDamage(
-			OtherActor,          // 被伤害对象
-			AttackDamage,        // 伤害数值
-			GetController(),     // Instigator
-			this                 // 角色自己
+			OtherActor,      // 被伤害对象
+			DamageValue,     // 伤害数值（来自配置）
+			GetController(), // Instigator
+			this             // 角色自己
 		);
 	}
 }
