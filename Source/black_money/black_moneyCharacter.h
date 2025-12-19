@@ -166,9 +166,6 @@ protected:
 	UPROPERTY()
 	TArray<AActor*> AlreadyHitActors;
 
-	// 每次攻击造成的伤害（可在蓝图中调整）
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	float AttackDamage = 20.0f;
 	// 事件中心指针
 	UPROPERTY()
 	UEventCenter* EventCenter = nullptr;

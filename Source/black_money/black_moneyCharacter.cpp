@@ -337,13 +337,16 @@ void Ablack_moneyCharacter::OnWeaponHitBoxBeginOverlap(
 
 
 	// 通过 EventCenter 结算伤害
-	if (EventCenter)
+	// 通过 EventCenter 结算伤害
+	if (EventCenter && characterConfig)
 	{
+		const float DamageValue = static_cast<float>(characterConfig->_attack);
+
 		EventCenter->MakeDamage(
-			OtherActor,          // 被伤害对象
-			AttackDamage,        // 伤害数值
-			GetController(),     // Instigator
-			this                 // 角色自己
+			OtherActor,      // 被伤害对象
+			DamageValue,     // 伤害数值（来自配置）
+			GetController(), // Instigator
+			this             // 角色自己
 		);
 	}
 }

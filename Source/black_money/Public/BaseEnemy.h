@@ -75,7 +75,7 @@ public:
 	UEnemyConfig* GetEnemyConfig() const { return EnemyConfig; }
 
 	// 受击处理（通过事件中心调用）
-	// 注意：重写基类APawn的TakeDamage函数，但使用不同的参数类型
+	// 注意：重写基类APawn的age函数，但使用不同的参数类型
 	// 为了避免与基类函数冲突，我们使用ReceiveDamage作为主要接口
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	virtual void ReceiveDamage(int32 DamageAmount, AActor* DamageCauser = nullptr);
