@@ -15,6 +15,8 @@
 #include "GameFramework/Character.h"
 #include "NavigationSystem.h"
 #include "AI/NavigationSystemBase.h"
+#include "Animation/AnimInstance.h"
+#include "Animation/AnimMontage.h"
 
 ABaseEnemy::ABaseEnemy(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -63,6 +65,15 @@ ABaseEnemy::ABaseEnemy(const FObjectInitializer& ObjectInitializer)
 
 	// 设置默认标签
 	Tags.Add(FName("Enemy"));
+
+	// 初始化攻击系统相关变量
+	AttackMontage = nullptr;
+	bIsAttacking = false;
+	AttackCooldownRemaining = 0.0f;
+
+	// 初始化受击和死亡动画蒙太奇
+	HitMontage = nullptr;
+	DeathMontage = nullptr;
 }
 
 void ABaseEnemy::BeginPlay()
@@ -98,9 +109,34 @@ void ABaseEnemy::Tick(float DeltaTime)
 	}
 
 	// 如果处于Chase状态，每帧都执行移动（确保移动连续）
+	// 注意：Attack状态不应该在这里移动，因为SetAIState(Attack)时会调用StopMovement
 	if (CurrentAIState == EEnemyAIState::Chase && !bIsDead)
 	{
 		ChasePlayer(DeltaTime);
+	}
+	
+	// 如果处于Attack状态，确保停止移动（防止ChasePlayer在状态切换前添加的移动输入）
+	if (CurrentAIState == EEnemyAIState::Attack && !bIsDead)
+	{
+		// 攻击状态下，持续停止移动，确保不会因为残留的移动输入而移动
+		if (GetCharacterMovement() && GetCharacterMovement()->Velocity.Size() > 0.1f)
+		{
+			StopMovement();
+		}
+		
+		// 攻击状态下，仍然朝向玩家（但不移动）
+		if (PlayerCharacter && IsValid(PlayerCharacter))
+		{
+			FVector PlayerLocation = PlayerCharacter->GetActorLocation();
+			FVector EnemyLocation = GetActorLocation();
+			FVector Direction = PlayerLocation - EnemyLocation;
+			Direction.Z = 0.0f;
+			Direction.Normalize();
+			
+			FRotator TargetRotation = Direction.Rotation();
+			FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), TargetRotation, DeltaTime, 10.0f);
+			SetActorRotation(NewRotation);
+		}
 	}
 
 	// 累积AI更新计时器
@@ -188,8 +224,31 @@ void ABaseEnemy::Die()
 		GetCharacterMovement()->StopMovementImmediately();
 	}
 
-	// TODO: 播放死亡动画
-	// TODO: 延迟销毁或播放死亡效果
+	// 停止所有正在播放的动画蒙太奇
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance)
+	{
+		// 停止攻击动画
+		if (AttackMontage && AnimInstance->Montage_IsPlaying(AttackMontage))
+		{
+			AnimInstance->Montage_Stop(0.0f, AttackMontage);
+		}
+		
+		// 停止受击动画
+		if (HitMontage && AnimInstance->Montage_IsPlaying(HitMontage))
+		{
+			AnimInstance->Montage_Stop(0.0f, HitMontage);
+		}
+		
+		// 播放死亡动画
+		if (DeathMontage)
+		{
+			AnimInstance->Montage_Play(DeathMontage, 1.0f);
+			UE_LOG(LogTemp, Log, TEXT("Enemy %s playing death animation"), *GetName());
+		}
+	}
+
+	// TODO: 延迟销毁或播放死亡效果（可以添加延迟后调用Destroy()）
 }
 
 bool ABaseEnemy::IsDead() const
@@ -246,6 +305,24 @@ void ABaseEnemy::EnterHitStun()
 			HitStunDuration,
 			false
 		);
+	}
+
+	// 播放受击动画
+	if (HitMontage)
+	{
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance)
+		{
+			// 停止当前播放的攻击动画（如果正在攻击）
+			if (AttackMontage && AnimInstance->Montage_IsPlaying(AttackMontage))
+			{
+				AnimInstance->Montage_Stop(0.2f, AttackMontage);
+			}
+			
+			// 播放受击动画
+			AnimInstance->Montage_Play(HitMontage, 1.0f);
+			UE_LOG(LogTemp, Log, TEXT("Enemy %s playing hit animation"), *GetName());
+		}
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("Enemy %s entered hit stun for %.2f seconds"), *GetName(), HitStunDuration);
@@ -347,7 +424,11 @@ TArray<AActor*> ABaseEnemy::GetAttackTargetsInRangeWithTags(float AttackRange, c
 		ActualRange = 150.0f; // 默认攻击范围
 	}
 
-	FVector SphereCenter = GetActorLocation();
+	// 使用怪物前方的位置作为检测中心（而不是怪物中心）
+	// 这样攻击检测更符合实际攻击方向
+	FVector EnemyLocation = GetActorLocation();
+	FVector ForwardVector = GetActorForwardVector();
+	FVector SphereCenter = EnemyLocation + ForwardVector * (ActualRange * 0.5f); // 检测中心在怪物前方一半攻击距离处
 
 	// 设置检测的对象类型（参考Character类的实现）
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
@@ -358,14 +439,14 @@ TArray<AActor*> ABaseEnemy::GetAttackTargetsInRangeWithTags(float AttackRange, c
 	UKismetSystemLibrary::SphereOverlapActors(
 		World,
 		SphereCenter,
-		ActualRange,
+		ActualRange * 0.5f, // 使用一半范围，因为检测中心已经前移了
 		ObjectTypes,
 		AActor::StaticClass(),  // 查找所有Actor
 		TArray<AActor*>(),      // 忽略列表（空，不忽略任何对象）
 		OverlappingActors
 	);
 
-	// 筛选出具有指定标签的Actor
+	// 筛选出具有指定标签的Actor，并检查是否在攻击范围内（方向性检查）
 	for (AActor* Actor : OverlappingActors)
 	{
 		if (!Actor || Actor == this) // 排除自身
@@ -374,12 +455,41 @@ TArray<AActor*> ABaseEnemy::GetAttackTargetsInRangeWithTags(float AttackRange, c
 		}
 
 		// 检查是否具有目标标签
+		bool bHasTargetTag = false;
 		for (const FName& TagName : TargetTags)
 		{
 			if (Actor->ActorHasTag(TagName))
 			{
+				bHasTargetTag = true;
+				break;
+			}
+		}
+
+		if (!bHasTargetTag)
+		{
+			continue;
+		}
+
+		// 方向性检查：确保目标在怪物前方（180度扇形范围内）
+		FVector ToTarget = Actor->GetActorLocation() - EnemyLocation;
+		ToTarget.Z = 0.0f; // 忽略高度差
+		ToTarget.Normalize();
+		
+		FVector Forward = ForwardVector;
+		Forward.Z = 0.0f;
+		Forward.Normalize();
+
+		// 计算点积，判断目标是否在怪物前方（点积 > 0 表示在前方）
+		float DotProduct = FVector::DotProduct(Forward, ToTarget);
+		
+		// 只接受在怪物前方120度范围内的目标（cos(60°) ≈ 0.5）
+		if (DotProduct > 0.5f)
+		{
+			// 再次检查距离，确保在攻击范围内
+			float DistanceToTarget = FVector::Dist(EnemyLocation, Actor->GetActorLocation());
+			if (DistanceToTarget <= ActualRange)
+			{
 				Result.Add(Actor);
-				break; // 找到一个匹配的标签即可，避免重复添加
 			}
 		}
 	}
@@ -417,6 +527,17 @@ void ABaseEnemy::SetAIState(EEnemyAIState NewState)
 		break;
 	case EEnemyAIState::Attack:
 		StopMovement(); // 攻击时停止移动
+		// 如果不在攻击动画中，且可以攻击，则开始攻击
+		if (!bIsAttacking && CanAttack())
+		{
+			bool bAttackStarted = StartAttack();
+			if (!bAttackStarted)
+			{
+				// 如果攻击启动失败，切换回Chase状态，避免僵直
+				UE_LOG(LogTemp, Warning, TEXT("Failed to start attack, switching back to Chase"));
+				SetAIState(EEnemyAIState::Chase);
+			}
+		}
 		break;
 	case EEnemyAIState::Dead:
 		StopMovement();
@@ -523,9 +644,9 @@ void ABaseEnemy::UpdateAI(float DeltaTime)
 			// 玩家不存在，回到待机
 			SetAIState(EEnemyAIState::Idle);
 		}
-		else if (IsPlayerInAttackRange())
+		else if (IsPlayerInAttackRange() && CanAttack())
 		{
-			// 进入攻击范围，切换到攻击状态
+			// 进入攻击范围，且可以攻击（攻击动画已设置），切换到攻击状态
 			SetAIState(EEnemyAIState::Attack);
 		}
 		else if (!DetectPlayer())
@@ -535,7 +656,7 @@ void ABaseEnemy::UpdateAI(float DeltaTime)
 		}
 		else
 		{
-			// 继续追击
+			// 继续追击（即使玩家在攻击范围内但无法攻击，也继续追击）
 			ChasePlayer(DeltaTime);
 		}
 		break;
@@ -546,12 +667,30 @@ void ABaseEnemy::UpdateAI(float DeltaTime)
 		{
 			SetAIState(EEnemyAIState::Idle);
 		}
+		// 如果正在攻击动画中，等待攻击完成，不要切换状态
+		else if (bIsAttacking)
+		{
+			// 攻击动画播放中，保持Attack状态，不切换
+			// 这样可以避免攻击动画被打断
+		}
 		else if (!IsPlayerInAttackRange())
 		{
-			// 玩家离开攻击范围，继续追击
+			// 攻击动画已结束，玩家离开攻击范围，继续追击
 			SetAIState(EEnemyAIState::Chase);
 		}
-		// TODO: 在阶段四实现攻击逻辑
+		else if (!CanAttack())
+		{
+			// 如果无法攻击（攻击动画未设置或冷却中），继续追击而不是僵直
+			SetAIState(EEnemyAIState::Chase);
+		}
+		else
+		{
+			// 如果不在攻击动画中，且可以攻击，则开始攻击
+			if (!bIsAttacking && CanAttack())
+			{
+				StartAttack();
+			}
+		}
 		break;
 
 	case EEnemyAIState::Dodge:
@@ -663,8 +802,12 @@ void ABaseEnemy::ChasePlayer(float DeltaTime)
 		FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), TargetRotation, DeltaTime, 10.0f);
 		SetActorRotation(NewRotation);
 
-		// 停止移动
-		StopMovement();
+		// 如果已经在攻击范围内，且可以攻击，立即切换状态（不等UpdateAI）
+		// 这样可以避免状态切换延迟导致的僵直
+		if (CanAttack() && CurrentAIState == EEnemyAIState::Chase)
+		{
+			SetAIState(EEnemyAIState::Attack);
+		}
 	}
 }
 
@@ -693,8 +836,8 @@ EEnemyAIState ABaseEnemy::DetermineNextState() const
 	// 检查玩家是否存在且在检测范围内
 	if (PlayerCharacter && IsValid(PlayerCharacter))
 	{
-		// 如果玩家在攻击范围内，返回Attack
-		if (IsPlayerInAttackRange())
+		// 如果玩家在攻击范围内，且可以攻击，返回Attack
+		if (IsPlayerInAttackRange() && CanAttack())
 		{
 			return EEnemyAIState::Attack;
 		}
@@ -704,5 +847,186 @@ EEnemyAIState ABaseEnemy::DetermineNextState() const
 
 	// 默认返回Idle
 	return EEnemyAIState::Idle;
+}
+
+// ========== 攻击系统实现 ==========
+
+void ABaseEnemy::PerformAttack()
+{
+	// 如果已经死亡或正在受击硬直，不执行攻击
+	if (bIsDead || CurrentHitState == EEnemyHitState::Hit)
+	{
+		return;
+	}
+
+	// 防止同一攻击动画中重复判定
+	if (bIsAttacking && AlreadyHitTargetsInThisAttack.Num() > 0)
+	{
+		// 如果已经判定过，不再重复判定（除非是新的攻击动画）
+		return;
+	}
+
+	// 获取事件中心
+	UEventCenter* EventCenter = GetEventCenter();
+	if (!EventCenter)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PerformAttack: EventCenter is null!"));
+		return;
+	}
+
+	// 获取攻击范围内的目标
+	TArray<AActor*> Targets = GetAttackTargetsInRange();
+	if (Targets.Num() == 0)
+	{
+		UE_LOG(LogTemp, Log, TEXT("PerformAttack: No targets in range"));
+		return;
+	}
+
+	// 获取攻击力
+	int32 AttackDamage = EnemyConfig ? EnemyConfig->Attack : 10;
+
+	// 对每个目标造成伤害
+	for (AActor* Target : Targets)
+	{
+		// 检查是否已经命中过（防止同一攻击动画中重复判定）
+		if (AlreadyHitTargetsInThisAttack.Contains(Target))
+		{
+			continue;
+		}
+
+		// 标记为已命中
+		AlreadyHitTargetsInThisAttack.Add(Target);
+
+		// 通过事件中心造成伤害
+		float ActualDamage = EventCenter->MakeDamage(
+			Target,                    // 被伤害对象
+			static_cast<float>(AttackDamage), // 伤害数值
+			GetController(),           // EventInstigator
+			this                       // DamageCauser
+		);
+
+		UE_LOG(LogTemp, Log, TEXT("Enemy %s attacked %s, dealt %f damage"), 
+			*GetName(), *Target->GetName(), ActualDamage);
+	}
+}
+
+bool ABaseEnemy::StartAttack()
+{
+	// 检查是否可以攻击
+	if (!CanAttack())
+	{
+		return false;
+	}
+
+	// 检查是否有攻击动画
+	if (!AttackMontage)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("StartAttack: AttackMontage is null!"));
+		return false;
+	}
+
+	// 获取动画实例
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (!AnimInstance)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("StartAttack: AnimInstance is null!"));
+		return false;
+	}
+
+	// 如果已经在播放攻击动画，不重复播放
+	if (AnimInstance->Montage_IsPlaying(AttackMontage))
+	{
+		return false;
+	}
+
+	// 清除本次攻击的已命中目标列表
+	AlreadyHitTargetsInThisAttack.Empty();
+
+	// 设置攻击标志
+	bIsAttacking = true;
+
+	// 播放攻击动画
+	// Montage_Play会默认使用蒙太奇的插槽，通常会覆盖状态机输出
+	float PlayRate = 1.0f;
+	float PlayTime = AnimInstance->Montage_Play(AttackMontage, PlayRate);
+	
+	if (PlayTime <= 0.0f)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Enemy %s failed to play attack montage!"), *GetName());
+		bIsAttacking = false; // 播放失败，重置标志
+		return false;
+	}
+
+	// 绑定动画完成回调
+	FOnMontageEnded MontageEndedDelegate;
+	MontageEndedDelegate.BindUObject(this, &ABaseEnemy::OnAttackMontageEnded);
+	AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, AttackMontage);
+
+	UE_LOG(LogTemp, Log, TEXT("Enemy %s started attack (PlayTime: %.2f)"), *GetName(), PlayTime);
+
+	return true;
+}
+
+bool ABaseEnemy::CanAttack() const
+{
+	// 如果已死亡或处于受击硬直状态，不能攻击
+	if (bIsDead || CurrentHitState == EEnemyHitState::Hit)
+	{
+		return false;
+	}
+
+	// 检查攻击冷却是否结束
+	if (GetWorld() && GetWorld()->GetTimerManager().IsTimerActive(AttackCooldownTimer))
+	{
+		return false;
+	}
+
+	// 检查是否有攻击动画
+	if (!AttackMontage)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void ABaseEnemy::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	// 重置攻击标志
+	bIsAttacking = false;
+
+	// 清除已命中目标列表
+	AlreadyHitTargetsInThisAttack.Empty();
+
+	// 计算攻击冷却时间
+	float CooldownTime = 1.0f;
+	if (EnemyConfig && EnemyConfig->AttackSpeed > 0.0f)
+	{
+		// 冷却时间 = 1.0 / 攻击速度
+		CooldownTime = 1.0f / EnemyConfig->AttackSpeed;
+	}
+
+	// 设置攻击冷却计时器
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			AttackCooldownTimer,
+			CooldownTime,
+			false
+		);
+		AttackCooldownRemaining = CooldownTime;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("Enemy %s attack ended, cooldown: %.2f seconds"), 
+		*GetName(), CooldownTime);
+
+	// 如果被中断（例如受击），不切换状态
+	if (bInterrupted)
+	{
+		return;
+	}
+
+	// 攻击动画结束后，根据当前情况决定下一个状态
+	// 这个逻辑会在UpdateAI中处理，这里不需要手动切换
 }
 

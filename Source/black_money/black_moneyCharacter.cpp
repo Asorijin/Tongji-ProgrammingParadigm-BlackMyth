@@ -52,6 +52,7 @@ Ablack_moneyCharacter::Ablack_moneyCharacter()
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	CameraBoom->bDoCollisionTest = false; // ç¦ç”¨ç¢°æ’æ£€æµ‹ï¼Œé˜²æ­¢æ€ªç‰©æ”»å‡»æ—¶ç›¸æœºæ‹‰è¿‘
 
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
@@ -61,28 +62,28 @@ Ablack_moneyCharacter::Ablack_moneyCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
-	// ´´½¨¼ì²âÇòÌå×é¼ş
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	DetectionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("DetectionSphere"));
 	DetectionSphere->SetupAttachment(RootComponent);
 	DetectionSphere->SetSphereRadius(500.0f);
 	DetectionSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	DetectionSphere->SetCollisionResponseToAllChannels(ECR_Overlap);
-	// ´´½¨ÎäÆ÷Åö×²ºĞ
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×²ï¿½ï¿½
 	WeaponHitBox = CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponHitBox"));
 	WeaponHitBox->SetupAttachment(GetMesh(), TEXT("weapon_r"));
 	WeaponHitBox->InitBoxExtent(FVector(10.f, 30.f, 10.f));
 
-	WeaponHitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);    // Ä¬ÈÏ¹Ø±Õ
+	WeaponHitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);    // Ä¬ï¿½Ï¹Ø±ï¿½
 	WeaponHitBox->SetCollisionObjectType(ECC_Pawn);
 	WeaponHitBox->SetCollisionResponseToAllChannels(ECR_Ignore);
-	WeaponHitBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);  // Óë Pawn ÖØµş
+	WeaponHitBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);  // ï¿½ï¿½ Pawn ï¿½Øµï¿½
 
-	WeaponHitBox->SetHiddenInGame(false);//±ãÓÚµ÷ÊÔ²é¿´£¬×îºó¸ÄÎªtrue
+	WeaponHitBox->SetHiddenInGame(false);//ï¿½ï¿½ï¿½Úµï¿½ï¿½Ô²é¿´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªtrue
 
-	// ÉèÖÃ¿ÉÊÓ»¯
+	// ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½Ó»ï¿½
 	DetectionSphere->SetHiddenInGame(false);
 
-	//´´½¨ÒôÀÖ×é¼ş
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
 	AudioComponent->SetupAttachment(RootComponent);
 	AudioComponent->bAutoActivate = false;
@@ -120,10 +121,10 @@ void Ablack_moneyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &Ablack_moneyCharacter::Look);
-		// °ó¶¨ Ctrl -> Dodge
+		// ï¿½ï¿½ Ctrl -> Dodge
 		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::Dodge);
 
-		//°ó¶¨¹¥»÷¶¯×÷
+		//ï¿½ó¶¨¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::Attack);
 
 	}
@@ -170,29 +171,29 @@ void Ablack_moneyCharacter::Look(const FInputActionValue& Value)
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
 }
-// ÉÁ±Ü¹¦ÄÜ
-void Ablack_moneyCharacter::Dodge() { // ¼ì²éÊÇ·ñ¿ÉÒÔÉÁ±Ü 
+// ï¿½ï¿½ï¿½Ü¹ï¿½ï¿½ï¿½
+void Ablack_moneyCharacter::Dodge() { // ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
 	if (!CanDodge()) { return; }
-	// ¼ÆËãÉÁ±Ü·½Ïò£ºÓÅÏÈÊ¹ÓÃ×î½üÒÆ¶¯ÊäÈë·½Ïò£»ÈôÎŞ£¬ÔòÊ¹ÓÃ½ÇÉ«Ç°Ïò
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½ï¿½ï¿½ë·½ï¿½ï¿½ï¿½ï¿½ï¿½Ş£ï¿½ï¿½ï¿½Ê¹ï¿½Ã½ï¿½É«Ç°ï¿½ï¿½
 	FVector DodgeDirection = GetLastMovementInputVector().GetSafeNormal();
 	if (DodgeDirection.IsNearlyZero())
 	{
 		DodgeDirection = GetActorForwardVector();
 	}
-	// ½øÈëÉÁ±Ü×´Ì¬
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬
 	bIsDodging = true;
-	// ½ö±£ÁôË®Æ½·ÖÁ¿
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë®Æ½ï¿½ï¿½ï¿½ï¿½
 	DodgeDirection.Z = 0.0f;
 	DodgeDirection = DodgeDirection.GetSafeNormal();
 
-	// Ó¦ÓÃ³åÁ¿½øĞĞÉÁ±Ü£¨¸²¸Ç XY ËÙ¶È£¬µ«²»¸²¸Ç Z£©
+	// Ó¦ï¿½Ã³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü£ï¿½ï¿½ï¿½ï¿½ï¿½ XY ï¿½Ù¶È£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Zï¿½ï¿½
 	LaunchCharacter(DodgeDirection * DodgeStrength, /*bXYOverride*/ true, /*bZOverride*/ false);
 
 	
-	// ÔİÊ±²»¿¼ÂÇÎŞµĞÖ¡£¬Õâ¸ö±ê¼ÇÏÈ±£³Ö true/false ¶¼ÎŞËùÎ½
+	// ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Şµï¿½Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È±ï¿½ï¿½ï¿½ true/false ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î½
 	bInvulnerableDuringDodge = false;
 
-	// ²¥·ÅÉÁ±ÜÃÉÌ«Ææ
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì«ï¿½ï¿½
 	if (DodgeMontage)
 	{
 		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
@@ -217,13 +218,13 @@ void Ablack_moneyCharacter::Dodge() { // ¼ì²éÊÇ·ñ¿ÉÒÔÉÁ±Ü
 
 bool Ablack_moneyCharacter::CanDodge() const
 {
-	// ²»ÔÚÉÁ±ÜÖĞÇÒÓµÓĞ¿ØÖÆÆ÷ºÍÒÆ¶¯×é¼ş
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Óµï¿½Ğ¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½ï¿½ï¿½
 	if (bIsDodging || Controller == nullptr || GetCharacterMovement() == nullptr)
 	{
 		return false;
 	}
 
-	// ÈçĞèÏŞ¶¨µØÃæÉÁ±Ü¿ÉÆôÓÃ£º
+	// ï¿½ï¿½ï¿½ï¿½ï¿½Ş¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü¿ï¿½ï¿½ï¿½ï¿½Ã£ï¿½
 	// return GetCharacterMovement()->IsMovingOnGround();
 	return true;
 }
@@ -238,7 +239,7 @@ void Ablack_moneyCharacter::EndDodge()
 
 void Ablack_moneyCharacter::Attack()
 {
-	// ÉÁ±ÜÖĞ²»ÄÜ¹¥»÷
+	// ï¿½ï¿½ï¿½ï¿½ï¿½Ğ²ï¿½ï¿½Ü¹ï¿½ï¿½ï¿½
 	if (bIsDodging)
 	{
 		return;
@@ -247,7 +248,7 @@ void Ablack_moneyCharacter::Attack()
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	const bool bMontagePlaying = (AnimInstance && AttackMontage && AnimInstance->Montage_IsPlaying(AttackMontage));
 
-	// ÆğÊÖÌõ¼ş£º²»ÔÚ¹¥»÷ÖĞ / Á¬»÷ÒÑÇåÁã / Ã»ÓĞÃÉÌ«Ææ / ÃÉÌ«ÆæÃ»ÔÚ²¥
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú¹ï¿½ï¿½ï¿½ï¿½ï¿½ / ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ / Ã»ï¿½ï¿½ï¿½ï¿½Ì«ï¿½ï¿½ / ï¿½ï¿½Ì«ï¿½ï¿½Ã»ï¿½Ú²ï¿½
 	if (!bIsAttacking || ComboIndex <= 0 || !AttackMontage || !bMontagePlaying)
 	{
 		ComboIndex = 1;
@@ -262,13 +263,13 @@ void Ablack_moneyCharacter::Attack()
 		return;
 	}
 
-	// ÒÑÔÚ¹¥»÷ÖĞ£ºÖ»ÓĞÔÚÁ¬»÷´°¿Ú¿ª·ÅÊ±£¬°´¼ü²ÅÉúĞ§
+	// ï¿½ï¿½ï¿½Ú¹ï¿½ï¿½ï¿½ï¿½Ğ£ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ§
 	if (!bCanQueueNextCombo)
 	{
 		return;
 	}
 
-	// ¿ÉÒÔÁ¬»÷£ºÇĞµ½ÏÂÒ»¶Î
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğµï¿½ï¿½ï¿½Ò»ï¿½ï¿½
 	if (AnimInstance && AttackMontage && AnimInstance->Montage_IsPlaying(AttackMontage))
 	{
 		int32 NextComboIndex = ComboIndex + 1;
@@ -298,16 +299,16 @@ void Ablack_moneyCharacter::Attack()
 }
 void Ablack_moneyCharacter::EnableComboWindow()
 {
-	// µ±Ç°¶Îµ½´ï¡°¿ÉÁ¬»÷¡±Ê±¼äµã
+	// ï¿½ï¿½Ç°ï¿½Îµï¿½ï¿½ï¡°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½
 	bCanQueueNextCombo = true;
 }
 
 void Ablack_moneyCharacter::OnAttackSectionEnded()
 {
-	// µ±Ç°¶Î³¹µ×½áÊø£¬Èô´ËÊ±ÈÔÎ´Á¬»÷£¬ÔòÕûÌ×¹¥»÷½áÊø
+	// ï¿½ï¿½Ç°ï¿½Î³ï¿½ï¿½×½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½Î´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	bCanQueueNextCombo = false;
 
-	// ÕæÕı½áÊøÁ¬»÷
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	ComboIndex = 0;
 	bIsAttacking = false;
 }
@@ -319,19 +320,19 @@ void Ablack_moneyCharacter::OnWeaponHitBoxBeginOverlap(
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
-	// Ö»ÔÚ¹¥»÷×´Ì¬ÇÒµ±Ç° HitBox ¿ªÆôÊ±²ÅÉúĞ§
+	// Ö»ï¿½Ú¹ï¿½ï¿½ï¿½×´Ì¬ï¿½Òµï¿½Ç° HitBox ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Ğ§
 	if (!bIsAttacking || !WeaponHitBox ||
 		WeaponHitBox->GetCollisionEnabled() == ECollisionEnabled::NoCollision)
 	{
 		return;
 	}
-	// ÅÅ³ıÎŞĞ§¶ÔÏóºÍ×ÔÉí
+	// ï¿½Å³ï¿½ï¿½ï¿½Ğ§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	if (!OtherActor || OtherActor == this)
 	{
 		return;
 	}
 
-	// Ò»´Î¹¥»÷´°¿ÚÄÚ·ÀÖ¹ÖØ¸´ÃüÖĞ
+	// Ò»ï¿½Î¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú·ï¿½Ö¹ï¿½Ø¸ï¿½ï¿½ï¿½ï¿½ï¿½
 	if (AlreadyHitActors.Contains(OtherActor))
 	{
 		return;
@@ -339,17 +340,17 @@ void Ablack_moneyCharacter::OnWeaponHitBoxBeginOverlap(
 	AlreadyHitActors.Add(OtherActor);
 
 
-	// Í¨¹ı EventCenter ½áËãÉËº¦
-	// Í¨¹ı EventCenter ½áËãÉËº¦
+	// Í¨ï¿½ï¿½ EventCenter ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½
+	// Í¨ï¿½ï¿½ EventCenter ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½
 	if (EventCenter && characterConfig)
 	{
 		const float DamageValue = static_cast<float>(characterConfig->_attack);
 
 		EventCenter->MakeDamage(
-			OtherActor,      // ±»ÉËº¦¶ÔÏó
-			DamageValue,     // ÉËº¦ÊıÖµ£¨À´×ÔÅäÖÃ£©
+			OtherActor,      // ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½
+			DamageValue,     // ï¿½Ëºï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã£ï¿½
 			GetController(), // Instigator
-			this             // ½ÇÉ«×Ô¼º
+			this             // ï¿½ï¿½É«ï¿½Ô¼ï¿½
 		);
 	}
 }
@@ -386,13 +387,13 @@ void Ablack_moneyCharacter::BeginPlay() {
 	characterConfig = NewObject<UCharacterConfig>();
 	characterConfig->Initialize();
 
-	// °ó¶¨ÎäÆ÷Åö×²ÖØµşÎ¯ÍĞ
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×²ï¿½Øµï¿½Î¯ï¿½ï¿½
 	if (WeaponHitBox)
 	{
 		WeaponHitBox->OnComponentBeginOverlap.AddDynamic(this,&Ablack_moneyCharacter::OnWeaponHitBoxBeginOverlap);
 	}
 
-	// ´Ó GameInstance »ñÈ¡ EventCenter£¨°´Äã TriggerNearByInteractions ÀïµÄÓÃ·¨£©
+	// ï¿½ï¿½ GameInstance ï¿½ï¿½È¡ EventCenterï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ TriggerNearByInteractions ï¿½ï¿½ï¿½ï¿½Ã·ï¿½ï¿½ï¿½
 	if (Ublack_moneyGameInstance* GI = Cast<Ublack_moneyGameInstance>(GetGameInstance()))
 	{
 		EventCenter = GI->GetEventCenter();
@@ -408,13 +409,13 @@ void Ablack_moneyCharacter::Tick(float deltaTime) {
 		if (actor->ActorHasTag(FName("LandTemple"))) {
 			if (GEngine)
 			{
-				//FString Message = FString::Printf(TEXT("¼ì²âµ½ %d ¸öLandTemÎïÌå"), 1);
+				//FString Message = FString::Printf(TEXT("ï¿½ï¿½âµ½ %d ï¿½ï¿½LandTemï¿½ï¿½ï¿½ï¿½"), 1);
 
 				//GEngine->AddOnScreenDebugMessage(
-				//	-1,                    // Key (-1±íÊ¾×Ô¶¯·ÖÅä)
-				//	1.0f,                  // ÏÔÊ¾Ê±¼ä(Ãë)
-				//	FColor::Green,         // ÑÕÉ«
-				//	Message                // ÎÄ×ÖÄÚÈİ
+				//	-1,                    // Key (-1ï¿½ï¿½Ê¾ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½)
+				//	1.0f,                  // ï¿½ï¿½Ê¾Ê±ï¿½ï¿½(ï¿½ï¿½)
+				//	FColor::Green,         // ï¿½ï¿½É«
+				//	Message                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				//);
 			}
 		}
@@ -448,12 +449,12 @@ TArray<AActor*> Ablack_moneyCharacter::GetNearbyObjectsWithTag(TArray<FName> tag
 		sphereCenter,
 		radius,
 		objectTypes,
-		AActor::StaticClass(),  // Ö»¼ì²âActor
+		AActor::StaticClass(),  // Ö»ï¿½ï¿½ï¿½Actor
 		{},
 		OverlappingActors
 	);
 
-	// ¹ıÂËÓĞÌØ¶¨TagµÄActor
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø¶ï¿½Tagï¿½ï¿½Actor
 	for (AActor* Actor : OverlappingActors)
 	{
 		for (const FName tagName : tagNames) {

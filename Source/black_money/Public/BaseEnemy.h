@@ -125,6 +125,26 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	class ACharacter* GetPlayerCharacter() const;
 
+	// ========== 攻击系统相关方法 ==========
+	
+	/**
+	 * 执行攻击判定（由动画通知调用）
+	 * 查找攻击范围内的目标并造成伤害
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	virtual void PerformAttack();
+
+	/**
+	 * 开始攻击（播放攻击动画）
+	 * @return 是否成功开始攻击（如果正在冷却中则返回false）
+	 */
+	virtual bool StartAttack();
+
+	/**
+	 * 检查是否可以攻击（冷却时间是否结束）
+	 */
+	bool CanAttack() const;
+
 protected:
 	// 是否已死亡
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
@@ -221,5 +241,42 @@ protected:
 
 	// 状态切换逻辑（根据当前情况决定下一个状态）
 	virtual EEnemyAIState DetermineNextState() const;
+
+	/**
+	 * 攻击动画播放完成回调
+	 */
+	UFUNCTION()
+	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+protected:
+	// ========== 攻击系统相关成员 ==========
+	
+	// 攻击动画蒙太奇
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	class UAnimMontage* AttackMontage;
+
+	// 是否正在攻击（用于防止重复判定）
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	bool bIsAttacking = false;
+
+	// 攻击冷却计时器
+	FTimerHandle AttackCooldownTimer;
+
+	// 当前攻击冷却剩余时间（用于调试和UI显示）
+	float AttackCooldownRemaining = 0.0f;
+
+	// 本次攻击中已命中的目标（防止同一攻击动画中重复判定）
+	UPROPERTY()
+	TArray<AActor*> AlreadyHitTargetsInThisAttack;
+
+	// ========== 受击和死亡动画蒙太奇 ==========
+	
+	// 受击动画蒙太奇
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	class UAnimMontage* HitMontage;
+
+	// 死亡动画蒙太奇
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	class UAnimMontage* DeathMontage;
 };
 
