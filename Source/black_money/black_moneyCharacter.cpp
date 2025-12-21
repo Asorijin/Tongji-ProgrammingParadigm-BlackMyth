@@ -52,7 +52,7 @@ Ablack_moneyCharacter::Ablack_moneyCharacter()
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
-	CameraBoom->bDoCollisionTest = false; // ç¦ç”¨ç¢°æ’žæ£€æµ‹ï¼Œé˜²æ­¢æ€ªç‰©æ”»å‡»æ—¶ç›¸æœºæ‹‰è¿‘
+	CameraBoom->bDoCollisionTest = false; 
 
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
@@ -62,28 +62,28 @@ Ablack_moneyCharacter::Ablack_moneyCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
-	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	// ÇòÐÎ¼ì²â·¶Î§
 	DetectionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("DetectionSphere"));
 	DetectionSphere->SetupAttachment(RootComponent);
 	DetectionSphere->SetSphereRadius(500.0f);
 	DetectionSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	DetectionSphere->SetCollisionResponseToAllChannels(ECR_Overlap);
-	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×²ï¿½ï¿½
+	// ÎäÆ÷Åö×²ºÐ
 	WeaponHitBox = CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponHitBox"));
 	WeaponHitBox->SetupAttachment(GetMesh(), TEXT("weapon_r"));
 	WeaponHitBox->InitBoxExtent(FVector(10.f, 30.f, 10.f));
 
-	WeaponHitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);    // Ä¬ï¿½Ï¹Ø±ï¿½
+	WeaponHitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);    
 	WeaponHitBox->SetCollisionObjectType(ECC_Pawn);
 	WeaponHitBox->SetCollisionResponseToAllChannels(ECR_Ignore);
-	WeaponHitBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);  // ï¿½ï¿½ Pawn ï¿½Øµï¿½
+	WeaponHitBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);  //
 
-	WeaponHitBox->SetHiddenInGame(false);//ï¿½ï¿½ï¿½Úµï¿½ï¿½Ô²é¿´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªtrue
+	WeaponHitBox->SetHiddenInGame(false);//ÏÔÊ¾Åö×²ºÐ£¬·½±ãµ÷ÊÔ
 
-	// ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½Ó»ï¿½
+	// ÏÔÊ¾¼ì²â·¶Î§£¬·½±ãµ÷ÊÔ
 	DetectionSphere->SetHiddenInGame(false);
 
-	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	//ÒôÀÖ×é¼þ
 	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
 	AudioComponent->SetupAttachment(RootComponent);
 	AudioComponent->bAutoActivate = false;
@@ -121,10 +121,10 @@ void Ablack_moneyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &Ablack_moneyCharacter::Look);
-		// ï¿½ï¿½ Ctrl -> Dodge
+		// °ó¶¨ Ctrl -> Dodge
 		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::Dodge);
 
-		//ï¿½ó¶¨¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		// °ó¶¨ Êó±ê×ó¼ü -> Attack
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::Attack);
 
 	}
@@ -171,29 +171,32 @@ void Ablack_moneyCharacter::Look(const FInputActionValue& Value)
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
 }
-// ï¿½ï¿½ï¿½Ü¹ï¿½ï¿½ï¿½
-void Ablack_moneyCharacter::Dodge() { // ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
+<<<<<<< HEAD
+// ÉÁ±Ü¹¦ÄÜ
+void Ablack_moneyCharacter::Dodge() { 
+	// ¼ì²éÊÇ·ñ¿ÉÒÔÉÁ±Ü 
 	if (!CanDodge()) { return; }
-	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½ï¿½ï¿½ë·½ï¿½ï¿½ï¿½ï¿½ï¿½Þ£ï¿½ï¿½ï¿½Ê¹ï¿½Ã½ï¿½É«Ç°ï¿½ï¿½
+	// ½øÈëÉÁ±Ü×´Ì¬
+	bIsDodging = true;
+	// ¼ÆËãÉÁ±Ü·½Ïò£ºÓÅÏÈÊ¹ÓÃ×î½üÒÆ¶¯ÊäÈë·½Ïò£»ÈôÎÞ£¬ÔòÊ¹ÓÃ½ÇÉ«Ç°Ïò
 	FVector DodgeDirection = GetLastMovementInputVector().GetSafeNormal();
 	if (DodgeDirection.IsNearlyZero())
 	{
 		DodgeDirection = GetActorForwardVector();
 	}
-	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬
-	bIsDodging = true;
-	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë®Æ½ï¿½ï¿½ï¿½ï¿½
+
+	
+	// ½ö±£ÁôË®Æ½·ÖÁ¿
 	DodgeDirection.Z = 0.0f;
 	DodgeDirection = DodgeDirection.GetSafeNormal();
 
-	// Ó¦ï¿½Ã³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü£ï¿½ï¿½ï¿½ï¿½ï¿½ XY ï¿½Ù¶È£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Zï¿½ï¿½
+	// Ó¦ÓÃÉÁ±Ü³åÁ¿
 	LaunchCharacter(DodgeDirection * DodgeStrength, /*bXYOverride*/ true, /*bZOverride*/ false);
 
-	
-	// ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þµï¿½Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È±ï¿½ï¿½ï¿½ true/false ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î½
-	bInvulnerableDuringDodge = false;
 
-	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì«ï¿½ï¿½
+	bInvulnerableDuringDodge = true;
+
+	// ²¥·ÅÉÁ±Ü¶¯»­ÃÉÌ«Ææ
 	if (DodgeMontage)
 	{
 		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
@@ -218,13 +221,13 @@ void Ablack_moneyCharacter::Dodge() { // ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 bool Ablack_moneyCharacter::CanDodge() const
 {
-	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Óµï¿½Ð¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½ï¿½ï¿½
+	// ÒÑ¾­ÔÚÉÁ±ÜÖÐ£¬»òÎÞÐ§¿ØÖÆÆ÷£¬»òÎÞÐ§ÒÆ¶¯×é¼þÊ±£¬²»ÄÜÉÁ±Ü
 	if (bIsDodging || Controller == nullptr || GetCharacterMovement() == nullptr)
 	{
 		return false;
 	}
 
-	// ï¿½ï¿½ï¿½ï¿½ï¿½Þ¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü¿ï¿½ï¿½ï¿½ï¿½Ã£ï¿½
+	// Ö»ÄÜÔÚµØÃæÉÏÉÁ±Ü
 	// return GetCharacterMovement()->IsMovingOnGround();
 	return true;
 }
@@ -239,7 +242,7 @@ void Ablack_moneyCharacter::EndDodge()
 
 void Ablack_moneyCharacter::Attack()
 {
-	// ï¿½ï¿½ï¿½ï¿½ï¿½Ð²ï¿½ï¿½Ü¹ï¿½ï¿½ï¿½
+	// ÉÁ±ÜÖÐ²»ÄÜ¹¥»÷
 	if (bIsDodging)
 	{
 		return;
@@ -248,7 +251,7 @@ void Ablack_moneyCharacter::Attack()
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	const bool bMontagePlaying = (AnimInstance && AttackMontage && AnimInstance->Montage_IsPlaying(AttackMontage));
 
-	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú¹ï¿½ï¿½ï¿½ï¿½ï¿½ / ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ / Ã»ï¿½ï¿½ï¿½ï¿½Ì«ï¿½ï¿½ / ï¿½ï¿½Ì«ï¿½ï¿½Ã»ï¿½Ú²ï¿½
+	//³õÊ¼¹¥»÷
 	if (!bIsAttacking || ComboIndex <= 0 || !AttackMontage || !bMontagePlaying)
 	{
 		ComboIndex = 1;
@@ -263,13 +266,13 @@ void Ablack_moneyCharacter::Attack()
 		return;
 	}
 
-	// ï¿½ï¿½ï¿½Ú¹ï¿½ï¿½ï¿½ï¿½Ð£ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð§
+	//Èç¹û²»ÊÇÁ¬»÷£¬Ö±½Ó·µ»Ø
 	if (!bCanQueueNextCombo)
 	{
 		return;
 	}
 
-	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½Ò»ï¿½ï¿½
+	// Á¬»÷Âß¼­
 	if (AnimInstance && AttackMontage && AnimInstance->Montage_IsPlaying(AttackMontage))
 	{
 		int32 NextComboIndex = ComboIndex + 1;
@@ -299,16 +302,16 @@ void Ablack_moneyCharacter::Attack()
 }
 void Ablack_moneyCharacter::EnableComboWindow()
 {
-	// ï¿½ï¿½Ç°ï¿½Îµï¿½ï¿½ï¡°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½
+	// ÔÊÐíÁ¬»÷ÊäÈë
 	bCanQueueNextCombo = true;
 }
 
 void Ablack_moneyCharacter::OnAttackSectionEnded()
 {
-	// ï¿½ï¿½Ç°ï¿½Î³ï¿½ï¿½×½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½Î´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	// Á¬»÷½áÊø£¬ÖØÖÃ×´Ì¬
 	bCanQueueNextCombo = false;
 
-	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	// ÖØÖÃÁ¬»÷Ë÷Òý
 	ComboIndex = 0;
 	bIsAttacking = false;
 }
@@ -320,19 +323,19 @@ void Ablack_moneyCharacter::OnWeaponHitBoxBeginOverlap(
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
-	// Ö»ï¿½Ú¹ï¿½ï¿½ï¿½×´Ì¬ï¿½Òµï¿½Ç° HitBox ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Ð§
+	//Ã»ÔÚ¹¥»÷×´Ì¬»òÅö×²ºÐÎÞÐ§Ê±£¬Ö±½Ó·µ»Ø
 	if (!bIsAttacking || !WeaponHitBox ||
 		WeaponHitBox->GetCollisionEnabled() == ECollisionEnabled::NoCollision)
 	{
 		return;
 	}
-	// ï¿½Å³ï¿½ï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	//¹¥»÷¶ÔÏóÎÞÐ§»òÊÇ×Ô¼ºÊ±£¬Ö±½Ó·µ»Ø
 	if (!OtherActor || OtherActor == this)
 	{
 		return;
 	}
 
-	// Ò»ï¿½Î¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú·ï¿½Ö¹ï¿½Ø¸ï¿½ï¿½ï¿½ï¿½ï¿½
+	//ÒÑ¾­ÃüÖÐ¸Ã¶ÔÏóÊ±£¬Ö±½Ó·µ»Ø£¬·ÀÖ¹ÖØ¸´ÉËº¦
 	if (AlreadyHitActors.Contains(OtherActor))
 	{
 		return;
@@ -340,17 +343,16 @@ void Ablack_moneyCharacter::OnWeaponHitBoxBeginOverlap(
 	AlreadyHitActors.Add(OtherActor);
 
 
-	// Í¨ï¿½ï¿½ EventCenter ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½
-	// Í¨ï¿½ï¿½ EventCenter ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½
+	// ´¥·¢ÉËº¦ÊÂ¼þ
 	if (EventCenter && characterConfig)
 	{
 		const float DamageValue = static_cast<float>(characterConfig->_attack);
 
 		EventCenter->MakeDamage(
-			OtherActor,      // ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½
-			DamageValue,     // ï¿½Ëºï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã£ï¿½
+			OtherActor,      // ÊÜ»÷¶ÔÏó
+			DamageValue,     // ÉËº¦Öµ
 			GetController(), // Instigator
-			this             // ï¿½ï¿½É«ï¿½Ô¼ï¿½
+			this           // ÉËº¦À´Ô´
 		);
 	}
 }
@@ -387,13 +389,13 @@ void Ablack_moneyCharacter::BeginPlay() {
 	characterConfig = NewObject<UCharacterConfig>();
 	characterConfig->Initialize();
 
-	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×²ï¿½Øµï¿½Î¯ï¿½ï¿½
+	// °ó¶¨ÎäÆ÷Åö×²ºÐÖØµþÊÂ¼þ
 	if (WeaponHitBox)
 	{
 		WeaponHitBox->OnComponentBeginOverlap.AddDynamic(this,&Ablack_moneyCharacter::OnWeaponHitBoxBeginOverlap);
 	}
 
-	// ï¿½ï¿½ GameInstance ï¿½ï¿½È¡ EventCenterï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ TriggerNearByInteractions ï¿½ï¿½ï¿½ï¿½Ã·ï¿½ï¿½ï¿½
+	// »ñÈ¡ÊÂ¼þÖÐÐÄ
 	if (Ublack_moneyGameInstance* GI = Cast<Ublack_moneyGameInstance>(GetGameInstance()))
 	{
 		EventCenter = GI->GetEventCenter();
@@ -409,7 +411,7 @@ void Ablack_moneyCharacter::Tick(float deltaTime) {
 		if (actor->ActorHasTag(FName("LandTemple"))) {
 			if (GEngine)
 			{
-				//FString Message = FString::Printf(TEXT("ï¿½ï¿½âµ½ %d ï¿½ï¿½LandTemï¿½ï¿½ï¿½ï¿½"), 1);
+				//FString Message = FString::Printf(TEXT("ï¿½ï¿½âµ?%d ï¿½ï¿½LandTemï¿½ï¿½ï¿½ï¿½"), 1);
 
 				//GEngine->AddOnScreenDebugMessage(
 				//	-1,                    // Key (-1ï¿½ï¿½Ê¾ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½)
@@ -449,12 +451,12 @@ TArray<AActor*> Ablack_moneyCharacter::GetNearbyObjectsWithTag(TArray<FName> tag
 		sphereCenter,
 		radius,
 		objectTypes,
-		AActor::StaticClass(),  // Ö»ï¿½ï¿½ï¿½Actor
+		AActor::StaticClass(),  
 		{},
 		OverlappingActors
 	);
 
-	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø¶ï¿½Tagï¿½ï¿½Actor
+	// É¸Ñ¡´øÓÐÖ¸¶¨±êÇ©µÄ¶ÔÏó
 	for (AActor* Actor : OverlappingActors)
 	{
 		for (const FName tagName : tagNames) {
@@ -510,3 +512,202 @@ void Ablack_moneyCharacter::TriggerNearByInteractions() {
 	nearbyInteraction.Remove(firstObject);
 	firstObject->Destroy();
 }
+
+float Ablack_moneyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	// ÉÁ±ÜÎÞµÐ,Ö±½ÓÃâÉË
+	if (bInvulnerableDuringDodge)
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1, 1.0f, FColor::Cyan,
+				TEXT("TakeDamage blocked by dodge i-frame"));
+		}
+		return 0.0f;
+	}
+	// ±ê¼Ç´¦ÓÚÊÜ»÷ÖÐ
+	bIsTakingDamage = true;
+	// Ã»ÓÐÅäÖÃµÄ»°£¬×ß¸¸ÀàÄ¬ÈÏÂß¼­
+	if (!characterConfig)
+	{
+		return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	}
+
+	// ÉËº¦¼ÆËãÂß¼­ 
+
+	//  °Ñ½ÇÉ«ÅäÖÃÀïµÄ hp¡¢·ÀÓùÄÃ³öÀ´
+	const int32 Defence = characterConfig->_defence;  
+	const float FinalDamage = FMath::Max(DamageAmount - Defence, 1.0f);
+
+	// ¿ÛÑª
+	characterConfig->_hp -= static_cast<int32>(FinalDamage);
+	characterConfig->_hp = FMath::Clamp(characterConfig->_hp, 0, characterConfig->GetMaxHp());
+
+	if (GEngine)
+	{
+		const FString Msg = FString::Printf(
+			TEXT("TakeDamage: %.1f, HP=%d/%d"),
+			FinalDamage,
+			characterConfig->_hp,
+			characterConfig->GetMaxHp());
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, Msg);
+	}
+	// ²¥·ÅÊÜ»÷ÃÉÌ«Ææ
+	if (characterConfig->_hp > 0 && HitMontage && !bIsDodging)
+	{
+
+		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+		{
+			// Èç¹ûÕýÔÚ¹¥»÷£¬ÏÈÍ£Ö¹¹¥»÷ÃÉÌ«Ææ
+			 if (bIsAttacking)
+			 {
+			     AnimInstance->Montage_Stop(0.1f, AttackMontage);
+			 }
+
+			// È·±£ÃÉÌ«ÆæÒÑÔÚ²¥·Å
+			if (!AnimInstance->Montage_IsPlaying(HitMontage))
+			{
+				AnimInstance->Montage_Play(HitMontage, 1.0f);
+			}
+
+			// ¸ù¾Ý DamageCauser ¼ÆËã·½Ïò²¢Ìø×ª Section
+			const FName SectionName = GetHitSectionNameForCauser(this, DamageCauser);
+			AnimInstance->Montage_JumpToSection(SectionName, HitMontage);
+
+			if (GEngine)
+			{
+				const FString DirMsg = FString::Printf(TEXT("Hit Section: %s"), *SectionName.ToString());
+				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, DirMsg);
+			}
+		}
+	}
+	//  ÅÐ¶ÏËÀÍö
+	else if (characterConfig->_hp <= 0)
+	{
+		HandleDeath();
+	}
+
+	// ·µ»ØÊµ¼ÊÔì³ÉµÄÉË
+	return FinalDamage;
+}
+	// ¸ù¾Ý¹¥»÷ÕßÎ»ÖÃ¼ÆËãÊÜ»÷·½Ïò¶ÔÓ¦µÄ Section Ãû
+	FName Ablack_moneyCharacter::GetHitSectionNameForCauser(const AActor* Victim, const AActor* DamageCauser)
+	{
+		// Ä¬ÈÏÇ°·½ÊÜ»÷
+		FName SectionName = TEXT("Hit_Front");
+
+		if (!Victim || !DamageCauser)
+		{
+			return SectionName;
+		}
+
+		const FVector VictimLocation = Victim->GetActorLocation();
+		const FVector CauserLocation = DamageCauser->GetActorLocation();
+
+		// ´ÓÊÜ»÷ÕßÖ¸Ïò¹¥»÷ÕßµÄÏòÁ¿£¨ºöÂÔ Z ¸ß¶È£¬Ö»¿´Ë®Æ½Ãæ£©
+		const FVector ToCauser = (CauserLocation - VictimLocation).GetSafeNormal2D();
+
+		// ÊÜ»÷Õß×ÔÉíµÄÇ°ÏòºÍÓÒÏò£¨Ò²Ö»¿´Ë®Æ½Ãæ£©
+		const FVector Forward = Victim->GetActorForwardVector().GetSafeNormal2D();
+		const FVector Right = Victim->GetActorRightVector().GetSafeNormal2D();
+
+		// ºÍÇ°/ÓÒÏòÁ¿×öµã»ý
+		const float ForwardDot = FVector::DotProduct(Forward, ToCauser);
+		const float RightDot = FVector::DotProduct(Right, ToCauser);
+
+		// ¾ø¶ÔÖµ¸ü´óµÄÄÇ¸ö·½Ïò¾ö¶¨´óÀà£ºÇ°ºó or ×óÓÒ
+		if (FMath::Abs(ForwardDot) >= FMath::Abs(RightDot))
+		{
+			// Ç°£¨¹¥»÷Õß´óÖÂÔÚ×Ô¼ºÇ°·½£©
+			if (ForwardDot >= 0.f)
+			{
+				SectionName = TEXT("Hit_Front");
+			}
+			// ºó£¨¹¥»÷ÕßÔÚ×Ô¼º±³ºó£©
+			else
+			{
+				SectionName = TEXT("Hit_Back");
+			}
+		}
+		else
+		{
+			// ÓÒ£¨¹¥»÷ÕßÔÚ×Ô¼ºÓÒ²à£©
+			if (RightDot >= 0.f)
+			{
+				SectionName = TEXT("Hit_Right");
+			}
+			// ×ó£¨¹¥»÷ÕßÔÚ×Ô¼º×ó²à£©
+			else
+			{
+				SectionName = TEXT("Hit_Left");
+			}
+		}
+
+		return SectionName;
+	}
+
+
+	void Ablack_moneyCharacter::HandleDeath()
+	{
+		// ÒÑ¾­´¦Àí¹ýËÀÍö¾Í²»ÔÙÖØ¸´
+		if (bIsDead)
+		{
+			return;
+		}
+
+		bIsDead = true;
+
+		// Í£Ö¹ÒÆ¶¯
+		if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+		{
+			MoveComp->StopMovementImmediately();
+			MoveComp->DisableMovement();
+		}
+
+		// ¹Ø±ÕÅö×²£¨·ÀÖ¹±»ÔÙ´Î´òÖÐ/µ²Â·£©
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		// ½ûÓÃÊäÈë£¨Íæ¼Ò½ÇÉ«£©
+		if (AController* C = GetController())
+		{
+			if (APlayerController* PC = Cast<APlayerController>(C))
+			{
+				DisableInput(PC);
+			}
+		}
+
+		// ²¥·ÅËÀÍöÃÉÌ«Ææ
+		if (DeathMontage)
+		{
+			if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+			{
+				// Í£µô¹¥»÷/ÊÜ»÷ÃÉÌ«Ææ
+				if (AttackMontage && AnimInstance->Montage_IsPlaying(AttackMontage))
+				{
+					AnimInstance->Montage_Stop(0.1f, AttackMontage);
+				}
+				if (HitMontage && AnimInstance->Montage_IsPlaying(HitMontage))
+				{
+					AnimInstance->Montage_Stop(0.1f, HitMontage);
+				}
+
+				AnimInstance->Montage_Play(DeathMontage, 1.0f);
+			}
+		}
+
+		// Debug ÏÔÊ¾
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				2.0f,
+				FColor::Red,
+				TEXT("Player Dead"));
+		}
+
+		// ÔÚÕâÀï´¥·¢ GameOver UI¡¢ÇÐ¹Ø¡¢»Øµ½Ö÷²Ëµ¥µÈ
+		// ÀýÈç£ºCast<Ublack_moneyGameInstance>(GetGameInstance())->OnPlayerDead();
+	}
+
