@@ -77,6 +77,9 @@ protected:
 
 	//攻击功能
 	void Attack();
+	//处理死亡
+	UFUNCTION(BlueprintCallable, Category = "State")
+	virtual void HandleDeath();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	USphereComponent* DetectionSphere;
@@ -110,6 +113,8 @@ public:
 	FORCEINLINE bool IsDodging() const { return bIsDodging; };
 	//判断是否处于攻击状态
 	FORCEINLINE bool IsAttacking() const { return bIsAttacking; };
+	//判断是否处于受击中
+	FORCEINLINE bool IsTakingDamage() const { return bIsTakingDamage; }
 	//获取附近可交互物体
 	TSet<AActor*> nearbyInteraction;
 
@@ -136,7 +141,12 @@ private:
 	
 	//是否处于攻击状态
 	bool bIsAttacking = false;
-
+	// 是否处于受击中
+	UPROPERTY(VisibleAnywhere, Category = "Hit")
+	bool bIsTakingDamage = false;
+	// 是否已死亡
+	UPROPERTY(VisibleAnywhere,  Category = "State")
+	bool bIsDead = false;
 	
 
 protected:
@@ -149,6 +159,7 @@ protected:
 		int32 OtherBodyIndex,
 		bool bFromSweep,
 		const FHitResult& SweepResult);
+	FName GetHitSectionNameForCauser(const AActor* Victim, const AActor* DamageCauser);
 	// ----- 武器判定组件/数据 -----
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	UBoxComponent* WeaponHitBox;
@@ -173,7 +184,12 @@ protected:
 	/** 闪避翻滚蒙太奇（在角色蓝图里指定） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dodge", meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* DodgeMontage = nullptr;
-
+	/** 受击蒙太奇（四向受击） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* HitMontage = nullptr;
+	// 死亡蒙太奇
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "State", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* DeathMontage;
 	float DodgePlayRate = 1.0f;
 	//根据指定TAG获取周围物体
 	TArray<AActor*> GetNearbyObjectsWithTag(TArray<FName> tagNames, float radius) const;
@@ -192,6 +208,14 @@ protected:
 
 	//按F触发与物体互动事件，需要绑定按键
 	void TriggerNearByInteractions();
+	public:
+		// 重写 UE 内置的 TakeDamage
+		virtual float TakeDamage(
+			float DamageAmount,
+			struct FDamageEvent const& DamageEvent,
+			class AController* EventInstigator,
+			class AActor* DamageCauser
+		) override;
 
 	public:
 		UFUNCTION(BlueprintCallable, Category = "Combat")
@@ -207,6 +231,14 @@ protected:
 		void EndAttackHit();
 		/** 闪避结束回调 */
 		void EndDodge();
+		// 受击结束回调
+		void EndHit() {
+			bIsTakingDamage = false;
+			return;
+		}
+		// 给 AnimInstance 用的只读接口
+		UFUNCTION(BlueprintPure, Category = "State")
+		bool IsDead() const { return bIsDead; }
 
 };
 

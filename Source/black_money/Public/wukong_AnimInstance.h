@@ -40,6 +40,12 @@ public:
 	//是否攻击
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack")
 	bool bIsAttacking;
+	// 是否处于受击中
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit")
+	bool bIsTakingDamage;
+	//是否死亡
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "State")
+	bool bIsDead;
 
 	
 };

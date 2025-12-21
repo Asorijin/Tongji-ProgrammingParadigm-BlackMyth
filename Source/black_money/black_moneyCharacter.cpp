@@ -171,16 +171,18 @@ void Ablack_moneyCharacter::Look(const FInputActionValue& Value)
 	}
 }
 // 闪避功能
-void Ablack_moneyCharacter::Dodge() { // 检查是否可以闪避 
+void Ablack_moneyCharacter::Dodge() { 
+	// 检查是否可以闪避 
 	if (!CanDodge()) { return; }
+	// 进入闪避状态
+	bIsDodging = true;
 	// 计算闪避方向：优先使用最近移动输入方向；若无，则使用角色前向
 	FVector DodgeDirection = GetLastMovementInputVector().GetSafeNormal();
 	if (DodgeDirection.IsNearlyZero())
 	{
 		DodgeDirection = GetActorForwardVector();
 	}
-	// 进入闪避状态
-	bIsDodging = true;
+	
 	// 仅保留水平分量
 	DodgeDirection.Z = 0.0f;
 	DodgeDirection = DodgeDirection.GetSafeNormal();
@@ -188,9 +190,7 @@ void Ablack_moneyCharacter::Dodge() { // 检查是否可以闪避
 	// 应用冲量进行闪避（覆盖 XY 速度，但不覆盖 Z）
 	LaunchCharacter(DodgeDirection * DodgeStrength, /*bXYOverride*/ true, /*bZOverride*/ false);
 
-	
-	// 暂时不考虑无敌帧，这个标记先保持 true/false 都无所谓
-	bInvulnerableDuringDodge = false;
+	bInvulnerableDuringDodge = true;
 
 	// 播放闪避蒙太奇
 	if (DodgeMontage)
@@ -509,3 +509,202 @@ void Ablack_moneyCharacter::TriggerNearByInteractions() {
 	nearbyInteraction.Remove(firstObject);
 	firstObject->Destroy();
 }
+
+float Ablack_moneyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	// 闪避无敌,直接免伤
+	if (bInvulnerableDuringDodge)
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1, 1.0f, FColor::Cyan,
+				TEXT("TakeDamage blocked by dodge i-frame"));
+		}
+		return 0.0f;
+	}
+	// 标记处于受击中
+	bIsTakingDamage = true;
+	// 没有配置的话，走父类默认逻辑
+	if (!characterConfig)
+	{
+		return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	}
+
+	// 伤害计算逻辑 
+
+	//  把角色配置里的 hp、防御拿出来
+	const int32 Defence = characterConfig->_defence;  
+	const float FinalDamage = FMath::Max(DamageAmount - Defence, 1.0f);
+
+	// 扣血
+	characterConfig->_hp -= static_cast<int32>(FinalDamage);
+	characterConfig->_hp = FMath::Clamp(characterConfig->_hp, 0, characterConfig->GetMaxHp());
+
+	if (GEngine)
+	{
+		const FString Msg = FString::Printf(
+			TEXT("TakeDamage: %.1f, HP=%d/%d"),
+			FinalDamage,
+			characterConfig->_hp,
+			characterConfig->GetMaxHp());
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, Msg);
+	}
+	// 播放受击蒙太奇
+	if (characterConfig->_hp > 0 && HitMontage && !bIsDodging)
+	{
+
+		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+		{
+			// 如果正在攻击，先停止攻击蒙太奇
+			 if (bIsAttacking)
+			 {
+			     AnimInstance->Montage_Stop(0.1f, AttackMontage);
+			 }
+
+			// 确保蒙太奇已在播放
+			if (!AnimInstance->Montage_IsPlaying(HitMontage))
+			{
+				AnimInstance->Montage_Play(HitMontage, 1.0f);
+			}
+
+			// 根据 DamageCauser 计算方向并跳转 Section
+			const FName SectionName = GetHitSectionNameForCauser(this, DamageCauser);
+			AnimInstance->Montage_JumpToSection(SectionName, HitMontage);
+
+			if (GEngine)
+			{
+				const FString DirMsg = FString::Printf(TEXT("Hit Section: %s"), *SectionName.ToString());
+				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, DirMsg);
+			}
+		}
+	}
+	//  判断死亡
+	else if (characterConfig->_hp <= 0)
+	{
+		HandleDeath();
+	}
+
+	// 返回实际造成的伤
+	return FinalDamage;
+}
+	// 根据攻击者位置计算受击方向对应的 Section 名
+	FName Ablack_moneyCharacter::GetHitSectionNameForCauser(const AActor* Victim, const AActor* DamageCauser)
+	{
+		// 默认前方受击
+		FName SectionName = TEXT("Hit_Front");
+
+		if (!Victim || !DamageCauser)
+		{
+			return SectionName;
+		}
+
+		const FVector VictimLocation = Victim->GetActorLocation();
+		const FVector CauserLocation = DamageCauser->GetActorLocation();
+
+		// 从受击者指向攻击者的向量（忽略 Z 高度，只看水平面）
+		const FVector ToCauser = (CauserLocation - VictimLocation).GetSafeNormal2D();
+
+		// 受击者自身的前向和右向（也只看水平面）
+		const FVector Forward = Victim->GetActorForwardVector().GetSafeNormal2D();
+		const FVector Right = Victim->GetActorRightVector().GetSafeNormal2D();
+
+		// 和前/右向量做点积
+		const float ForwardDot = FVector::DotProduct(Forward, ToCauser);
+		const float RightDot = FVector::DotProduct(Right, ToCauser);
+
+		// 绝对值更大的那个方向决定大类：前后 or 左右
+		if (FMath::Abs(ForwardDot) >= FMath::Abs(RightDot))
+		{
+			// 前（攻击者大致在自己前方）
+			if (ForwardDot >= 0.f)
+			{
+				SectionName = TEXT("Hit_Front");
+			}
+			// 后（攻击者在自己背后）
+			else
+			{
+				SectionName = TEXT("Hit_Back");
+			}
+		}
+		else
+		{
+			// 右（攻击者在自己右侧）
+			if (RightDot >= 0.f)
+			{
+				SectionName = TEXT("Hit_Right");
+			}
+			// 左（攻击者在自己左侧）
+			else
+			{
+				SectionName = TEXT("Hit_Left");
+			}
+		}
+
+		return SectionName;
+	}
+
+
+	void Ablack_moneyCharacter::HandleDeath()
+	{
+		// 已经处理过死亡就不再重复
+		if (bIsDead)
+		{
+			return;
+		}
+
+		bIsDead = true;
+
+		// 停止移动
+		if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+		{
+			MoveComp->StopMovementImmediately();
+			MoveComp->DisableMovement();
+		}
+
+		// 关闭碰撞（防止被再次打中/挡路）
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		// 禁用输入（玩家角色）
+		if (AController* C = GetController())
+		{
+			if (APlayerController* PC = Cast<APlayerController>(C))
+			{
+				DisableInput(PC);
+			}
+		}
+
+		// 播放死亡蒙太奇
+		if (DeathMontage)
+		{
+			if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+			{
+				// 停掉攻击/受击蒙太奇
+				if (AttackMontage && AnimInstance->Montage_IsPlaying(AttackMontage))
+				{
+					AnimInstance->Montage_Stop(0.1f, AttackMontage);
+				}
+				if (HitMontage && AnimInstance->Montage_IsPlaying(HitMontage))
+				{
+					AnimInstance->Montage_Stop(0.1f, HitMontage);
+				}
+
+				AnimInstance->Montage_Play(DeathMontage, 1.0f);
+			}
+		}
+
+		// Debug 显示
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				2.0f,
+				FColor::Red,
+				TEXT("Player Dead"));
+		}
+
+		// 在这里触发 GameOver UI、切关、回到主菜单等
+		// 例如：Cast<Ublack_moneyGameInstance>(GetGameInstance())->OnPlayerDead();
+	}
+
