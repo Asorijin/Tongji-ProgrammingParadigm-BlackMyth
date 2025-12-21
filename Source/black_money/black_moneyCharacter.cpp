@@ -171,7 +171,6 @@ void Ablack_moneyCharacter::Look(const FInputActionValue& Value)
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
 }
-<<<<<<< HEAD
 // 闪避功能
 void Ablack_moneyCharacter::Dodge() { 
 	// 检查是否可以闪避 
