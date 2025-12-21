@@ -52,6 +52,7 @@ Ablack_moneyCharacter::Ablack_moneyCharacter()
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	CameraBoom->bDoCollisionTest = false; 
 
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
@@ -61,28 +62,28 @@ Ablack_moneyCharacter::Ablack_moneyCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
-	// 创建检测球体组件
+	// 球形检测范围
 	DetectionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("DetectionSphere"));
 	DetectionSphere->SetupAttachment(RootComponent);
 	DetectionSphere->SetSphereRadius(500.0f);
 	DetectionSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	DetectionSphere->SetCollisionResponseToAllChannels(ECR_Overlap);
-	// 创建武器碰撞盒
+	// 武器碰撞盒
 	WeaponHitBox = CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponHitBox"));
 	WeaponHitBox->SetupAttachment(GetMesh(), TEXT("weapon_r"));
 	WeaponHitBox->InitBoxExtent(FVector(10.f, 30.f, 10.f));
 
-	WeaponHitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);    // 默认关闭
+	WeaponHitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);    
 	WeaponHitBox->SetCollisionObjectType(ECC_Pawn);
 	WeaponHitBox->SetCollisionResponseToAllChannels(ECR_Ignore);
-	WeaponHitBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);  // 与 Pawn 重叠
+	WeaponHitBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);  //
 
-	WeaponHitBox->SetHiddenInGame(false);//便于调试查看，最后改为true
+	WeaponHitBox->SetHiddenInGame(false);//显示碰撞盒，方便调试
 
-	// 设置可视化
+	// 显示检测范围，方便调试
 	DetectionSphere->SetHiddenInGame(false);
 
-	//创建音乐组件
+	//音乐组件
 	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
 	AudioComponent->SetupAttachment(RootComponent);
 	AudioComponent->bAutoActivate = false;
@@ -123,7 +124,7 @@ void Ablack_moneyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 		// 绑定 Ctrl -> Dodge
 		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::Dodge);
 
-		//绑定攻击动作
+		// 绑定 鼠标左键 -> Attack
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::Attack);
 
 	}
@@ -170,6 +171,7 @@ void Ablack_moneyCharacter::Look(const FInputActionValue& Value)
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
 }
+<<<<<<< HEAD
 // 闪避功能
 void Ablack_moneyCharacter::Dodge() { 
 	// 检查是否可以闪避 
@@ -182,17 +184,19 @@ void Ablack_moneyCharacter::Dodge() {
 	{
 		DodgeDirection = GetActorForwardVector();
 	}
+
 	
 	// 仅保留水平分量
 	DodgeDirection.Z = 0.0f;
 	DodgeDirection = DodgeDirection.GetSafeNormal();
 
-	// 应用冲量进行闪避（覆盖 XY 速度，但不覆盖 Z）
+	// 应用闪避冲量
 	LaunchCharacter(DodgeDirection * DodgeStrength, /*bXYOverride*/ true, /*bZOverride*/ false);
+
 
 	bInvulnerableDuringDodge = true;
 
-	// 播放闪避蒙太奇
+	// 播放闪避动画蒙太奇
 	if (DodgeMontage)
 	{
 		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
@@ -217,13 +221,13 @@ void Ablack_moneyCharacter::Dodge() {
 
 bool Ablack_moneyCharacter::CanDodge() const
 {
-	// 不在闪避中且拥有控制器和移动组件
+	// 已经在闪避中，或无效控制器，或无效移动组件时，不能闪避
 	if (bIsDodging || Controller == nullptr || GetCharacterMovement() == nullptr)
 	{
 		return false;
 	}
 
-	// 如需限定地面闪避可启用：
+	// 只能在地面上闪避
 	// return GetCharacterMovement()->IsMovingOnGround();
 	return true;
 }
@@ -247,7 +251,7 @@ void Ablack_moneyCharacter::Attack()
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	const bool bMontagePlaying = (AnimInstance && AttackMontage && AnimInstance->Montage_IsPlaying(AttackMontage));
 
-	// 起手条件：不在攻击中 / 连击已清零 / 没有蒙太奇 / 蒙太奇没在播
+	//初始攻击
 	if (!bIsAttacking || ComboIndex <= 0 || !AttackMontage || !bMontagePlaying)
 	{
 		ComboIndex = 1;
@@ -262,13 +266,13 @@ void Ablack_moneyCharacter::Attack()
 		return;
 	}
 
-	// 已在攻击中：只有在连击窗口开放时，按键才生效
+	//如果不是连击，直接返回
 	if (!bCanQueueNextCombo)
 	{
 		return;
 	}
 
-	// 可以连击：切到下一段
+	// 连击逻辑
 	if (AnimInstance && AttackMontage && AnimInstance->Montage_IsPlaying(AttackMontage))
 	{
 		int32 NextComboIndex = ComboIndex + 1;
@@ -298,16 +302,16 @@ void Ablack_moneyCharacter::Attack()
 }
 void Ablack_moneyCharacter::EnableComboWindow()
 {
-	// 当前段到达“可连击”时间点
+	// 允许连击输入
 	bCanQueueNextCombo = true;
 }
 
 void Ablack_moneyCharacter::OnAttackSectionEnded()
 {
-	// 当前段彻底结束，若此时仍未连击，则整套攻击结束
+	// 连击结束，重置状态
 	bCanQueueNextCombo = false;
 
-	// 真正结束连击
+	// 重置连击索引
 	ComboIndex = 0;
 	bIsAttacking = false;
 }
@@ -319,19 +323,19 @@ void Ablack_moneyCharacter::OnWeaponHitBoxBeginOverlap(
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
-	// 只在攻击状态且当前 HitBox 开启时才生效
+	//没在攻击状态或碰撞盒无效时，直接返回
 	if (!bIsAttacking || !WeaponHitBox ||
 		WeaponHitBox->GetCollisionEnabled() == ECollisionEnabled::NoCollision)
 	{
 		return;
 	}
-	// 排除无效对象和自身
+	//攻击对象无效或是自己时，直接返回
 	if (!OtherActor || OtherActor == this)
 	{
 		return;
 	}
 
-	// 一次攻击窗口内防止重复命中
+	//已经命中该对象时，直接返回，防止重复伤害
 	if (AlreadyHitActors.Contains(OtherActor))
 	{
 		return;
@@ -339,17 +343,16 @@ void Ablack_moneyCharacter::OnWeaponHitBoxBeginOverlap(
 	AlreadyHitActors.Add(OtherActor);
 
 
-	// 通过 EventCenter 结算伤害
-	// 通过 EventCenter 结算伤害
+	// 触发伤害事件
 	if (EventCenter && characterConfig)
 	{
 		const float DamageValue = static_cast<float>(characterConfig->_attack);
 
 		EventCenter->MakeDamage(
-			OtherActor,      // 被伤害对象
-			DamageValue,     // 伤害数值（来自配置）
+			OtherActor,      // 受击对象
+			DamageValue,     // 伤害值
 			GetController(), // Instigator
-			this             // 角色自己
+			this           // 伤害来源
 		);
 	}
 }
@@ -386,13 +389,13 @@ void Ablack_moneyCharacter::BeginPlay() {
 	characterConfig = NewObject<UCharacterConfig>();
 	characterConfig->Initialize();
 
-	// 绑定武器碰撞重叠委托
+	// 绑定武器碰撞盒重叠事件
 	if (WeaponHitBox)
 	{
 		WeaponHitBox->OnComponentBeginOverlap.AddDynamic(this,&Ablack_moneyCharacter::OnWeaponHitBoxBeginOverlap);
 	}
 
-	// 从 GameInstance 获取 EventCenter（按你 TriggerNearByInteractions 里的用法）
+	// 获取事件中心
 	if (Ublack_moneyGameInstance* GI = Cast<Ublack_moneyGameInstance>(GetGameInstance()))
 	{
 		EventCenter = GI->GetEventCenter();
@@ -408,13 +411,13 @@ void Ablack_moneyCharacter::Tick(float deltaTime) {
 		if (actor->ActorHasTag(FName("LandTemple"))) {
 			if (GEngine)
 			{
-				//FString Message = FString::Printf(TEXT("检测到 %d 个LandTem物体"), 1);
+				//FString Message = FString::Printf(TEXT("锟斤拷獾?%d 锟斤拷LandTem锟斤拷锟斤拷"), 1);
 
 				//GEngine->AddOnScreenDebugMessage(
-				//	-1,                    // Key (-1表示自动分配)
-				//	1.0f,                  // 显示时间(秒)
-				//	FColor::Green,         // 颜色
-				//	Message                // 文字内容
+				//	-1,                    // Key (-1锟斤拷示锟皆讹拷锟斤拷锟斤拷)
+				//	1.0f,                  // 锟斤拷示时锟斤拷(锟斤拷)
+				//	FColor::Green,         // 锟斤拷色
+				//	Message                // 锟斤拷锟斤拷锟斤拷锟斤拷
 				//);
 			}
 		}
@@ -448,12 +451,12 @@ TArray<AActor*> Ablack_moneyCharacter::GetNearbyObjectsWithTag(TArray<FName> tag
 		sphereCenter,
 		radius,
 		objectTypes,
-		AActor::StaticClass(),  // 只检测Actor
+		AActor::StaticClass(),  
 		{},
 		OverlappingActors
 	);
 
-	// 过滤有特定Tag的Actor
+	// 筛选带有指定标签的对象
 	for (AActor* Actor : OverlappingActors)
 	{
 		for (const FName tagName : tagNames) {
