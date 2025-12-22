@@ -8,7 +8,7 @@
 #include "GameFramework/Pawn.h"
 #include "Engine/DamageEvents.h" 
 
-// å‰å‘å£°æ˜ï¼Œé¿å…å¾ªç¯ä¾èµ–
+// Ç°ÏòÉùÃ÷£¬±ÜÃâÑ­»·ÒÀÀµ
 class Ablack_moneyCharacter;
 
 UEventCenter::UEventCenter() {
@@ -31,7 +31,7 @@ float UEventCenter::MakeDamage(
 		return 0.f;
 	}
 
-	// å¦‚æœæ²¡ä¼ æ§åˆ¶å™¨ï¼Œè€Œ DamageCauser æ˜¯ Pawnï¼Œå°±è‡ªåŠ¨å–å…¶ Controller
+	// Èç¹ûÃ»´«¿ØÖÆÆ÷£¬¶ø DamageCauser ÊÇ Pawn£¬¾Í×Ô¶¯È¡Æä Controller
 	if (!EventInstigator && DamageCauser)
 	{
 		if (APawn* PawnCauser = Cast<APawn>(DamageCauser))
@@ -42,17 +42,17 @@ float UEventCenter::MakeDamage(
 
 	
 	FDamageEvent DamageEvent;
-	// è®¾ç½®ä¼¤å®³ç±»å‹
+	// ÉèÖÃÉËº¦ÀàĞÍ
 	DamageEvent.DamageTypeClass = DamageTypeClass ? DamageTypeClass : TSubclassOf<UDamageType>(UDamageType::StaticClass());
 
-	// è°ƒç”¨ Actor çš„ TakeDamage
+	// µ÷ÓÃ Actor µÄ TakeDamage
 	const float ActualDamage = DamagedActor->TakeDamage(
 		DamageAmount,
 		DamageEvent,
 		EventInstigator,
 		DamageCauser);
 
-	// è¾“å‡ºæ—¥å¿—
+	// Êä³öÈÕÖ¾
 	if (ActualDamage > 0.f)
 	{
 		UE_LOG(LogTemp, Log, TEXT("EventCenter::MakeDamage - %s took %f damage from %s"),
@@ -75,28 +75,28 @@ void UEventCenter::GetTools(AActor* tool, int toolNumber) {
 		}
 	}
 	else {
-		// å…¶ä»–ç±»å‹å·¥å…·çš„å¤„ç†
+		// ÆäËûÀàĞÍ¹¤¾ßµÄ´¦Àí
 	}
 	tool->Destroy();
 }
 
 
 void UEventCenter::ChangeEquipment() {
-	// éœ€è¦å®ç°è£…å¤‡ç»“æ„
+	// ĞèÒªÊµÏÖ×°±¸½á¹¹
 }
 
 void UEventCenter::SwitchToLevel(const FString& LevelName, FVector SpawnLocation) {
 
 	if (UWorld* World = GetWorld())
 	{
-		// è·å–å½“å‰å…³å¡çš„çŸ­åç§°
+		// »ñÈ¡µ±Ç°¹Ø¿¨µÄ¶ÌÃû³Æ
 		FString CurrentLevelName = GetWorld()->GetMapName();
 		CurrentLevelName = FPaths::GetBaseFilename(CurrentLevelName);
 
-		// æ¯”è¾ƒç›®æ ‡å…³å¡åå’Œå½“å‰å…³å¡å
+		// ±È½ÏÄ¿±ê¹Ø¿¨ÃûºÍµ±Ç°¹Ø¿¨Ãû
 		if (CurrentLevelName.Equals(LevelName, ESearchCase::IgnoreCase))
 		{
-			// å·²ç»åœ¨ç›®æ ‡å…³å¡ï¼Œåªéœ€æ›´æ–°ç”Ÿæˆä½ç½®
+			// ÒÑ¾­ÔÚÄ¿±ê¹Ø¿¨£¬Ö»Ğè¸üĞÂÉú³ÉÎ»ÖÃ
 			pawnLastLocation = SpawnLocation;
 			UE_LOG(LogTemp, Log, TEXT("Already in level '%s', updated spawn location."), *LevelName);
 			return;

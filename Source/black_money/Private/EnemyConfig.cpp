@@ -4,7 +4,7 @@
 
 UEnemyConfig::UEnemyConfig()
 {
-	// åˆå§‹åŒ–é»˜è®¤å€¼
+	// ³õÊ¼»¯Ä¬ÈÏÖµ
 	MaxHp = 100;
 	CurrentHp = 100;
 	Attack = 10;
@@ -17,7 +17,7 @@ UEnemyConfig::UEnemyConfig()
 
 void UEnemyConfig::Initialize()
 {
-	// ç¡®ä¿å½“å‰ç”Ÿå‘½å€¼ä¸è¶…è¿‡æœ€å¤§ç”Ÿå‘½å€¼
+	// È·±£µ±Ç°ÉúÃüÖµ²»³¬¹ı×î´óÉúÃüÖµ
 	CurrentHp = FMath::Clamp(CurrentHp, 0, MaxHp);
 }
 

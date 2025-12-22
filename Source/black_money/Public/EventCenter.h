@@ -14,8 +14,8 @@ public:
 };
 
 /**
- * äº‹ä»¶ä¸­å¿ƒç±»
- * è´Ÿè´£ç®¡ç†æ¸¸æˆä¸­çš„å„ç§äº‹ä»¶ï¼Œå®ç°ç³»ç»Ÿé—´çš„è§£è€¦
+ * ÊÂ¼şÖĞĞÄÀà
+ * ¸ºÔğ¹ÜÀíÓÎÏ·ÖĞµÄ¸÷ÖÖÊÂ¼ş£¬ÊµÏÖÏµÍ³¼äµÄ½âñî
  */
 UCLASS()
 class BLACK_MONEY_API UEventCenter : public UObject
@@ -23,43 +23,43 @@ class BLACK_MONEY_API UEventCenter : public UObject
 	GENERATED_BODY()
 
 private:
-	// ç”Ÿæˆæ€ªç‰©ï¼ˆç§æœ‰æ–¹æ³•ï¼‰
+	// Éú³É¹ÖÎï£¨Ë½ÓĞ·½·¨£©
 	void GenerateMonster();
 	
-	// è§’è‰²æœ€åä½ç½®ï¼ˆç”¨äºå…³å¡åˆ‡æ¢æ—¶ä¿å­˜ä½ç½®ï¼‰
+	// ½ÇÉ«×îºóÎ»ÖÃ£¨ÓÃÓÚ¹Ø¿¨ÇĞ»»Ê±±£´æÎ»ÖÃ£©
 	FVector pawnLastLocation;
 	
-	// è§’è‰²æœ€åå…³å¡
+	// ½ÇÉ«×îºó¹Ø¿¨
 	FString levelName;
 
-	// å·¥å…·æ•°é‡ç»Ÿè®¡
+	// ¹¤¾ßÊıÁ¿Í³¼Æ
 	FToolsNumber* toolsNumber;
 
 public:
 	UEventCenter();
 
 	/**
-	 * åˆ‡æ¢å…³å¡
-	 * åœ¨è°ƒç”¨è¯¥å‡½æ•°å‰ï¼Œåœ¨è§’è‰²çš„BeginPlayä¸­è°ƒç”¨ï¼Œè®¾ç½®å½“å‰ä½ç½®ä¸ºSpawnLocation
-	 * @param LevelName è¦åˆ‡æ¢åˆ°çš„å…³å¡åç§°
-	 * @param SpawnLocation è®°å½•çš„è§’è‰²ä½ç½®
+	 * ÇĞ»»¹Ø¿¨
+	 * ÔÚµ÷ÓÃ¸Ãº¯ÊıÇ°£¬ÔÚ½ÇÉ«µÄBeginPlayÖĞµ÷ÓÃ£¬ÉèÖÃµ±Ç°Î»ÖÃÎªSpawnLocation
+	 * @param LevelName ÒªÇĞ»»µ½µÄ¹Ø¿¨Ãû³Æ
+	 * @param SpawnLocation ¼ÇÂ¼µÄ½ÇÉ«Î»ÖÃ
 	 */
 	void SwitchToLevel(const FString& LevelName, FVector SpawnLocation);
 
 	/**
-	 * è·å–ç”Ÿæˆä½ç½®
-	 * @return è¿”å›ä¿å­˜çš„è§’è‰²ä½ç½®
+	 * »ñÈ¡Éú³ÉÎ»ÖÃ
+	 * @return ·µ»Ø±£´æµÄ½ÇÉ«Î»ÖÃ
 	 */
 	const FVector GetSpawnLocation();
 
 	/**
-	 * é€ æˆä¼¤å®³ï¼ˆç±»ä¼¼ UGameplayStatics::ApplyDamageï¼‰
-	 * @param DamagedActor   è¢«ä¼¤å®³å¯¹è±¡
-	 * @param DamageAmount   ä¼¤å®³æ•°å€¼
-	 * @param EventInstigator é€ æˆä¼¤å®³çš„æ§åˆ¶å™¨ï¼ˆå¯ä¸º nullptrï¼‰
-	 * @param DamageCauser   é€ æˆä¼¤å®³çš„ Actorï¼ˆå¦‚è§’è‰²ã€æ­¦å™¨ï¼‰
-	 * @param DamageTypeClass ä¼¤å®³ç±»å‹ï¼ˆå¯é€‰ï¼Œé»˜è®¤ UDamageTypeï¼‰
-	 * @return å®é™…é€ æˆçš„ä¼¤å®³å€¼
+	 * Ôì³ÉÉËº¦£¨ÀàËÆ UGameplayStatics::ApplyDamage£©
+	 * @param DamagedActor   ±»ÉËº¦¶ÔÏó
+	 * @param DamageAmount   ÉËº¦ÊıÖµ
+	 * @param EventInstigator Ôì³ÉÉËº¦µÄ¿ØÖÆÆ÷£¨¿ÉÎª nullptr£©
+	 * @param DamageCauser   Ôì³ÉÉËº¦µÄ Actor£¨Èç½ÇÉ«¡¢ÎäÆ÷£©
+	 * @param DamageTypeClass ÉËº¦ÀàĞÍ£¨¿ÉÑ¡£¬Ä¬ÈÏ UDamageType£©
+	 * @return Êµ¼ÊÔì³ÉµÄÉËº¦Öµ
 	 */
 	UFUNCTION(BlueprintCallable, Category = "EventCenter|Damage")
 	float MakeDamage(
@@ -71,21 +71,21 @@ public:
 		 );
 
 	/**
-	 * ä½¿ç”¨é“å…·
-	 * @param tool é“å…·æŒ‡é’ˆ
+	 * Ê¹ÓÃµÀ¾ß
+	 * @param tool µÀ¾ßÖ¸Õë
 	 */
 	void UseTools(AActor* tool);
 
 	/**
-	 * æ‹¾å–é“å…·
-	 * @param tool é“å…·å¯¹è±¡
-	 * @param toolNumber é“å…·ç¼–å·
+	 * Ê°È¡µÀ¾ß
+	 * @param tool µÀ¾ß¶ÔÏó
+	 * @param toolNumber µÀ¾ß±àºÅ
 
 	 */
 	void GetTools(AActor* tool, int toolNumber);
 
 	/**
-	 * æ›´æ¢è£…å¤‡
+	 * ¸ü»»×°±¸
 	 */
 	void ChangeEquipment();
 };

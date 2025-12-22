@@ -30,8 +30,8 @@ ABaseEnemy::ABaseEnemy(const FObjectInitializer& ObjectInitializer)
 	bUseControllerRotationRoll = false;
 
 	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = false; // æ”¹ä¸ºfalseï¼Œæ‰‹åŠ¨æ§åˆ¶æœå‘
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 1080.0f, 0.0f); // æé«˜è½¬å‘é€Ÿåº¦ï¼ˆä»500æ”¹ä¸º1080åº¦/ç§’ï¼‰
+	GetCharacterMovement()->bOrientRotationToMovement = false; // ¸ÄÎªfalse£¬ÊÖ¶¯¿ØÖÆ³¯Ïò
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 1080.0f, 0.0f); // Ìá¸ß×ªÏòËÙ¶È£¨´Ó500¸ÄÎª1080¶È/Ãë£©
 	GetCharacterMovement()->JumpZVelocity = 600.0f;
 	GetCharacterMovement()->AirControl = 0.35f;
 	GetCharacterMovement()->MaxWalkSpeed = 150.0f;
@@ -39,7 +39,7 @@ ABaseEnemy::ABaseEnemy(const FObjectInitializer& ObjectInitializer)
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.0f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
-	// åˆ›å»ºæ”»å‡»èŒƒå›´æ£€æµ‹ç»„ä»¶
+	// ´´½¨¹¥»÷·¶Î§¼ì²â×é¼ş
 	AttackRangeSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AttackRangeSphere"));
 	AttackRangeSphere->SetupAttachment(RootComponent);
 	AttackRangeSphere->SetSphereRadius(150.0f);
@@ -48,7 +48,7 @@ ABaseEnemy::ABaseEnemy(const FObjectInitializer& ObjectInitializer)
 	AttackRangeSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	AttackRangeSphere->SetHiddenInGame(true);
 
-	// åˆ›å»ºæ£€æµ‹èŒƒå›´ç»„ä»¶
+	// ´´½¨¼ì²â·¶Î§×é¼ş
 	DetectionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("DetectionSphere"));
 	DetectionSphere->SetupAttachment(RootComponent);
 	DetectionSphere->SetSphereRadius(1000.0f);
@@ -57,21 +57,21 @@ ABaseEnemy::ABaseEnemy(const FObjectInitializer& ObjectInitializer)
 	DetectionSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	DetectionSphere->SetHiddenInGame(true);
 
-	// åˆå§‹åŒ–å ä½ç¬¦æ¨¡å‹
+	// ³õÊ¼»¯Õ¼Î»·ûÄ£ĞÍ
 	InitializePlaceholderMesh();
 
-	// åˆ›å»ºæ€ªç‰©é…ç½®å¯¹è±¡ï¼ˆUObjectä½¿ç”¨NewObjectï¼Œåœ¨BeginPlayä¸­åˆå§‹åŒ–ï¼‰
-	EnemyConfig = nullptr; // åœ¨BeginPlayä¸­åˆ›å»º
+	// ´´½¨¹ÖÎïÅäÖÃ¶ÔÏó£¨UObjectÊ¹ÓÃNewObject£¬ÔÚBeginPlayÖĞ³õÊ¼»¯£©
+	EnemyConfig = nullptr; // ÔÚBeginPlayÖĞ´´½¨
 
-	// è®¾ç½®é»˜è®¤æ ‡ç­¾
+	// ÉèÖÃÄ¬ÈÏ±êÇ©
 	Tags.Add(FName("Enemy"));
 
-	// åˆå§‹åŒ–æ”»å‡»ç³»ç»Ÿç›¸å…³å˜é‡
+	// ³õÊ¼»¯¹¥»÷ÏµÍ³Ïà¹Ø±äÁ¿
 	AttackMontage = nullptr;
 	bIsAttacking = false;
 	AttackCooldownRemaining = 0.0f;
 
-	// åˆå§‹åŒ–å—å‡»å’Œæ­»äº¡åŠ¨ç”»è’™å¤ªå¥‡
+	// ³õÊ¼»¯ÊÜ»÷ºÍËÀÍö¶¯»­ÃÉÌ«Ææ
 	HitMontage = nullptr;
 	DeathMontage = nullptr;
 }
@@ -80,7 +80,7 @@ void ABaseEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// åˆ›å»ºå¹¶åˆå§‹åŒ–æ€ªç‰©é…ç½®å¯¹è±¡
+	// ´´½¨²¢³õÊ¼»¯¹ÖÎïÅäÖÃ¶ÔÏó
 	if (!EnemyConfig)
 	{
 		EnemyConfig = NewObject<UEnemyConfig>(this);
@@ -90,11 +90,11 @@ void ABaseEnemy::BeginPlay()
 		}
 	}
 
-	// åˆå§‹åŒ–AIçŠ¶æ€
+	// ³õÊ¼»¯AI×´Ì¬
 	CurrentAIState = EEnemyAIState::Idle;
 	AIUpdateTimer = 0.0f;
 
-	// å°è¯•è·å–ç©å®¶è§’è‰²å¼•ç”¨
+	// ³¢ÊÔ»ñÈ¡Íæ¼Ò½ÇÉ«ÒıÓÃ
 	PlayerCharacter = GetPlayerCharacter();
 }
 
@@ -102,29 +102,29 @@ void ABaseEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// å¦‚æœå·²æ­»äº¡ï¼Œä¸æ›´æ–°AIå’Œç§»åŠ¨
+	// Èç¹ûÒÑËÀÍö£¬²»¸üĞÂAIºÍÒÆ¶¯
 	if (bIsDead || CurrentAIState == EEnemyAIState::Dead)
 	{
 		return;
 	}
 
-	// å¦‚æœå¤„äºChaseçŠ¶æ€ï¼Œæ¯å¸§éƒ½æ‰§è¡Œç§»åŠ¨ï¼ˆç¡®ä¿ç§»åŠ¨è¿ç»­ï¼‰
-	// æ³¨æ„ï¼šAttackçŠ¶æ€ä¸åº”è¯¥åœ¨è¿™é‡Œç§»åŠ¨ï¼Œå› ä¸ºSetAIState(Attack)æ—¶ä¼šè°ƒç”¨StopMovement
+	// Èç¹û´¦ÓÚChase×´Ì¬£¬Ã¿Ö¡¶¼Ö´ĞĞÒÆ¶¯£¨È·±£ÒÆ¶¯Á¬Ğø£©
+	// ×¢Òâ£ºAttack×´Ì¬²»Ó¦¸ÃÔÚÕâÀïÒÆ¶¯£¬ÒòÎªSetAIState(Attack)Ê±»áµ÷ÓÃStopMovement
 	if (CurrentAIState == EEnemyAIState::Chase && !bIsDead)
 	{
 		ChasePlayer(DeltaTime);
 	}
 	
-	// å¦‚æœå¤„äºAttackçŠ¶æ€ï¼Œç¡®ä¿åœæ­¢ç§»åŠ¨ï¼ˆé˜²æ­¢ChasePlayeråœ¨çŠ¶æ€åˆ‡æ¢å‰æ·»åŠ çš„ç§»åŠ¨è¾“å…¥ï¼‰
+	// Èç¹û´¦ÓÚAttack×´Ì¬£¬È·±£Í£Ö¹ÒÆ¶¯£¨·ÀÖ¹ChasePlayerÔÚ×´Ì¬ÇĞ»»Ç°Ìí¼ÓµÄÒÆ¶¯ÊäÈë£©
 	if (CurrentAIState == EEnemyAIState::Attack && !bIsDead)
 	{
-		// æ”»å‡»çŠ¶æ€ä¸‹ï¼ŒæŒç»­åœæ­¢ç§»åŠ¨ï¼Œç¡®ä¿ä¸ä¼šå› ä¸ºæ®‹ç•™çš„ç§»åŠ¨è¾“å…¥è€Œç§»åŠ¨
+		// ¹¥»÷×´Ì¬ÏÂ£¬³ÖĞøÍ£Ö¹ÒÆ¶¯£¬È·±£²»»áÒòÎª²ĞÁôµÄÒÆ¶¯ÊäÈë¶øÒÆ¶¯
 		if (GetCharacterMovement() && GetCharacterMovement()->Velocity.Size() > 0.1f)
 		{
 			StopMovement();
 		}
 		
-		// æ”»å‡»çŠ¶æ€ä¸‹ï¼Œä»ç„¶æœå‘ç©å®¶ï¼ˆä½†ä¸ç§»åŠ¨ï¼‰
+		// ¹¥»÷×´Ì¬ÏÂ£¬ÈÔÈ»³¯ÏòÍæ¼Ò£¨µ«²»ÒÆ¶¯£©
 		if (PlayerCharacter && IsValid(PlayerCharacter))
 		{
 			FVector PlayerLocation = PlayerCharacter->GetActorLocation();
@@ -139,10 +139,10 @@ void ABaseEnemy::Tick(float DeltaTime)
 		}
 	}
 
-	// ç´¯ç§¯AIæ›´æ–°è®¡æ—¶å™¨
+	// ÀÛ»ıAI¸üĞÂ¼ÆÊ±Æ÷
 	AIUpdateTimer += DeltaTime;
 
-	// æŒ‰é—´éš”æ›´æ–°AIï¼ˆä¼˜åŒ–æ€§èƒ½ï¼ŒçŠ¶æ€å†³ç­–ä¸éœ€è¦æ¯å¸§æ‰§è¡Œï¼‰
+	// °´¼ä¸ô¸üĞÂAI£¨ÓÅ»¯ĞÔÄÜ£¬×´Ì¬¾ö²ß²»ĞèÒªÃ¿Ö¡Ö´ĞĞ£©
 	if (AIUpdateTimer >= AIUpdateInterval)
 	{
 		UpdateAI(DeltaTime);
@@ -152,36 +152,36 @@ void ABaseEnemy::Tick(float DeltaTime)
 
 float ABaseEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
-	// å°†floatè½¬æ¢ä¸ºint32ï¼Œè°ƒç”¨æˆ‘ä»¬çš„ReceiveDamageæ–¹æ³•
+	// ½«float×ª»»Îªint32£¬µ÷ÓÃÎÒÃÇµÄReceiveDamage·½·¨
 	ReceiveDamage(static_cast<int32>(DamageAmount), DamageCauser);
 	return DamageAmount;
 }
 
 void ABaseEnemy::ReceiveDamage(int32 DamageAmount, AActor* DamageCauser)
 {
-	// å¦‚æœå·²æ­»äº¡æˆ–å¤„äºæ— æ•ŒçŠ¶æ€ï¼Œä¸å¤„ç†ä¼¤å®³
+	// Èç¹ûÒÑËÀÍö»ò´¦ÓÚÎŞµĞ×´Ì¬£¬²»´¦ÀíÉËº¦
 	if (bIsDead || !EnemyConfig || CurrentHitState == EEnemyHitState::Invulnerable)
 	{
 		return;
 	}
 
-	// è®¡ç®—å®é™…ä¼¤å®³ï¼ˆè€ƒè™‘é˜²å¾¡åŠ›ï¼‰
+	// ¼ÆËãÊµ¼ÊÉËº¦£¨¿¼ÂÇ·ÀÓùÁ¦£©
 	int32 ActualDamage = FMath::Max(1, DamageAmount - EnemyConfig->Defence);
 	
-	// å‡å°‘ç”Ÿå‘½å€¼
+	// ¼õÉÙÉúÃüÖµ
 	const int32 OldHp = EnemyConfig->CurrentHp;
 	EnemyConfig->CurrentHp = FMath::Max(0, EnemyConfig->CurrentHp - ActualDamage);
 
 	UE_LOG(LogTemp, Log, TEXT("Enemy %s took %d damage (from %d), remaining HP: %d"), 
 		*GetName(), ActualDamage, OldHp, EnemyConfig->CurrentHp);
 
-	// é€šçŸ¥äº‹ä»¶ä¸­å¿ƒç”Ÿå‘½å€¼å˜åŒ–ï¼ˆå¦‚æœéœ€è¦ï¼‰
-	// å¯ä»¥é€šè¿‡äº‹ä»¶ä¸­å¿ƒå¹¿æ’­ç”Ÿå‘½å€¼å˜åŒ–äº‹ä»¶ç»™UIç³»ç»Ÿç­‰
+	// Í¨ÖªÊÂ¼şÖĞĞÄÉúÃüÖµ±ä»¯£¨Èç¹ûĞèÒª£©
+	// ¿ÉÒÔÍ¨¹ıÊÂ¼şÖĞĞÄ¹ã²¥ÉúÃüÖµ±ä»¯ÊÂ¼ş¸øUIÏµÍ³µÈ
 
-	// è¿›å…¥å—å‡»ç¡¬ç›´çŠ¶æ€
+	// ½øÈëÊÜ»÷Ó²Ö±×´Ì¬
 	EnterHitStun();
 
-	// æ£€æŸ¥æ˜¯å¦æ­»äº¡
+	// ¼ì²éÊÇ·ñËÀÍö
 	if (EnemyConfig->IsDead())
 	{
 		Die();
@@ -198,49 +198,49 @@ void ABaseEnemy::Die()
 	bIsDead = true;
 	UE_LOG(LogTemp, Log, TEXT("Enemy %s died"), *GetName());
 
-	// åˆ‡æ¢åˆ°æ­»äº¡AIçŠ¶æ€
+	// ÇĞ»»µ½ËÀÍöAI×´Ì¬
 	SetAIState(EEnemyAIState::Dead);
 
-	// é€šè¿‡äº‹ä»¶ä¸­å¿ƒé€šçŸ¥æ­»äº¡äº‹ä»¶
+	// Í¨¹ıÊÂ¼şÖĞĞÄÍ¨ÖªËÀÍöÊÂ¼ş
 	if (UEventCenter* EventCenter = GetEventCenter())
 	{
-		// å¯ä»¥é€šè¿‡äº‹ä»¶ä¸­å¿ƒå¹¿æ’­æ­»äº¡äº‹ä»¶
-		// ä¾‹å¦‚ï¼šé€šçŸ¥UIæ›´æ–°ã€æ‰è½ç‰©å“ã€æ’­æ”¾éŸ³æ•ˆç­‰
+		// ¿ÉÒÔÍ¨¹ıÊÂ¼şÖĞĞÄ¹ã²¥ËÀÍöÊÂ¼ş
+		// ÀıÈç£ºÍ¨ÖªUI¸üĞÂ¡¢µôÂäÎïÆ·¡¢²¥·ÅÒôĞ§µÈ
 	}
 
-	// æ¸…é™¤æ‰€æœ‰è®¡æ—¶å™¨
+	// Çå³ıËùÓĞ¼ÆÊ±Æ÷
 	if (GetWorld())
 	{
 		GetWorld()->GetTimerManager().ClearTimer(HitStunTimerHandle);
 		GetWorld()->GetTimerManager().ClearTimer(InvulnerableTimerHandle);
 	}
 
-	// ç¦ç”¨ç¢°æ’
+	// ½ûÓÃÅö×²
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
-	// åœæ­¢ç§»åŠ¨
+	// Í£Ö¹ÒÆ¶¯
 	if (GetCharacterMovement())
 	{
 		GetCharacterMovement()->StopMovementImmediately();
 	}
 
-	// åœæ­¢æ‰€æœ‰æ­£åœ¨æ’­æ”¾çš„åŠ¨ç”»è’™å¤ªå¥‡
+	// Í£Ö¹ËùÓĞÕıÔÚ²¥·ÅµÄ¶¯»­ÃÉÌ«Ææ
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance)
 	{
-		// åœæ­¢æ”»å‡»åŠ¨ç”»
+		// Í£Ö¹¹¥»÷¶¯»­
 		if (AttackMontage && AnimInstance->Montage_IsPlaying(AttackMontage))
 		{
 			AnimInstance->Montage_Stop(0.0f, AttackMontage);
 		}
 		
-		// åœæ­¢å—å‡»åŠ¨ç”»
+		// Í£Ö¹ÊÜ»÷¶¯»­
 		if (HitMontage && AnimInstance->Montage_IsPlaying(HitMontage))
 		{
 			AnimInstance->Montage_Stop(0.0f, HitMontage);
 		}
 		
-		// æ’­æ”¾æ­»äº¡åŠ¨ç”»
+		// ²¥·ÅËÀÍö¶¯»­
 		if (DeathMontage)
 		{
 			AnimInstance->Montage_Play(DeathMontage, 1.0f);
@@ -248,7 +248,7 @@ void ABaseEnemy::Die()
 		}
 	}
 
-	// TODO: å»¶è¿Ÿé”€æ¯æˆ–æ’­æ”¾æ­»äº¡æ•ˆæœï¼ˆå¯ä»¥æ·»åŠ å»¶è¿Ÿåè°ƒç”¨Destroy()ï¼‰
+	// TODO: ÑÓ³ÙÏú»Ù»ò²¥·ÅËÀÍöĞ§¹û£¨¿ÉÒÔÌí¼ÓÑÓ³Ùºóµ÷ÓÃDestroy()£©
 }
 
 bool ABaseEnemy::IsDead() const
@@ -258,7 +258,7 @@ bool ABaseEnemy::IsDead() const
 
 void ABaseEnemy::InitializePlaceholderMesh()
 {
-	// ä½¿ç”¨Mannequinä½œä¸ºå ä½ç¬¦æ¨¡å‹
+	// Ê¹ÓÃMannequin×÷ÎªÕ¼Î»·ûÄ£ĞÍ
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MannequinMeshFinder(
 		TEXT("/Engine/EngineMeshes/SkeletalMesh/SK_Mannequin.SK_Mannequin")
 	);
@@ -281,21 +281,21 @@ void ABaseEnemy::EnterHitStun()
 {
 	if (CurrentHitState == EEnemyHitState::Hit)
 	{
-		return; // å·²ç»åœ¨ç¡¬ç›´çŠ¶æ€
+		return; // ÒÑ¾­ÔÚÓ²Ö±×´Ì¬
 	}
 
 	CurrentHitState = EEnemyHitState::Hit;
 
-	// åˆ‡æ¢åˆ°å—å‡»AIçŠ¶æ€
+	// ÇĞ»»µ½ÊÜ»÷AI×´Ì¬
 	SetAIState(EEnemyAIState::Hit);
 
-	// åœæ­¢ç§»åŠ¨
+	// Í£Ö¹ÒÆ¶¯
 	if (GetCharacterMovement())
 	{
 		GetCharacterMovement()->StopMovementImmediately();
 	}
 
-	// è®¾ç½®ç¡¬ç›´è®¡æ—¶å™¨
+	// ÉèÖÃÓ²Ö±¼ÆÊ±Æ÷
 	if (GetWorld())
 	{
 		GetWorld()->GetTimerManager().SetTimer(
@@ -307,19 +307,19 @@ void ABaseEnemy::EnterHitStun()
 		);
 	}
 
-	// æ’­æ”¾å—å‡»åŠ¨ç”»
+	// ²¥·ÅÊÜ»÷¶¯»­
 	if (HitMontage)
 	{
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		if (AnimInstance)
 		{
-			// åœæ­¢å½“å‰æ’­æ”¾çš„æ”»å‡»åŠ¨ç”»ï¼ˆå¦‚æœæ­£åœ¨æ”»å‡»ï¼‰
+			// Í£Ö¹µ±Ç°²¥·ÅµÄ¹¥»÷¶¯»­£¨Èç¹ûÕıÔÚ¹¥»÷£©
 			if (AttackMontage && AnimInstance->Montage_IsPlaying(AttackMontage))
 			{
 				AnimInstance->Montage_Stop(0.2f, AttackMontage);
 			}
 			
-			// æ’­æ”¾å—å‡»åŠ¨ç”»
+			// ²¥·ÅÊÜ»÷¶¯»­
 			AnimInstance->Montage_Play(HitMontage, 1.0f);
 			UE_LOG(LogTemp, Log, TEXT("Enemy %s playing hit animation"), *GetName());
 		}
@@ -337,7 +337,7 @@ void ABaseEnemy::EndHitStun()
 
 	CurrentHitState = EEnemyHitState::Normal;
 
-	// è¿›å…¥çŸ­æš‚æ— æ•ŒçŠ¶æ€
+	// ½øÈë¶ÌÔİÎŞµĞ×´Ì¬
 	EnterInvulnerable();
 
 	UE_LOG(LogTemp, Log, TEXT("Enemy %s ended hit stun"), *GetName());
@@ -347,7 +347,7 @@ void ABaseEnemy::EnterInvulnerable()
 {
 	CurrentHitState = EEnemyHitState::Invulnerable;
 
-	// è®¾ç½®æ— æ•Œè®¡æ—¶å™¨
+	// ÉèÖÃÎŞµĞ¼ÆÊ±Æ÷
 	if (GetWorld())
 	{
 		GetWorld()->GetTimerManager().SetTimer(
@@ -388,7 +388,7 @@ UEventCenter* ABaseEnemy::GetEventCenter() const
 
 TArray<AActor*> ABaseEnemy::GetAttackTargetsInRange(float AttackRange) const
 {
-	// é»˜è®¤æŸ¥æ‰¾"Player"æ ‡ç­¾
+	// Ä¬ÈÏ²éÕÒ"Player"±êÇ©
 	TArray<FName> DefaultTags;
 	DefaultTags.Add(FName("Player"));
 	return GetAttackTargetsInRangeWithTags(AttackRange, DefaultTags);
@@ -405,56 +405,56 @@ TArray<AActor*> ABaseEnemy::GetAttackTargetsInRangeWithTags(float AttackRange, c
 		return Result;
 	}
 
-	// å¦‚æœæ²¡æœ‰æŒ‡å®šèŒƒå›´ï¼Œä½¿ç”¨AttackRangeSphereçš„åŠå¾„
+	// Èç¹ûÃ»ÓĞÖ¸¶¨·¶Î§£¬Ê¹ÓÃAttackRangeSphereµÄ°ë¾¶
 	float ActualRange = AttackRange;
 	if (ActualRange <= 0.0f && AttackRangeSphere)
 	{
 		ActualRange = AttackRangeSphere->GetScaledSphereRadius();
 	}
 	
-	// å¦‚æœè¿˜æ˜¯æ²¡æœ‰æœ‰æ•ˆèŒƒå›´ï¼Œä½¿ç”¨é…ç½®ä¸­çš„æ”»å‡»èŒƒå›´
+	// Èç¹û»¹ÊÇÃ»ÓĞÓĞĞ§·¶Î§£¬Ê¹ÓÃÅäÖÃÖĞµÄ¹¥»÷·¶Î§
 	if (ActualRange <= 0.0f && EnemyConfig)
 	{
 		ActualRange = EnemyConfig->AttackRange;
 	}
 
-	// å¦‚æœè¿˜æ˜¯æ²¡æœ‰ï¼Œä½¿ç”¨é»˜è®¤å€¼
+	// Èç¹û»¹ÊÇÃ»ÓĞ£¬Ê¹ÓÃÄ¬ÈÏÖµ
 	if (ActualRange <= 0.0f)
 	{
-		ActualRange = 150.0f; // é»˜è®¤æ”»å‡»èŒƒå›´
+		ActualRange = 150.0f; // Ä¬ÈÏ¹¥»÷·¶Î§
 	}
 
-	// ä½¿ç”¨æ€ªç‰©å‰æ–¹çš„ä½ç½®ä½œä¸ºæ£€æµ‹ä¸­å¿ƒï¼ˆè€Œä¸æ˜¯æ€ªç‰©ä¸­å¿ƒï¼‰
-	// è¿™æ ·æ”»å‡»æ£€æµ‹æ›´ç¬¦åˆå®é™…æ”»å‡»æ–¹å‘
+	// Ê¹ÓÃ¹ÖÎïÇ°·½µÄÎ»ÖÃ×÷Îª¼ì²âÖĞĞÄ£¨¶ø²»ÊÇ¹ÖÎïÖĞĞÄ£©
+	// ÕâÑù¹¥»÷¼ì²â¸ü·ûºÏÊµ¼Ê¹¥»÷·½Ïò
 	FVector EnemyLocation = GetActorLocation();
 	FVector ForwardVector = GetActorForwardVector();
-	FVector SphereCenter = EnemyLocation + ForwardVector * (ActualRange * 0.5f); // æ£€æµ‹ä¸­å¿ƒåœ¨æ€ªç‰©å‰æ–¹ä¸€åŠæ”»å‡»è·ç¦»å¤„
+	FVector SphereCenter = EnemyLocation + ForwardVector * (ActualRange * 0.5f); // ¼ì²âÖĞĞÄÔÚ¹ÖÎïÇ°·½Ò»°ë¹¥»÷¾àÀë´¦
 
-	// è®¾ç½®æ£€æµ‹çš„å¯¹è±¡ç±»å‹ï¼ˆå‚è€ƒCharacterç±»çš„å®ç°ï¼‰
+	// ÉèÖÃ¼ì²âµÄ¶ÔÏóÀàĞÍ£¨²Î¿¼CharacterÀàµÄÊµÏÖ£©
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Pawn)); // ä¸»è¦æ£€æµ‹Pawnç±»å‹ï¼ˆç©å®¶å’Œæ€ªç‰©ï¼‰
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Pawn)); // Ö÷Òª¼ì²âPawnÀàĞÍ£¨Íæ¼ÒºÍ¹ÖÎï£©
 
-	// æ‰§è¡Œçƒå½¢èŒƒå›´æ£€æµ‹
+	// Ö´ĞĞÇòĞÎ·¶Î§¼ì²â
 	TArray<AActor*> OverlappingActors;
 	UKismetSystemLibrary::SphereOverlapActors(
 		World,
 		SphereCenter,
-		ActualRange * 0.5f, // ä½¿ç”¨ä¸€åŠèŒƒå›´ï¼Œå› ä¸ºæ£€æµ‹ä¸­å¿ƒå·²ç»å‰ç§»äº†
+		ActualRange * 0.5f, // Ê¹ÓÃÒ»°ë·¶Î§£¬ÒòÎª¼ì²âÖĞĞÄÒÑ¾­Ç°ÒÆÁË
 		ObjectTypes,
-		AActor::StaticClass(),  // æŸ¥æ‰¾æ‰€æœ‰Actor
-		TArray<AActor*>(),      // å¿½ç•¥åˆ—è¡¨ï¼ˆç©ºï¼Œä¸å¿½ç•¥ä»»ä½•å¯¹è±¡ï¼‰
+		AActor::StaticClass(),  // ²éÕÒËùÓĞActor
+		TArray<AActor*>(),      // ºöÂÔÁĞ±í£¨¿Õ£¬²»ºöÂÔÈÎºÎ¶ÔÏó£©
 		OverlappingActors
 	);
 
-	// ç­›é€‰å‡ºå…·æœ‰æŒ‡å®šæ ‡ç­¾çš„Actorï¼Œå¹¶æ£€æŸ¥æ˜¯å¦åœ¨æ”»å‡»èŒƒå›´å†…ï¼ˆæ–¹å‘æ€§æ£€æŸ¥ï¼‰
+	// É¸Ñ¡³ö¾ßÓĞÖ¸¶¨±êÇ©µÄActor£¬²¢¼ì²éÊÇ·ñÔÚ¹¥»÷·¶Î§ÄÚ£¨·½ÏòĞÔ¼ì²é£©
 	for (AActor* Actor : OverlappingActors)
 	{
-		if (!Actor || Actor == this) // æ’é™¤è‡ªèº«
+		if (!Actor || Actor == this) // ÅÅ³ı×ÔÉí
 		{
 			continue;
 		}
 
-		// æ£€æŸ¥æ˜¯å¦å…·æœ‰ç›®æ ‡æ ‡ç­¾
+		// ¼ì²éÊÇ·ñ¾ßÓĞÄ¿±ê±êÇ©
 		bool bHasTargetTag = false;
 		for (const FName& TagName : TargetTags)
 		{
@@ -470,22 +470,22 @@ TArray<AActor*> ABaseEnemy::GetAttackTargetsInRangeWithTags(float AttackRange, c
 			continue;
 		}
 
-		// æ–¹å‘æ€§æ£€æŸ¥ï¼šç¡®ä¿ç›®æ ‡åœ¨æ€ªç‰©å‰æ–¹ï¼ˆ180åº¦æ‰‡å½¢èŒƒå›´å†…ï¼‰
+		// ·½ÏòĞÔ¼ì²é£ºÈ·±£Ä¿±êÔÚ¹ÖÎïÇ°·½£¨180¶ÈÉÈĞÎ·¶Î§ÄÚ£©
 		FVector ToTarget = Actor->GetActorLocation() - EnemyLocation;
-		ToTarget.Z = 0.0f; // å¿½ç•¥é«˜åº¦å·®
+		ToTarget.Z = 0.0f; // ºöÂÔ¸ß¶È²î
 		ToTarget.Normalize();
 		
 		FVector Forward = ForwardVector;
 		Forward.Z = 0.0f;
 		Forward.Normalize();
 
-		// è®¡ç®—ç‚¹ç§¯ï¼Œåˆ¤æ–­ç›®æ ‡æ˜¯å¦åœ¨æ€ªç‰©å‰æ–¹ï¼ˆç‚¹ç§¯ > 0 è¡¨ç¤ºåœ¨å‰æ–¹ï¼‰
+		// ¼ÆËãµã»ı£¬ÅĞ¶ÏÄ¿±êÊÇ·ñÔÚ¹ÖÎïÇ°·½£¨µã»ı > 0 ±íÊ¾ÔÚÇ°·½£©
 		float DotProduct = FVector::DotProduct(Forward, ToTarget);
 		
-		// åªæ¥å—åœ¨æ€ªç‰©å‰æ–¹120åº¦èŒƒå›´å†…çš„ç›®æ ‡ï¼ˆcos(60Â°) â‰ˆ 0.5ï¼‰
+		// Ö»½ÓÊÜÔÚ¹ÖÎïÇ°·½120¶È·¶Î§ÄÚµÄÄ¿±ê£¨cos(60¡ã) ¡Ö 0.5£©
 		if (DotProduct > 0.5f)
 		{
-			// å†æ¬¡æ£€æŸ¥è·ç¦»ï¼Œç¡®ä¿åœ¨æ”»å‡»èŒƒå›´å†…
+			// ÔÙ´Î¼ì²é¾àÀë£¬È·±£ÔÚ¹¥»÷·¶Î§ÄÚ
 			float DistanceToTarget = FVector::Dist(EnemyLocation, Actor->GetActorLocation());
 			if (DistanceToTarget <= ActualRange)
 			{
@@ -498,13 +498,13 @@ TArray<AActor*> ABaseEnemy::GetAttackTargetsInRangeWithTags(float AttackRange, c
 	return Result;
 }
 
-// ========== AIç³»ç»Ÿå®ç° ==========
+// ========== AIÏµÍ³ÊµÏÖ ==========
 
 void ABaseEnemy::SetAIState(EEnemyAIState NewState)
 {
 	if (CurrentAIState == NewState)
 	{
-		return; // çŠ¶æ€æœªæ”¹å˜
+		return; // ×´Ì¬Î´¸Ä±ä
 	}
 
 	EEnemyAIState OldState = CurrentAIState;
@@ -512,28 +512,28 @@ void ABaseEnemy::SetAIState(EEnemyAIState NewState)
 
 	UE_LOG(LogTemp, Log, TEXT("Enemy %s AI State changed: %d -> %d"), *GetName(), (int32)OldState, (int32)NewState);
 
-	// çŠ¶æ€åˆ‡æ¢æ—¶çš„å¤„ç†
+	// ×´Ì¬ÇĞ»»Ê±µÄ´¦Àí
 	switch (NewState)
 	{
 	case EEnemyAIState::Idle:
 		StopMovement();
 		break;
 	case EEnemyAIState::Chase:
-		// å¼€å§‹è¿½å‡»æ—¶ï¼Œç¡®ä¿ç©å®¶å¼•ç”¨æœ‰æ•ˆ
+		// ¿ªÊ¼×·»÷Ê±£¬È·±£Íæ¼ÒÒıÓÃÓĞĞ§
 		if (!PlayerCharacter)
 		{
 			PlayerCharacter = GetPlayerCharacter();
 		}
 		break;
 	case EEnemyAIState::Attack:
-		StopMovement(); // æ”»å‡»æ—¶åœæ­¢ç§»åŠ¨
-		// å¦‚æœä¸åœ¨æ”»å‡»åŠ¨ç”»ä¸­ï¼Œä¸”å¯ä»¥æ”»å‡»ï¼Œåˆ™å¼€å§‹æ”»å‡»
+		StopMovement(); // ¹¥»÷Ê±Í£Ö¹ÒÆ¶¯
+		// Èç¹û²»ÔÚ¹¥»÷¶¯»­ÖĞ£¬ÇÒ¿ÉÒÔ¹¥»÷£¬Ôò¿ªÊ¼¹¥»÷
 		if (!bIsAttacking && CanAttack())
 		{
 			bool bAttackStarted = StartAttack();
 			if (!bAttackStarted)
 			{
-				// å¦‚æœæ”»å‡»å¯åŠ¨å¤±è´¥ï¼Œåˆ‡æ¢å›ChaseçŠ¶æ€ï¼Œé¿å…åƒµç›´
+				// Èç¹û¹¥»÷Æô¶¯Ê§°Ü£¬ÇĞ»»»ØChase×´Ì¬£¬±ÜÃâ½©Ö±
 				UE_LOG(LogTemp, Warning, TEXT("Failed to start attack, switching back to Chase"));
 				SetAIState(EEnemyAIState::Chase);
 			}
@@ -562,30 +562,30 @@ bool ABaseEnemy::IsPlayerInAttackRange() const
 
 bool ABaseEnemy::IsPlayerDetected() const
 {
-	// è¿™æ˜¯ä¸€ä¸ªconstæ–¹æ³•ï¼Œåªæ£€æŸ¥ä¸ä¿®æ”¹çŠ¶æ€
-	// æ£€æŸ¥ç©å®¶å¼•ç”¨æ˜¯å¦å­˜åœ¨ä¸”åœ¨æ£€æµ‹èŒƒå›´å†…
+	// ÕâÊÇÒ»¸öconst·½·¨£¬Ö»¼ì²é²»ĞŞ¸Ä×´Ì¬
+	// ¼ì²éÍæ¼ÒÒıÓÃÊÇ·ñ´æÔÚÇÒÔÚ¼ì²â·¶Î§ÄÚ
 	if (!PlayerCharacter || !IsValid(PlayerCharacter))
 	{
 		return false;
 	}
 
-	// æ£€æŸ¥ç©å®¶æ˜¯å¦åœ¨æ£€æµ‹èŒƒå›´å†…
+	// ¼ì²éÍæ¼ÒÊÇ·ñÔÚ¼ì²â·¶Î§ÄÚ
 	if (!DetectionSphere)
 	{
 		return false;
 	}
 
-	// è®¡ç®—è·ç¦»
+	// ¼ÆËã¾àÀë
 	float Distance = GetDistanceToPlayer();
 	float DetectionRange = EnemyConfig ? EnemyConfig->DetectionRange : 1000.0f;
 
-	// æ£€æŸ¥ç©å®¶æ˜¯å¦åœ¨æ£€æµ‹èŒƒå›´å†…
+	// ¼ì²éÍæ¼ÒÊÇ·ñÔÚ¼ì²â·¶Î§ÄÚ
 	return Distance <= DetectionRange;
 }
 
 ACharacter* ABaseEnemy::GetPlayerCharacter() const
 {
-	// ä½¿ç”¨UGameplayStaticsè·å–ç©å®¶è§’è‰²
+	// Ê¹ÓÃUGameplayStatics»ñÈ¡Íæ¼Ò½ÇÉ«
 	if (UWorld* World = GetWorld())
 	{
 		return Cast<ACharacter>(UGameplayStatics::GetPlayerCharacter(World, 0));
@@ -595,42 +595,42 @@ ACharacter* ABaseEnemy::GetPlayerCharacter() const
 
 void ABaseEnemy::UpdateAI(float DeltaTime)
 {
-	// å¦‚æœå¤„äºå—å‡»ç¡¬ç›´çŠ¶æ€ï¼Œåˆ‡æ¢åˆ°HitçŠ¶æ€
+	// Èç¹û´¦ÓÚÊÜ»÷Ó²Ö±×´Ì¬£¬ÇĞ»»µ½Hit×´Ì¬
 	if (CurrentHitState == EEnemyHitState::Hit)
 	{
 		if (CurrentAIState != EEnemyAIState::Hit)
 		{
 			SetAIState(EEnemyAIState::Hit);
 		}
-		return; // å—å‡»æ—¶æš‚åœAIæ›´æ–°
+		return; // ÊÜ»÷Ê±ÔİÍ£AI¸üĞÂ
 	}
 
-	// å¦‚æœå—å‡»çŠ¶æ€ç»“æŸï¼Œæ¢å¤AIçŠ¶æ€
+	// Èç¹ûÊÜ»÷×´Ì¬½áÊø£¬»Ö¸´AI×´Ì¬
 	if (CurrentAIState == EEnemyAIState::Hit && CurrentHitState == EEnemyHitState::Normal)
 	{
-		// é‡æ–°å†³å®šçŠ¶æ€
+		// ÖØĞÂ¾ö¶¨×´Ì¬
 		EEnemyAIState NextState = DetermineNextState();
 		SetAIState(NextState);
 	}
 
-	// å¦‚æœå·²æ­»äº¡ï¼Œåˆ‡æ¢åˆ°DeadçŠ¶æ€
+	// Èç¹ûÒÑËÀÍö£¬ÇĞ»»µ½Dead×´Ì¬
 	if (bIsDead)
 	{
 		SetAIState(EEnemyAIState::Dead);
 		return;
 	}
 
-	// æ›´æ–°ç©å®¶å¼•ç”¨ï¼ˆç©å®¶å¯èƒ½é‡æ–°ç”Ÿæˆï¼‰
+	// ¸üĞÂÍæ¼ÒÒıÓÃ£¨Íæ¼Ò¿ÉÄÜÖØĞÂÉú³É£©
 	if (!PlayerCharacter || !IsValid(PlayerCharacter))
 	{
 		PlayerCharacter = GetPlayerCharacter();
 	}
 
-	// æ ¹æ®å½“å‰çŠ¶æ€æ‰§è¡Œç›¸åº”è¡Œä¸º
+	// ¸ù¾İµ±Ç°×´Ì¬Ö´ĞĞÏàÓ¦ĞĞÎª
 	switch (CurrentAIState)
 	{
 	case EEnemyAIState::Idle:
-		// å¾…æœºçŠ¶æ€ï¼šæ£€æµ‹ç©å®¶
+		// ´ı»ú×´Ì¬£º¼ì²âÍæ¼Ò
 		if (DetectPlayer())
 		{
 			SetAIState(EEnemyAIState::Chase);
@@ -638,54 +638,54 @@ void ABaseEnemy::UpdateAI(float DeltaTime)
 		break;
 
 	case EEnemyAIState::Chase:
-		// è¿½å‡»çŠ¶æ€ï¼šç§»åŠ¨åˆ°ç©å®¶ä½ç½®
+		// ×·»÷×´Ì¬£ºÒÆ¶¯µ½Íæ¼ÒÎ»ÖÃ
 		if (!PlayerCharacter || !IsValid(PlayerCharacter))
 		{
-			// ç©å®¶ä¸å­˜åœ¨ï¼Œå›åˆ°å¾…æœº
+			// Íæ¼Ò²»´æÔÚ£¬»Øµ½´ı»ú
 			SetAIState(EEnemyAIState::Idle);
 		}
 		else if (IsPlayerInAttackRange() && CanAttack())
 		{
-			// è¿›å…¥æ”»å‡»èŒƒå›´ï¼Œä¸”å¯ä»¥æ”»å‡»ï¼ˆæ”»å‡»åŠ¨ç”»å·²è®¾ç½®ï¼‰ï¼Œåˆ‡æ¢åˆ°æ”»å‡»çŠ¶æ€
+			// ½øÈë¹¥»÷·¶Î§£¬ÇÒ¿ÉÒÔ¹¥»÷£¨¹¥»÷¶¯»­ÒÑÉèÖÃ£©£¬ÇĞ»»µ½¹¥»÷×´Ì¬
 			SetAIState(EEnemyAIState::Attack);
 		}
 		else if (!DetectPlayer())
 		{
-			// ç©å®¶ç¦»å¼€æ£€æµ‹èŒƒå›´ï¼Œå›åˆ°å¾…æœº
+			// Íæ¼ÒÀë¿ª¼ì²â·¶Î§£¬»Øµ½´ı»ú
 			SetAIState(EEnemyAIState::Idle);
 		}
 		else
 		{
-			// ç»§ç»­è¿½å‡»ï¼ˆå³ä½¿ç©å®¶åœ¨æ”»å‡»èŒƒå›´å†…ä½†æ— æ³•æ”»å‡»ï¼Œä¹Ÿç»§ç»­è¿½å‡»ï¼‰
+			// ¼ÌĞø×·»÷£¨¼´Ê¹Íæ¼ÒÔÚ¹¥»÷·¶Î§ÄÚµ«ÎŞ·¨¹¥»÷£¬Ò²¼ÌĞø×·»÷£©
 			ChasePlayer(DeltaTime);
 		}
 		break;
 
 	case EEnemyAIState::Attack:
-		// æ”»å‡»çŠ¶æ€ï¼šæ£€æŸ¥æ˜¯å¦è¿˜åœ¨æ”»å‡»èŒƒå›´å†…
+		// ¹¥»÷×´Ì¬£º¼ì²éÊÇ·ñ»¹ÔÚ¹¥»÷·¶Î§ÄÚ
 		if (!PlayerCharacter || !IsValid(PlayerCharacter))
 		{
 			SetAIState(EEnemyAIState::Idle);
 		}
-		// å¦‚æœæ­£åœ¨æ”»å‡»åŠ¨ç”»ä¸­ï¼Œç­‰å¾…æ”»å‡»å®Œæˆï¼Œä¸è¦åˆ‡æ¢çŠ¶æ€
+		// Èç¹ûÕıÔÚ¹¥»÷¶¯»­ÖĞ£¬µÈ´ı¹¥»÷Íê³É£¬²»ÒªÇĞ»»×´Ì¬
 		else if (bIsAttacking)
 		{
-			// æ”»å‡»åŠ¨ç”»æ’­æ”¾ä¸­ï¼Œä¿æŒAttackçŠ¶æ€ï¼Œä¸åˆ‡æ¢
-			// è¿™æ ·å¯ä»¥é¿å…æ”»å‡»åŠ¨ç”»è¢«æ‰“æ–­
+			// ¹¥»÷¶¯»­²¥·ÅÖĞ£¬±£³ÖAttack×´Ì¬£¬²»ÇĞ»»
+			// ÕâÑù¿ÉÒÔ±ÜÃâ¹¥»÷¶¯»­±»´ò¶Ï
 		}
 		else if (!IsPlayerInAttackRange())
 		{
-			// æ”»å‡»åŠ¨ç”»å·²ç»“æŸï¼Œç©å®¶ç¦»å¼€æ”»å‡»èŒƒå›´ï¼Œç»§ç»­è¿½å‡»
+			// ¹¥»÷¶¯»­ÒÑ½áÊø£¬Íæ¼ÒÀë¿ª¹¥»÷·¶Î§£¬¼ÌĞø×·»÷
 			SetAIState(EEnemyAIState::Chase);
 		}
 		else if (!CanAttack())
 		{
-			// å¦‚æœæ— æ³•æ”»å‡»ï¼ˆæ”»å‡»åŠ¨ç”»æœªè®¾ç½®æˆ–å†·å´ä¸­ï¼‰ï¼Œç»§ç»­è¿½å‡»è€Œä¸æ˜¯åƒµç›´
+			// Èç¹ûÎŞ·¨¹¥»÷£¨¹¥»÷¶¯»­Î´ÉèÖÃ»òÀäÈ´ÖĞ£©£¬¼ÌĞø×·»÷¶ø²»ÊÇ½©Ö±
 			SetAIState(EEnemyAIState::Chase);
 		}
 		else
 		{
-			// å¦‚æœä¸åœ¨æ”»å‡»åŠ¨ç”»ä¸­ï¼Œä¸”å¯ä»¥æ”»å‡»ï¼Œåˆ™å¼€å§‹æ”»å‡»
+			// Èç¹û²»ÔÚ¹¥»÷¶¯»­ÖĞ£¬ÇÒ¿ÉÒÔ¹¥»÷£¬Ôò¿ªÊ¼¹¥»÷
 			if (!bIsAttacking && CanAttack())
 			{
 				StartAttack();
@@ -694,15 +694,15 @@ void ABaseEnemy::UpdateAI(float DeltaTime)
 		break;
 
 	case EEnemyAIState::Dodge:
-		// TODO: åœ¨é˜¶æ®µäº”å®ç°é—ªé¿é€»è¾‘
+		// TODO: ÔÚ½×¶ÎÎåÊµÏÖÉÁ±ÜÂß¼­
 		break;
 
 	case EEnemyAIState::Hit:
-		// å—å‡»çŠ¶æ€ï¼šå·²åœ¨ä¸Šé¢å¤„ç†
+		// ÊÜ»÷×´Ì¬£ºÒÑÔÚÉÏÃæ´¦Àí
 		break;
 
 	case EEnemyAIState::Dead:
-		// æ­»äº¡çŠ¶æ€ï¼šä¸æ‰§è¡Œä»»ä½•æ“ä½œ
+		// ËÀÍö×´Ì¬£º²»Ö´ĞĞÈÎºÎ²Ù×÷
 		break;
 	}
 }
@@ -714,18 +714,18 @@ bool ABaseEnemy::DetectPlayer()
 		return false;
 	}
 
-	// è·å–æ£€æµ‹èŒƒå›´å†…çš„æ‰€æœ‰Actor
+	// »ñÈ¡¼ì²â·¶Î§ÄÚµÄËùÓĞActor
 	TArray<AActor*> OverlappingActors;
 	DetectionSphere->GetOverlappingActors(OverlappingActors, ACharacter::StaticClass());
 
-	// æŸ¥æ‰¾å…·æœ‰"Player"æ ‡ç­¾çš„è§’è‰²
+	// ²éÕÒ¾ßÓĞ"Player"±êÇ©µÄ½ÇÉ«
 	for (AActor* Actor : OverlappingActors)
 	{
 		if (ACharacter* Character = Cast<ACharacter>(Actor))
 		{
 			if (Character->ActorHasTag(FName("Player")))
 			{
-				// æ›´æ–°ç©å®¶å¼•ç”¨
+				// ¸üĞÂÍæ¼ÒÒıÓÃ
 				PlayerCharacter = Character;
 				return true;
 			}
@@ -739,7 +739,7 @@ float ABaseEnemy::GetDistanceToPlayer() const
 {
 	if (!PlayerCharacter || !IsValid(PlayerCharacter))
 	{
-		return FLT_MAX; // è¿”å›æœ€å¤§è·ç¦»ï¼Œè¡¨ç¤ºç©å®¶ä¸åœ¨èŒƒå›´å†…
+		return FLT_MAX; // ·µ»Ø×î´ó¾àÀë£¬±íÊ¾Íæ¼Ò²»ÔÚ·¶Î§ÄÚ
 	}
 
 	FVector EnemyLocation = GetActorLocation();
@@ -755,40 +755,40 @@ void ABaseEnemy::ChasePlayer(float DeltaTime)
 		return;
 	}
 
-	// å¦‚æœå¤„äºå—å‡»ç¡¬ç›´çŠ¶æ€ï¼Œä¸æ‰§è¡Œè¿½å‡»
+	// Èç¹û´¦ÓÚÊÜ»÷Ó²Ö±×´Ì¬£¬²»Ö´ĞĞ×·»÷
 	if (CurrentHitState == EEnemyHitState::Hit)
 	{
 		return;
 	}
 
-	// è·å–ç©å®¶ä½ç½®
+	// »ñÈ¡Íæ¼ÒÎ»ÖÃ
 	FVector PlayerLocation = PlayerCharacter->GetActorLocation();
 	FVector EnemyLocation = GetActorLocation();
 
-	// è®¡ç®—æ–¹å‘å‘é‡ï¼ˆå¿½ç•¥Zè½´é«˜åº¦å·®ï¼‰
+	// ¼ÆËã·½ÏòÏòÁ¿£¨ºöÂÔZÖá¸ß¶È²î£©
 	FVector Direction = PlayerLocation - EnemyLocation;
-	Direction.Z = 0.0f; // åªåœ¨æ°´å¹³é¢ç§»åŠ¨
+	Direction.Z = 0.0f; // Ö»ÔÚË®Æ½ÃæÒÆ¶¯
 	
-	// è®¡ç®—è·ç¦»
+	// ¼ÆËã¾àÀë
 	float Distance = Direction.Size();
 	float AttackRange = EnemyConfig ? EnemyConfig->AttackRange : 150.0f;
 
-	// å¦‚æœè·ç¦»å¤§äºæ”»å‡»èŒƒå›´ï¼Œç»§ç»­ç§»åŠ¨
+	// Èç¹û¾àÀë´óÓÚ¹¥»÷·¶Î§£¬¼ÌĞøÒÆ¶¯
 	if (Distance > AttackRange)
 	{
-		// å½’ä¸€åŒ–æ–¹å‘å‘é‡
+		// ¹éÒ»»¯·½ÏòÏòÁ¿
 		Direction.Normalize();
 
-		// ç›´æ¥æœå‘ç©å®¶ï¼ˆæ­£é¢æœå‘ï¼Œè€Œä¸æ˜¯æœå‘ç§»åŠ¨æ–¹å‘ï¼‰
+		// Ö±½Ó³¯ÏòÍæ¼Ò£¨ÕıÃæ³¯Ïò£¬¶ø²»ÊÇ³¯ÏòÒÆ¶¯·½Ïò£©
 		FRotator TargetRotation = Direction.Rotation();
-		// ä½¿ç”¨æ’å€¼å¹³æ»‘æ—‹è½¬ï¼Œæ’å€¼é€Ÿåº¦ä¸º10.0ï¼ˆå¯ä»¥æ ¹æ®éœ€è¦è°ƒæ•´ï¼‰
+		// Ê¹ÓÃ²åÖµÆ½»¬Ğı×ª£¬²åÖµËÙ¶ÈÎª10.0£¨¿ÉÒÔ¸ù¾İĞèÒªµ÷Õû£©
 		FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), TargetRotation, DeltaTime, 10.0f);
 		SetActorRotation(NewRotation);
 
-		// ä½¿ç”¨AddMovementInputç§»åŠ¨ï¼ˆæœå‘å·²ç»è®¾ç½®å¥½äº†ï¼Œç›´æ¥å‘å‰ç§»åŠ¨ï¼‰
+		// Ê¹ÓÃAddMovementInputÒÆ¶¯£¨³¯ÏòÒÑ¾­ÉèÖÃºÃÁË£¬Ö±½ÓÏòÇ°ÒÆ¶¯£©
 		AddMovementInput(GetActorForwardVector(), 1.0f);
 
-		// æ›´æ–°ç§»åŠ¨é€Ÿåº¦ï¼ˆä»é…ç½®ä¸­è¯»å–ï¼‰
+		// ¸üĞÂÒÆ¶¯ËÙ¶È£¨´ÓÅäÖÃÖĞ¶ÁÈ¡£©
 		if (EnemyConfig)
 		{
 			GetCharacterMovement()->MaxWalkSpeed = EnemyConfig->MoveSpeed;
@@ -796,14 +796,14 @@ void ABaseEnemy::ChasePlayer(float DeltaTime)
 	}
 	else
 	{
-		// å·²åœ¨æ”»å‡»èŒƒå›´å†…ï¼Œä½†ä»ç„¶æœå‘ç©å®¶ï¼ˆå‡†å¤‡æ”»å‡»ï¼‰
+		// ÒÑÔÚ¹¥»÷·¶Î§ÄÚ£¬µ«ÈÔÈ»³¯ÏòÍæ¼Ò£¨×¼±¸¹¥»÷£©
 		Direction.Normalize();
 		FRotator TargetRotation = Direction.Rotation();
 		FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), TargetRotation, DeltaTime, 10.0f);
 		SetActorRotation(NewRotation);
 
-		// å¦‚æœå·²ç»åœ¨æ”»å‡»èŒƒå›´å†…ï¼Œä¸”å¯ä»¥æ”»å‡»ï¼Œç«‹å³åˆ‡æ¢çŠ¶æ€ï¼ˆä¸ç­‰UpdateAIï¼‰
-		// è¿™æ ·å¯ä»¥é¿å…çŠ¶æ€åˆ‡æ¢å»¶è¿Ÿå¯¼è‡´çš„åƒµç›´
+		// Èç¹ûÒÑ¾­ÔÚ¹¥»÷·¶Î§ÄÚ£¬ÇÒ¿ÉÒÔ¹¥»÷£¬Á¢¼´ÇĞ»»×´Ì¬£¨²»µÈUpdateAI£©
+		// ÕâÑù¿ÉÒÔ±ÜÃâ×´Ì¬ÇĞ»»ÑÓ³Ùµ¼ÖÂµÄ½©Ö±
 		if (CanAttack() && CurrentAIState == EEnemyAIState::Chase)
 		{
 			SetAIState(EEnemyAIState::Attack);
@@ -821,52 +821,52 @@ void ABaseEnemy::StopMovement()
 
 EEnemyAIState ABaseEnemy::DetermineNextState() const
 {
-	// å¦‚æœå·²æ­»äº¡ï¼Œè¿”å›Dead
+	// Èç¹ûÒÑËÀÍö£¬·µ»ØDead
 	if (bIsDead)
 	{
 		return EEnemyAIState::Dead;
 	}
 
-	// å¦‚æœå¤„äºå—å‡»ç¡¬ç›´çŠ¶æ€ï¼Œè¿”å›Hit
+	// Èç¹û´¦ÓÚÊÜ»÷Ó²Ö±×´Ì¬£¬·µ»ØHit
 	if (CurrentHitState == EEnemyHitState::Hit)
 	{
 		return EEnemyAIState::Hit;
 	}
 
-	// æ£€æŸ¥ç©å®¶æ˜¯å¦å­˜åœ¨ä¸”åœ¨æ£€æµ‹èŒƒå›´å†…
+	// ¼ì²éÍæ¼ÒÊÇ·ñ´æÔÚÇÒÔÚ¼ì²â·¶Î§ÄÚ
 	if (PlayerCharacter && IsValid(PlayerCharacter))
 	{
-		// å¦‚æœç©å®¶åœ¨æ”»å‡»èŒƒå›´å†…ï¼Œä¸”å¯ä»¥æ”»å‡»ï¼Œè¿”å›Attack
+		// Èç¹ûÍæ¼ÒÔÚ¹¥»÷·¶Î§ÄÚ£¬ÇÒ¿ÉÒÔ¹¥»÷£¬·µ»ØAttack
 		if (IsPlayerInAttackRange() && CanAttack())
 		{
 			return EEnemyAIState::Attack;
 		}
-		// å¦åˆ™è¿”å›Chase
+		// ·ñÔò·µ»ØChase
 		return EEnemyAIState::Chase;
 	}
 
-	// é»˜è®¤è¿”å›Idle
+	// Ä¬ÈÏ·µ»ØIdle
 	return EEnemyAIState::Idle;
 }
 
-// ========== æ”»å‡»ç³»ç»Ÿå®ç° ==========
+// ========== ¹¥»÷ÏµÍ³ÊµÏÖ ==========
 
 void ABaseEnemy::PerformAttack()
 {
-	// å¦‚æœå·²ç»æ­»äº¡æˆ–æ­£åœ¨å—å‡»ç¡¬ç›´ï¼Œä¸æ‰§è¡Œæ”»å‡»
+	// Èç¹ûÒÑ¾­ËÀÍö»òÕıÔÚÊÜ»÷Ó²Ö±£¬²»Ö´ĞĞ¹¥»÷
 	if (bIsDead || CurrentHitState == EEnemyHitState::Hit)
 	{
 		return;
 	}
 
-	// é˜²æ­¢åŒä¸€æ”»å‡»åŠ¨ç”»ä¸­é‡å¤åˆ¤å®š
+	// ·ÀÖ¹Í¬Ò»¹¥»÷¶¯»­ÖĞÖØ¸´ÅĞ¶¨
 	if (bIsAttacking && AlreadyHitTargetsInThisAttack.Num() > 0)
 	{
-		// å¦‚æœå·²ç»åˆ¤å®šè¿‡ï¼Œä¸å†é‡å¤åˆ¤å®šï¼ˆé™¤éæ˜¯æ–°çš„æ”»å‡»åŠ¨ç”»ï¼‰
+		// Èç¹ûÒÑ¾­ÅĞ¶¨¹ı£¬²»ÔÙÖØ¸´ÅĞ¶¨£¨³ı·ÇÊÇĞÂµÄ¹¥»÷¶¯»­£©
 		return;
 	}
 
-	// è·å–äº‹ä»¶ä¸­å¿ƒ
+	// »ñÈ¡ÊÂ¼şÖĞĞÄ
 	UEventCenter* EventCenter = GetEventCenter();
 	if (!EventCenter)
 	{
@@ -874,7 +874,7 @@ void ABaseEnemy::PerformAttack()
 		return;
 	}
 
-	// è·å–æ”»å‡»èŒƒå›´å†…çš„ç›®æ ‡
+	// »ñÈ¡¹¥»÷·¶Î§ÄÚµÄÄ¿±ê
 	TArray<AActor*> Targets = GetAttackTargetsInRange();
 	if (Targets.Num() == 0)
 	{
@@ -882,25 +882,25 @@ void ABaseEnemy::PerformAttack()
 		return;
 	}
 
-	// è·å–æ”»å‡»åŠ›
+	// »ñÈ¡¹¥»÷Á¦
 	int32 AttackDamage = EnemyConfig ? EnemyConfig->Attack : 10;
 
-	// å¯¹æ¯ä¸ªç›®æ ‡é€ æˆä¼¤å®³
+	// ¶ÔÃ¿¸öÄ¿±êÔì³ÉÉËº¦
 	for (AActor* Target : Targets)
 	{
-		// æ£€æŸ¥æ˜¯å¦å·²ç»å‘½ä¸­è¿‡ï¼ˆé˜²æ­¢åŒä¸€æ”»å‡»åŠ¨ç”»ä¸­é‡å¤åˆ¤å®šï¼‰
+		// ¼ì²éÊÇ·ñÒÑ¾­ÃüÖĞ¹ı£¨·ÀÖ¹Í¬Ò»¹¥»÷¶¯»­ÖĞÖØ¸´ÅĞ¶¨£©
 		if (AlreadyHitTargetsInThisAttack.Contains(Target))
 		{
 			continue;
 		}
 
-		// æ ‡è®°ä¸ºå·²å‘½ä¸­
+		// ±ê¼ÇÎªÒÑÃüÖĞ
 		AlreadyHitTargetsInThisAttack.Add(Target);
 
-		// é€šè¿‡äº‹ä»¶ä¸­å¿ƒé€ æˆä¼¤å®³
+		// Í¨¹ıÊÂ¼şÖĞĞÄÔì³ÉÉËº¦
 		float ActualDamage = EventCenter->MakeDamage(
-			Target,                    // è¢«ä¼¤å®³å¯¹è±¡
-			static_cast<float>(AttackDamage), // ä¼¤å®³æ•°å€¼
+			Target,                    // ±»ÉËº¦¶ÔÏó
+			static_cast<float>(AttackDamage), // ÉËº¦ÊıÖµ
 			GetController(),           // EventInstigator
 			this                       // DamageCauser
 		);
@@ -912,20 +912,20 @@ void ABaseEnemy::PerformAttack()
 
 bool ABaseEnemy::StartAttack()
 {
-	// æ£€æŸ¥æ˜¯å¦å¯ä»¥æ”»å‡»
+	// ¼ì²éÊÇ·ñ¿ÉÒÔ¹¥»÷
 	if (!CanAttack())
 	{
 		return false;
 	}
 
-	// æ£€æŸ¥æ˜¯å¦æœ‰æ”»å‡»åŠ¨ç”»
+	// ¼ì²éÊÇ·ñÓĞ¹¥»÷¶¯»­
 	if (!AttackMontage)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("StartAttack: AttackMontage is null!"));
 		return false;
 	}
 
-	// è·å–åŠ¨ç”»å®ä¾‹
+	// »ñÈ¡¶¯»­ÊµÀı
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (!AnimInstance)
 	{
@@ -933,31 +933,31 @@ bool ABaseEnemy::StartAttack()
 		return false;
 	}
 
-	// å¦‚æœå·²ç»åœ¨æ’­æ”¾æ”»å‡»åŠ¨ç”»ï¼Œä¸é‡å¤æ’­æ”¾
+	// Èç¹ûÒÑ¾­ÔÚ²¥·Å¹¥»÷¶¯»­£¬²»ÖØ¸´²¥·Å
 	if (AnimInstance->Montage_IsPlaying(AttackMontage))
 	{
 		return false;
 	}
 
-	// æ¸…é™¤æœ¬æ¬¡æ”»å‡»çš„å·²å‘½ä¸­ç›®æ ‡åˆ—è¡¨
+	// Çå³ı±¾´Î¹¥»÷µÄÒÑÃüÖĞÄ¿±êÁĞ±í
 	AlreadyHitTargetsInThisAttack.Empty();
 
-	// è®¾ç½®æ”»å‡»æ ‡å¿—
+	// ÉèÖÃ¹¥»÷±êÖ¾
 	bIsAttacking = true;
 
-	// æ’­æ”¾æ”»å‡»åŠ¨ç”»
-	// Montage_Playä¼šé»˜è®¤ä½¿ç”¨è’™å¤ªå¥‡çš„æ’æ§½ï¼Œé€šå¸¸ä¼šè¦†ç›–çŠ¶æ€æœºè¾“å‡º
+	// ²¥·Å¹¥»÷¶¯»­
+	// Montage_Play»áÄ¬ÈÏÊ¹ÓÃÃÉÌ«ÆæµÄ²å²Û£¬Í¨³£»á¸²¸Ç×´Ì¬»úÊä³ö
 	float PlayRate = 1.0f;
 	float PlayTime = AnimInstance->Montage_Play(AttackMontage, PlayRate);
 	
 	if (PlayTime <= 0.0f)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Enemy %s failed to play attack montage!"), *GetName());
-		bIsAttacking = false; // æ’­æ”¾å¤±è´¥ï¼Œé‡ç½®æ ‡å¿—
+		bIsAttacking = false; // ²¥·ÅÊ§°Ü£¬ÖØÖÃ±êÖ¾
 		return false;
 	}
 
-	// ç»‘å®šåŠ¨ç”»å®Œæˆå›è°ƒ
+	// °ó¶¨¶¯»­Íê³É»Øµ÷
 	FOnMontageEnded MontageEndedDelegate;
 	MontageEndedDelegate.BindUObject(this, &ABaseEnemy::OnAttackMontageEnded);
 	AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, AttackMontage);
@@ -969,19 +969,19 @@ bool ABaseEnemy::StartAttack()
 
 bool ABaseEnemy::CanAttack() const
 {
-	// å¦‚æœå·²æ­»äº¡æˆ–å¤„äºå—å‡»ç¡¬ç›´çŠ¶æ€ï¼Œä¸èƒ½æ”»å‡»
+	// Èç¹ûÒÑËÀÍö»ò´¦ÓÚÊÜ»÷Ó²Ö±×´Ì¬£¬²»ÄÜ¹¥»÷
 	if (bIsDead || CurrentHitState == EEnemyHitState::Hit)
 	{
 		return false;
 	}
 
-	// æ£€æŸ¥æ”»å‡»å†·å´æ˜¯å¦ç»“æŸ
+	// ¼ì²é¹¥»÷ÀäÈ´ÊÇ·ñ½áÊø
 	if (GetWorld() && GetWorld()->GetTimerManager().IsTimerActive(AttackCooldownTimer))
 	{
 		return false;
 	}
 
-	// æ£€æŸ¥æ˜¯å¦æœ‰æ”»å‡»åŠ¨ç”»
+	// ¼ì²éÊÇ·ñÓĞ¹¥»÷¶¯»­
 	if (!AttackMontage)
 	{
 		return false;
@@ -992,21 +992,21 @@ bool ABaseEnemy::CanAttack() const
 
 void ABaseEnemy::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	// é‡ç½®æ”»å‡»æ ‡å¿—
+	// ÖØÖÃ¹¥»÷±êÖ¾
 	bIsAttacking = false;
 
-	// æ¸…é™¤å·²å‘½ä¸­ç›®æ ‡åˆ—è¡¨
+	// Çå³ıÒÑÃüÖĞÄ¿±êÁĞ±í
 	AlreadyHitTargetsInThisAttack.Empty();
 
-	// è®¡ç®—æ”»å‡»å†·å´æ—¶é—´
+	// ¼ÆËã¹¥»÷ÀäÈ´Ê±¼ä
 	float CooldownTime = 1.0f;
 	if (EnemyConfig && EnemyConfig->AttackSpeed > 0.0f)
 	{
-		// å†·å´æ—¶é—´ = 1.0 / æ”»å‡»é€Ÿåº¦
+		// ÀäÈ´Ê±¼ä = 1.0 / ¹¥»÷ËÙ¶È
 		CooldownTime = 1.0f / EnemyConfig->AttackSpeed;
 	}
 
-	// è®¾ç½®æ”»å‡»å†·å´è®¡æ—¶å™¨
+	// ÉèÖÃ¹¥»÷ÀäÈ´¼ÆÊ±Æ÷
 	if (GetWorld())
 	{
 		GetWorld()->GetTimerManager().SetTimer(
@@ -1020,13 +1020,13 @@ void ABaseEnemy::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	UE_LOG(LogTemp, Log, TEXT("Enemy %s attack ended, cooldown: %.2f seconds"), 
 		*GetName(), CooldownTime);
 
-	// å¦‚æœè¢«ä¸­æ–­ï¼ˆä¾‹å¦‚å—å‡»ï¼‰ï¼Œä¸åˆ‡æ¢çŠ¶æ€
+	// Èç¹û±»ÖĞ¶Ï£¨ÀıÈçÊÜ»÷£©£¬²»ÇĞ»»×´Ì¬
 	if (bInterrupted)
 	{
 		return;
 	}
 
-	// æ”»å‡»åŠ¨ç”»ç»“æŸåï¼Œæ ¹æ®å½“å‰æƒ…å†µå†³å®šä¸‹ä¸€ä¸ªçŠ¶æ€
-	// è¿™ä¸ªé€»è¾‘ä¼šåœ¨UpdateAIä¸­å¤„ç†ï¼Œè¿™é‡Œä¸éœ€è¦æ‰‹åŠ¨åˆ‡æ¢
+	// ¹¥»÷¶¯»­½áÊøºó£¬¸ù¾İµ±Ç°Çé¿ö¾ö¶¨ÏÂÒ»¸ö×´Ì¬
+	// Õâ¸öÂß¼­»áÔÚUpdateAIÖĞ´¦Àí£¬ÕâÀï²»ĞèÒªÊÖ¶¯ÇĞ»»
 }
 
