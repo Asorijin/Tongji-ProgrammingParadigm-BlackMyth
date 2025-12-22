@@ -6,6 +6,8 @@
 #include "ToolHp.h"
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
+#include "Json.h"
+#include "Misc/FileHelper.h"
 #include "Engine/DamageEvents.h" 
 
 // 前向声明，避免循环依赖
@@ -15,6 +17,10 @@ UEventCenter::UEventCenter() {
 	
 }
 
+void UEventCenter::PostInitProperties() {
+	UObject::PostInitProperties();
+
+}
 void UEventCenter::GenerateMonster() {
 
 }
@@ -69,9 +75,9 @@ void UEventCenter::UseTools(AActor* tool) {
 
 void UEventCenter::GetTools(AActor* tool, int toolNumber) {
 	if (tool->IsA(AToolHp::StaticClass())) {
-		if (toolsNumber)
+		if (toolsNumber.hpTools)
 		{
-			toolsNumber->hpTools += 1;
+			toolsNumber.hpTools += 1;
 		}
 	}
 	else {
@@ -80,11 +86,14 @@ void UEventCenter::GetTools(AActor* tool, int toolNumber) {
 	tool->Destroy();
 }
 
+<<<<<<< Updated upstream
 
 void UEventCenter::ChangeEquipment() {
 	// 需要实现装备结构
 }
 
+=======
+>>>>>>> Stashed changes
 void UEventCenter::SwitchToLevel(const FString& LevelName, FVector SpawnLocation) {
 
 	if (UWorld* World = GetWorld())
@@ -112,4 +121,79 @@ void UEventCenter::SwitchToLevel(const FString& LevelName, FVector SpawnLocation
 
 const FVector UEventCenter::GetSpawnLocation() {
     return pawnLastLocation;
+}
+
+void UEventCenter::WriteLastState() {
+	// 1. 淇濆瓨 PawnLastLocation (鎷嗘垚 X/Y/Z)
+	TSharedPtr<FJsonObject> LocObj = MakeShareable(new FJsonObject);
+	LocObj->SetNumberField("X", pawnLastLocation.X);
+	LocObj->SetNumberField("Y", pawnLastLocation.Y);
+	LocObj->SetNumberField("Z", pawnLastLocation.Z);
+	LocObj->SetObjectField("PawnLastLocation", LocObj);
+
+	// 2. 淇濆瓨 LevelName
+	LocObj->SetStringField("LevelName", levelName);
+
+	// 3. 淇濆瓨 ToolsNumber
+	TSharedPtr<FJsonObject> ToolsObj = MakeShareable(new FJsonObject);
+	ToolsObj->SetNumberField("hpTools", toolsNumber.hpTools);
+	ToolsObj->SetNumberField("mpTools", toolsNumber.mpTools);
+	LocObj->SetObjectField("ToolsNumber", ToolsObj);
+
+
+	FString outputString;
+	TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&outputString);
+	FJsonSerializer::Serialize(LocObj.ToSharedRef(), Writer);
+
+	if (!FFileHelper::SaveStringToFile(outputString, *filePath))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to save JSON to file: %s"), *filePath);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("Successfully saved character config to: %s"), *filePath);
+	}
+}
+
+void UEventCenter::ReadLastState() {
+	if (!FPlatformFileManager::Get().GetPlatformFile().FileExists(*filePath))
+	{
+		UE_LOG(LogTemp, Log, TEXT("Save file not found: %s"), *filePath);
+	}
+
+	FString JsonContent;
+	if (!FFileHelper::LoadFileToString(JsonContent, *filePath))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to read file: %s"), *filePath);
+	}
+
+	TSharedPtr<FJsonObject> JsonObject;
+	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonContent);
+
+	if (!FJsonSerializer::Deserialize(JsonReader, JsonObject) || !JsonObject.IsValid())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to parse JSON in file: %s"), *filePath);
+	}
+
+	if (JsonObject->HasField("PawnLastLocation") && JsonObject->GetObjectField("PawnLastLocation").IsValid())
+	{
+		TSharedPtr<FJsonObject> LocObj = JsonObject->GetObjectField("PawnLastLocation");
+		pawnLastLocation.X = LocObj->GetNumberField("X");
+		pawnLastLocation.Y = LocObj->GetNumberField("Y");
+		pawnLastLocation.Z = LocObj->GetNumberField("Z");
+	}
+
+	if (JsonObject->HasField("LevelName"))
+	{
+		levelName = JsonObject->GetStringField("LevelName");
+	}
+
+	if (JsonObject->HasField("ToolsNumber") && JsonObject->GetObjectField("ToolsNumber").IsValid())
+	{
+		TSharedPtr<FJsonObject> ToolsObj = JsonObject->GetObjectField("ToolsNumber");
+		toolsNumber.hpTools = static_cast<int32>(ToolsObj->GetNumberField("hpTools"));
+		toolsNumber.mpTools = static_cast<int32>(ToolsObj->GetNumberField("mpTools"));
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("Successfully loaded save data from: %s"), *filePath);
 }

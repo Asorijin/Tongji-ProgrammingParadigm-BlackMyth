@@ -425,6 +425,7 @@ void Ablack_moneyCharacter::Tick(float deltaTime) {
 
 void Ablack_moneyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason) {
 	characterConfig->WriteConfigData();
+
 	ACharacter::EndPlay(EndPlayReason);
 }
 TArray<AActor*> Ablack_moneyCharacter::GetNearbyObjectsWithTag(TArray<FName> tagNames, float radius) const {
