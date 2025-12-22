@@ -27,24 +27,21 @@ private:
 	// 生成怪物（私有方法）
 	void GenerateMonster();
 	
-<<<<<<< Updated upstream
+
 	// 角色最后位置（用于关卡切换时保存位置）
-=======
+
 	FString filePath = FPaths::ProjectSavedDir() / TEXT("Config/GameConfigs/LastState.txt");
 	// 瑙掕壊鏈�鍚庝綅缃紙鐢ㄤ簬鍏冲崱鍒囨崲鏃朵繚瀛樹綅缃級
->>>>>>> Stashed changes
+
 	FVector pawnLastLocation;
 	
 	// 角色最后关卡
 	FString levelName;
 
-<<<<<<< Updated upstream
+
 	// 工具数量统计
 	FToolsNumber* toolsNumber;
-=======
-	// 宸ュ叿鏁伴噺缁熻
-	FToolsNumber toolsNumber;
->>>>>>> Stashed changes
+
 
 public:
 	UEventCenter();
@@ -96,14 +93,14 @@ public:
 	 */
 	void GetTools(AActor* tool, int toolNumber);
 
-<<<<<<< Updated upstream
+
 	/**
 	 * 更换装备
 	 */
 	void ChangeEquipment();
-=======
+
 	void WriteLastState();
 
 	void ReadLastState();
->>>>>>> Stashed changes
+
 };
