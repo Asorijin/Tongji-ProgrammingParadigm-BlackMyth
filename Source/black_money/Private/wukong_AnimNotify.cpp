@@ -39,27 +39,14 @@ void Uwukong_AnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 		// ¹Ø±ÕÉËº¦ÅÐ¶¨
 		 Character->EndAttackHit();
 		break;
+	case EStatusType::EndHit:
+		Character->EndHit();
+		break;
 	case EStatusType::EndDodge:
 		Character->EndDodge();
 		break;
 
 	default:
 		break;
-	}
-}
-FString Uwukong_AnimNotify::GetNotifyName_Implementation() const
-{
-	switch (NotifyType)
-	{
-	case EStatusType::OpenComboWindow:
-		return TEXT("OpenComboWindow");
-	case EStatusType::EndAttackSection:
-		return TEXT("EndAttackSection");
-	case EStatusType::EnableHit:
-		return TEXT("EnableHit");
-	case EStatusType::DisableHit:
-		return TEXT("DisableHit");
-	default:
-		return TEXT("WukongNotify");
 	}
 }

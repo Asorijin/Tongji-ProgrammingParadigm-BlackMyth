@@ -51,5 +51,9 @@ void Uwukong_AnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		bIsDodging = wukongCharacter->IsDodging();
 		//从角色获取攻击状态
 		bIsAttacking = wukongCharacter->IsAttacking();
+		//同步受击状态
+		bIsTakingDamage = wukongCharacter->IsTakingDamage();
+		//同步死亡状态
+		bIsDead = wukongCharacter->IsDead();
 	}
 }
