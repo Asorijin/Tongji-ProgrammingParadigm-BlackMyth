@@ -11,6 +11,7 @@ struct FToolsNumber {
 public:
 	UPROPERTY()
 	int32 hpTools;
+	int32 mpTools;
 };
 
 /**
@@ -26,18 +27,29 @@ private:
 	// 生成怪物（私有方法）
 	void GenerateMonster();
 	
+<<<<<<< Updated upstream
 	// 角色最后位置（用于关卡切换时保存位置）
+=======
+	FString filePath = FPaths::ProjectSavedDir() / TEXT("Config/GameConfigs/LastState.txt");
+	// 瑙掕壊鏈�鍚庝綅缃紙鐢ㄤ簬鍏冲崱鍒囨崲鏃朵繚瀛樹綅缃級
+>>>>>>> Stashed changes
 	FVector pawnLastLocation;
 	
 	// 角色最后关卡
 	FString levelName;
 
+<<<<<<< Updated upstream
 	// 工具数量统计
 	FToolsNumber* toolsNumber;
+=======
+	// 宸ュ叿鏁伴噺缁熻
+	FToolsNumber toolsNumber;
+>>>>>>> Stashed changes
 
 public:
 	UEventCenter();
 
+	void PostInitProperties() override;
 	/**
 	 * 切换关卡
 	 * 在调用该函数前，在角色的BeginPlay中调用，设置当前位置为SpawnLocation
@@ -84,8 +96,14 @@ public:
 	 */
 	void GetTools(AActor* tool, int toolNumber);
 
+<<<<<<< Updated upstream
 	/**
 	 * 更换装备
 	 */
 	void ChangeEquipment();
+=======
+	void WriteLastState();
+
+	void ReadLastState();
+>>>>>>> Stashed changes
 };
