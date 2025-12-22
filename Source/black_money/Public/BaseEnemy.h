@@ -102,6 +102,9 @@ public:
 	// 检查是否无敌
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	bool IsInvulnerable() const { return CurrentHitState == EEnemyHitState::Invulnerable; }
+	// 是否正在攻击（给动画蓝图 / AnimInstance 读取）
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	bool IsAttacking() const { return bIsAttacking; }
 
 	// ========== AI系统相关方法 ==========
 	
