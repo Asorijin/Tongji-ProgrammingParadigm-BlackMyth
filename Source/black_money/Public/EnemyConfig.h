@@ -7,9 +7,9 @@
 #include "EnemyConfig.generated.h"
 
 /**
- * æ€ªç‰©é…ç½®ç±»
- * ç”¨äºç®¡ç†æ€ªç‰©çš„å±æ€§æ•°æ®ï¼ˆHPã€æ”»å‡»åŠ›ã€é˜²å¾¡åŠ›ç­‰ï¼‰
- * ç»§æ‰¿è‡ªUObjectï¼Œä½œä¸ºæ•°æ®èµ„äº§ä½¿ç”¨
+ * ¹ÖÎïÅäÖÃÀà
+ * ÓÃÓÚ¹ÜÀí¹ÖÎïµÄÊôĞÔÊı¾İ£¨HP¡¢¹¥»÷Á¦¡¢·ÀÓùÁ¦µÈ£©
+ * ¼Ì³Ğ×ÔUObject£¬×÷ÎªÊı¾İ×Ê²úÊ¹ÓÃ
  */
 UCLASS()
 class BLACK_MONEY_API UEnemyConfig : public UObject
@@ -19,45 +19,45 @@ class BLACK_MONEY_API UEnemyConfig : public UObject
 public:
 	UEnemyConfig();
 
-	// æœ€å¤§ç”Ÿå‘½å€¼
+	// ×î´óÉúÃüÖµ
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Stats")
 	int32 MaxHp = 100;
 
-	// å½“å‰ç”Ÿå‘½å€¼
+	// µ±Ç°ÉúÃüÖµ
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Stats")
 	int32 CurrentHp = 100;
 
-	// æ”»å‡»åŠ›
+	// ¹¥»÷Á¦
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Stats")
 	int32 Attack = 10;
 
-	// é˜²å¾¡åŠ›
+	// ·ÀÓùÁ¦
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Stats")
 	int32 Defence = 5;
 
-	// ç§»åŠ¨é€Ÿåº¦
+	// ÒÆ¶¯ËÙ¶È
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Stats")
 	float MoveSpeed = 150.0f;
 
-	// æ”»å‡»é€Ÿåº¦
+	// ¹¥»÷ËÙ¶È
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Stats")
 	float AttackSpeed = 1.0f;
 
-	// æ”»å‡»èŒƒå›´
+	// ¹¥»÷·¶Î§
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Stats")
 	float AttackRange = 150.0f;
 
-	// æ£€æµ‹èŒƒå›´ï¼ˆå‘ç°ç©å®¶çš„è·ç¦»ï¼‰
+	// ¼ì²â·¶Î§£¨·¢ÏÖÍæ¼ÒµÄ¾àÀë£©
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Stats")
 	float DetectionRange = 1000.0f;
 
-	// åˆå§‹åŒ–é…ç½®ï¼ˆè®¾ç½®é»˜è®¤å€¼ï¼‰
+	// ³õÊ¼»¯ÅäÖÃ£¨ÉèÖÃÄ¬ÈÏÖµ£©
 	void Initialize();
 
-	// è·å–ç”Ÿå‘½å€¼ç™¾åˆ†æ¯”
+	// »ñÈ¡ÉúÃüÖµ°Ù·Ö±È
 	float GetHealthPercentage() const;
 
-	// æ£€æŸ¥æ˜¯å¦æ­»äº¡
+	// ¼ì²éÊÇ·ñËÀÍö
 	bool IsDead() const;
 };
 

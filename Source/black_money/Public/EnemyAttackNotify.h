@@ -7,8 +7,8 @@
 #include "EnemyAttackNotify.generated.h"
 
 /**
- * æ€ªç‰©æ”»å‡»åŠ¨ç”»é€šçŸ¥
- * åœ¨æ”»å‡»åŠ¨ç”»çš„ç‰¹å®šå¸§è§¦å‘æ”»å‡»åˆ¤å®š
+ * ¹ÖÎï¹¥»÷¶¯»­Í¨Öª
+ * ÔÚ¹¥»÷¶¯»­µÄÌØ¶¨Ö¡´¥·¢¹¥»÷ÅĞ¶¨
  */
 UCLASS()
 class BLACK_MONEY_API UEnemyAttackNotify : public UAnimNotify
@@ -18,10 +18,10 @@ class BLACK_MONEY_API UEnemyAttackNotify : public UAnimNotify
 public:
 	UEnemyAttackNotify();
 
-	// é‡å†™é€šçŸ¥è§¦å‘æ–¹æ³•
+	// ÖØĞ´Í¨Öª´¥·¢·½·¨
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
 
-	// ç¼–è¾‘å™¨æ˜¾ç¤ºåç§°
+	// ±à¼­Æ÷ÏÔÊ¾Ãû³Æ
 	virtual FString GetNotifyName_Implementation() const override;
 };
 

@@ -9,38 +9,38 @@
 class USphereComponent;
 
 /**
- * å—å‡»çŠ¶æ€æšä¸¾
- * å¿…é¡»åœ¨.generated.hä¹‹å‰å®šä¹‰ï¼Œä»¥ä¾¿UEåå°„ç³»ç»Ÿè¯†åˆ«
+ * ÊÜ»÷×´Ì¬Ã¶¾Ù
+ * ±ØĞëÔÚ.generated.hÖ®Ç°¶¨Òå£¬ÒÔ±ãUE·´ÉäÏµÍ³Ê¶±ğ
  */
 UENUM(BlueprintType)
 enum class EEnemyHitState : uint8
 {
-	Normal		UMETA(DisplayName = "Normal"),     // æ­£å¸¸çŠ¶æ€
-	Hit			UMETA(DisplayName = "Hit"),        // å—å‡»ç¡¬ç›´çŠ¶æ€
-	Invulnerable UMETA(DisplayName = "Invulnerable") // æ— æ•ŒçŠ¶æ€ï¼ˆå—å‡»åçŸ­æš‚æ— æ•Œï¼‰
+	Normal		UMETA(DisplayName = "Normal"),     // Õı³£×´Ì¬
+	Hit			UMETA(DisplayName = "Hit"),        // ÊÜ»÷Ó²Ö±×´Ì¬
+	Invulnerable UMETA(DisplayName = "Invulnerable") // ÎŞµĞ×´Ì¬£¨ÊÜ»÷ºó¶ÌÔİÎŞµĞ£©
 };
 
 /**
- * AIçŠ¶æ€æšä¸¾
- * ç”¨äºç®¡ç†æ€ªç‰©çš„AIè¡Œä¸ºçŠ¶æ€
+ * AI×´Ì¬Ã¶¾Ù
+ * ÓÃÓÚ¹ÜÀí¹ÖÎïµÄAIĞĞÎª×´Ì¬
  */
 UENUM(BlueprintType)
 enum class EEnemyAIState : uint8
 {
-	Idle		UMETA(DisplayName = "Idle"),        // å¾…æœºçŠ¶æ€
-	Chase		UMETA(DisplayName = "Chase"),       // è¿½å‡»çŠ¶æ€
-	Attack		UMETA(DisplayName = "Attack"),      // æ”»å‡»çŠ¶æ€
-	Dodge		UMETA(DisplayName = "Dodge"),       // é—ªé¿çŠ¶æ€
-	Hit			UMETA(DisplayName = "Hit"),         // å—å‡»çŠ¶æ€ï¼ˆä¸å—å‡»ç¡¬ç›´çŠ¶æ€åŒæ­¥ï¼‰
-	Dead		UMETA(DisplayName = "Dead")          // æ­»äº¡çŠ¶æ€
+	Idle		UMETA(DisplayName = "Idle"),        // ´ı»ú×´Ì¬
+	Chase		UMETA(DisplayName = "Chase"),       // ×·»÷×´Ì¬
+	Attack		UMETA(DisplayName = "Attack"),      // ¹¥»÷×´Ì¬
+	Dodge		UMETA(DisplayName = "Dodge"),       // ÉÁ±Ü×´Ì¬
+	Hit			UMETA(DisplayName = "Hit"),         // ÊÜ»÷×´Ì¬£¨ÓëÊÜ»÷Ó²Ö±×´Ì¬Í¬²½£©
+	Dead		UMETA(DisplayName = "Dead")          // ËÀÍö×´Ì¬
 };
 
 #include "BaseEnemy.generated.h"
 
 /**
- * æ€ªç‰©åŸºç±»
- * æ‰€æœ‰æ€ªç‰©çš„åŸºç±»ï¼Œæä¾›é€šç”¨åŠŸèƒ½
- * ç»§æ‰¿è‡ªACharacterä»¥æ”¯æŒç§»åŠ¨å’ŒåŠ¨ç”»
+ * ¹ÖÎï»ùÀà
+ * ËùÓĞ¹ÖÎïµÄ»ùÀà£¬Ìá¹©Í¨ÓÃ¹¦ÄÜ
+ * ¼Ì³Ğ×ÔACharacterÒÔÖ§³ÖÒÆ¶¯ºÍ¶¯»­
  */
 UCLASS()
 class BLACK_MONEY_API ABaseEnemy : public ACharacter
@@ -57,228 +57,228 @@ protected:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// æ€ªç‰©é…ç½®å¯¹è±¡
+	// ¹ÖÎïÅäÖÃ¶ÔÏó
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy Config")
 	UEnemyConfig* EnemyConfig;
 
-	// æ”»å‡»èŒƒå›´æ£€æµ‹ç»„ä»¶
+	// ¹¥»÷·¶Î§¼ì²â×é¼ş
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	USphereComponent* AttackRangeSphere;
 
-	// æ£€æµ‹èŒƒå›´ç»„ä»¶ï¼ˆç”¨äºå‘ç°ç©å®¶ï¼‰
+	// ¼ì²â·¶Î§×é¼ş£¨ÓÃÓÚ·¢ÏÖÍæ¼Ò£©
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	USphereComponent* DetectionSphere;
 
 public:
-	// è·å–æ€ªç‰©é…ç½®
+	// »ñÈ¡¹ÖÎïÅäÖÃ
 	UFUNCTION(BlueprintCallable, Category = "Enemy")
 	UEnemyConfig* GetEnemyConfig() const { return EnemyConfig; }
 
-	// å—å‡»å¤„ç†ï¼ˆé€šè¿‡äº‹ä»¶ä¸­å¿ƒè°ƒç”¨ï¼‰
-	// æ³¨æ„ï¼šé‡å†™åŸºç±»APawnçš„ageå‡½æ•°ï¼Œä½†ä½¿ç”¨ä¸åŒçš„å‚æ•°ç±»å‹
-	// ä¸ºäº†é¿å…ä¸åŸºç±»å‡½æ•°å†²çªï¼Œæˆ‘ä»¬ä½¿ç”¨ReceiveDamageä½œä¸ºä¸»è¦æ¥å£
+	// ÊÜ»÷´¦Àí£¨Í¨¹ıÊÂ¼şÖĞĞÄµ÷ÓÃ£©
+	// ×¢Òâ£ºÖØĞ´»ùÀàAPawnµÄageº¯Êı£¬µ«Ê¹ÓÃ²»Í¬µÄ²ÎÊıÀàĞÍ
+	// ÎªÁË±ÜÃâÓë»ùÀàº¯Êı³åÍ»£¬ÎÒÃÇÊ¹ÓÃReceiveDamage×÷ÎªÖ÷Òª½Ó¿Ú
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	virtual void ReceiveDamage(int32 DamageAmount, AActor* DamageCauser = nullptr);
 
-	// é‡å†™åŸºç±»çš„TakeDamageå‡½æ•°ï¼Œå†…éƒ¨è°ƒç”¨ReceiveDamage
+	// ÖØĞ´»ùÀàµÄTakeDamageº¯Êı£¬ÄÚ²¿µ÷ÓÃReceiveDamage
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
-	// æ­»äº¡å¤„ç†
+	// ËÀÍö´¦Àí
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	virtual void Die();
 
-	// æ£€æŸ¥æ˜¯å¦æ­»äº¡
+	// ¼ì²éÊÇ·ñËÀÍö
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	bool IsDead() const;
 
-	// è·å–å½“å‰å—å‡»çŠ¶æ€
+	// »ñÈ¡µ±Ç°ÊÜ»÷×´Ì¬
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	EEnemyHitState GetHitState() const { return CurrentHitState; }
 
-	// æ£€æŸ¥æ˜¯å¦å¤„äºå—å‡»ç¡¬ç›´çŠ¶æ€
+	// ¼ì²éÊÇ·ñ´¦ÓÚÊÜ»÷Ó²Ö±×´Ì¬
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	bool IsInHitStun() const { return CurrentHitState == EEnemyHitState::Hit; }
 
-	// æ£€æŸ¥æ˜¯å¦æ— æ•Œ
+	// ¼ì²éÊÇ·ñÎŞµĞ
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	bool IsInvulnerable() const { return CurrentHitState == EEnemyHitState::Invulnerable; }
 	// æ˜¯å¦æ­£åœ¨æ”»å‡»ï¼ˆç»™åŠ¨ç”»è“å›¾ / AnimInstance è¯»å–ï¼‰
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	bool IsAttacking() const { return bIsAttacking; }
 
-	// ========== AIç³»ç»Ÿç›¸å…³æ–¹æ³• ==========
+	// ========== AIÏµÍ³Ïà¹Ø·½·¨ ==========
 	
-	// è·å–å½“å‰AIçŠ¶æ€
+	// »ñÈ¡µ±Ç°AI×´Ì¬
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	EEnemyAIState GetAIState() const { return CurrentAIState; }
 
-	// è®¾ç½®AIçŠ¶æ€ï¼ˆå†…éƒ¨ä½¿ç”¨ï¼Œå­ç±»å¯é‡å†™ï¼‰
+	// ÉèÖÃAI×´Ì¬£¨ÄÚ²¿Ê¹ÓÃ£¬×ÓÀà¿ÉÖØĞ´£©
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	virtual void SetAIState(EEnemyAIState NewState);
 
-	// æ£€æŸ¥æ˜¯å¦åœ¨æ”»å‡»èŒƒå›´å†…
+	// ¼ì²éÊÇ·ñÔÚ¹¥»÷·¶Î§ÄÚ
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	bool IsPlayerInAttackRange() const;
 
-	// æ£€æŸ¥æ˜¯å¦æ£€æµ‹åˆ°ç©å®¶
+	// ¼ì²éÊÇ·ñ¼ì²âµ½Íæ¼Ò
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	bool IsPlayerDetected() const;
 
-	// è·å–ç©å®¶è§’è‰²å¼•ç”¨
+	// »ñÈ¡Íæ¼Ò½ÇÉ«ÒıÓÃ
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	class ACharacter* GetPlayerCharacter() const;
 
-	// ========== æ”»å‡»ç³»ç»Ÿç›¸å…³æ–¹æ³• ==========
+	// ========== ¹¥»÷ÏµÍ³Ïà¹Ø·½·¨ ==========
 	
 	/**
-	 * æ‰§è¡Œæ”»å‡»åˆ¤å®šï¼ˆç”±åŠ¨ç”»é€šçŸ¥è°ƒç”¨ï¼‰
-	 * æŸ¥æ‰¾æ”»å‡»èŒƒå›´å†…çš„ç›®æ ‡å¹¶é€ æˆä¼¤å®³
+	 * Ö´ĞĞ¹¥»÷ÅĞ¶¨£¨ÓÉ¶¯»­Í¨Öªµ÷ÓÃ£©
+	 * ²éÕÒ¹¥»÷·¶Î§ÄÚµÄÄ¿±ê²¢Ôì³ÉÉËº¦
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	virtual void PerformAttack();
 
 	/**
-	 * å¼€å§‹æ”»å‡»ï¼ˆæ’­æ”¾æ”»å‡»åŠ¨ç”»ï¼‰
-	 * @return æ˜¯å¦æˆåŠŸå¼€å§‹æ”»å‡»ï¼ˆå¦‚æœæ­£åœ¨å†·å´ä¸­åˆ™è¿”å›falseï¼‰
+	 * ¿ªÊ¼¹¥»÷£¨²¥·Å¹¥»÷¶¯»­£©
+	 * @return ÊÇ·ñ³É¹¦¿ªÊ¼¹¥»÷£¨Èç¹ûÕıÔÚÀäÈ´ÖĞÔò·µ»Øfalse£©
 	 */
 	virtual bool StartAttack();
 
 	/**
-	 * æ£€æŸ¥æ˜¯å¦å¯ä»¥æ”»å‡»ï¼ˆå†·å´æ—¶é—´æ˜¯å¦ç»“æŸï¼‰
+	 * ¼ì²éÊÇ·ñ¿ÉÒÔ¹¥»÷£¨ÀäÈ´Ê±¼äÊÇ·ñ½áÊø£©
 	 */
 	bool CanAttack() const;
 
 protected:
-	// æ˜¯å¦å·²æ­»äº¡
+	// ÊÇ·ñÒÑËÀÍö
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	bool bIsDead = false;
 
-	// å½“å‰å—å‡»çŠ¶æ€
+	// µ±Ç°ÊÜ»÷×´Ì¬
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	EEnemyHitState CurrentHitState = EEnemyHitState::Normal;
 
-	// å—å‡»ç¡¬ç›´æ—¶é—´ï¼ˆç§’ï¼‰
+	// ÊÜ»÷Ó²Ö±Ê±¼ä£¨Ãë£©
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	float HitStunDuration = 0.3f;
 
-	// å—å‡»åæ— æ•Œæ—¶é—´ï¼ˆç§’ï¼‰
+	// ÊÜ»÷ºóÎŞµĞÊ±¼ä£¨Ãë£©
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	float InvulnerableDuration = 0.5f;
 
-	// å—å‡»ç¡¬ç›´è®¡æ—¶å™¨
+	// ÊÜ»÷Ó²Ö±¼ÆÊ±Æ÷
 	FTimerHandle HitStunTimerHandle;
 
-	// æ— æ•ŒçŠ¶æ€è®¡æ—¶å™¨
+	// ÎŞµĞ×´Ì¬¼ÆÊ±Æ÷
 	FTimerHandle InvulnerableTimerHandle;
 
-	// ========== AIç³»ç»Ÿç›¸å…³æˆå‘˜ ==========
+	// ========== AIÏµÍ³Ïà¹Ø³ÉÔ± ==========
 	
-	// å½“å‰AIçŠ¶æ€
+	// µ±Ç°AI×´Ì¬
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	EEnemyAIState CurrentAIState = EEnemyAIState::Idle;
 
-	// ç©å®¶è§’è‰²å¼•ç”¨ï¼ˆç¼“å­˜ï¼Œé¿å…æ¯å¸§æŸ¥æ‰¾ï¼‰
+	// Íæ¼Ò½ÇÉ«ÒıÓÃ£¨»º´æ£¬±ÜÃâÃ¿Ö¡²éÕÒ£©
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	class ACharacter* PlayerCharacter = nullptr;
 
-	// AIæ›´æ–°é—´éš”ï¼ˆç§’ï¼Œé¿å…æ¯å¸§éƒ½æ›´æ–°ï¼Œä¼˜åŒ–æ€§èƒ½ï¼‰
+	// AI¸üĞÂ¼ä¸ô£¨Ãë£¬±ÜÃâÃ¿Ö¡¶¼¸üĞÂ£¬ÓÅ»¯ĞÔÄÜ£©
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	float AIUpdateInterval = 0.1f;
 
-	// AIæ›´æ–°è®¡æ—¶å™¨
+	// AI¸üĞÂ¼ÆÊ±Æ÷
 	float AIUpdateTimer = 0.0f;
 
-	// åˆå§‹åŒ–å ä½ç¬¦æ¨¡å‹ï¼ˆMannequinï¼‰
+	// ³õÊ¼»¯Õ¼Î»·ûÄ£ĞÍ£¨Mannequin£©
 	void InitializePlaceholderMesh();
 
-	// è¿›å…¥å—å‡»ç¡¬ç›´çŠ¶æ€
+	// ½øÈëÊÜ»÷Ó²Ö±×´Ì¬
 	void EnterHitStun();
 
-	// ç»“æŸå—å‡»ç¡¬ç›´çŠ¶æ€
+	// ½áÊøÊÜ»÷Ó²Ö±×´Ì¬
 	void EndHitStun();
 
-	// è¿›å…¥æ— æ•ŒçŠ¶æ€
+	// ½øÈëÎŞµĞ×´Ì¬
 	void EnterInvulnerable();
 
-	// ç»“æŸæ— æ•ŒçŠ¶æ€
+	// ½áÊøÎŞµĞ×´Ì¬
 	void EndInvulnerable();
 
-	// è·å–äº‹ä»¶ä¸­å¿ƒï¼ˆç”¨äºé€šçŸ¥ç”Ÿå‘½å€¼å˜åŒ–ç­‰ï¼‰
+	// »ñÈ¡ÊÂ¼şÖĞĞÄ£¨ÓÃÓÚÍ¨ÖªÉúÃüÖµ±ä»¯µÈ£©
 	class UEventCenter* GetEventCenter() const;
 
 
 	/**
-	 * è·å–æ”»å‡»èŒƒå›´å†…çš„å—å‡»ç›®æ ‡ï¼ˆä¾¿æ·æ–¹æ³•ï¼Œé»˜è®¤æŸ¥æ‰¾Playeræ ‡ç­¾ï¼‰
-	 * å‚è€ƒè§’è‰²ç±»çš„GetNearbyObjectsWithTagæ–¹æ³•å®ç°
-	 * @param AttackRange æ”»å‡»èŒƒå›´åŠå¾„ï¼ˆå¦‚æœ<=0ï¼Œåˆ™ä½¿ç”¨AttackRangeSphereçš„åŠå¾„ï¼‰
-	 * @return æ”»å‡»èŒƒå›´å†…çš„å—å‡»å¯¹è±¡åˆ—è¡¨ï¼ˆé»˜è®¤æŸ¥æ‰¾"Player"æ ‡ç­¾ï¼‰
+	 * »ñÈ¡¹¥»÷·¶Î§ÄÚµÄÊÜ»÷Ä¿±ê£¨±ã½İ·½·¨£¬Ä¬ÈÏ²éÕÒPlayer±êÇ©£©
+	 * ²Î¿¼½ÇÉ«ÀàµÄGetNearbyObjectsWithTag·½·¨ÊµÏÖ
+	 * @param AttackRange ¹¥»÷·¶Î§°ë¾¶£¨Èç¹û<=0£¬ÔòÊ¹ÓÃAttackRangeSphereµÄ°ë¾¶£©
+	 * @return ¹¥»÷·¶Î§ÄÚµÄÊÜ»÷¶ÔÏóÁĞ±í£¨Ä¬ÈÏ²éÕÒ"Player"±êÇ©£©
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	TArray<AActor*> GetAttackTargetsInRange(float AttackRange = 0.0f) const;
 
 	/**
-	 * è·å–æ”»å‡»èŒƒå›´å†…çš„å—å‡»ç›®æ ‡ï¼ˆå®Œæ•´ç‰ˆæœ¬ï¼ŒC++å†…éƒ¨ä½¿ç”¨ï¼‰
-	 * @param AttackRange æ”»å‡»èŒƒå›´åŠå¾„ï¼ˆå¦‚æœ<=0ï¼Œåˆ™ä½¿ç”¨AttackRangeSphereçš„åŠå¾„ï¼‰
-	 * @param TargetTags ç›®æ ‡æ ‡ç­¾åˆ—è¡¨
-	 * @return æ”»å‡»èŒƒå›´å†…çš„å—å‡»å¯¹è±¡åˆ—è¡¨
+	 * »ñÈ¡¹¥»÷·¶Î§ÄÚµÄÊÜ»÷Ä¿±ê£¨ÍêÕû°æ±¾£¬C++ÄÚ²¿Ê¹ÓÃ£©
+	 * @param AttackRange ¹¥»÷·¶Î§°ë¾¶£¨Èç¹û<=0£¬ÔòÊ¹ÓÃAttackRangeSphereµÄ°ë¾¶£©
+	 * @param TargetTags Ä¿±ê±êÇ©ÁĞ±í
+	 * @return ¹¥»÷·¶Î§ÄÚµÄÊÜ»÷¶ÔÏóÁĞ±í
 	 */
 	TArray<AActor*> GetAttackTargetsInRangeWithTags(float AttackRange, const TArray<FName>& TargetTags) const;
 
-	// ========== AIç³»ç»Ÿå†…éƒ¨æ–¹æ³• ==========
+	// ========== AIÏµÍ³ÄÚ²¿·½·¨ ==========
 	
-	// æ›´æ–°AIçŠ¶æ€ï¼ˆåœ¨Tickä¸­è°ƒç”¨ï¼‰
+	// ¸üĞÂAI×´Ì¬£¨ÔÚTickÖĞµ÷ÓÃ£©
 	virtual void UpdateAI(float DeltaTime);
 
-	// æ£€æµ‹ç©å®¶ï¼ˆåœ¨DetectionSphereèŒƒå›´å†…ï¼‰
-	// æ³¨æ„ï¼šæ­¤æ–¹æ³•ä¼šæ›´æ–°PlayerCharacterå¼•ç”¨ï¼Œæ‰€ä»¥ä¸æ˜¯const
+	// ¼ì²âÍæ¼Ò£¨ÔÚDetectionSphere·¶Î§ÄÚ£©
+	// ×¢Òâ£º´Ë·½·¨»á¸üĞÂPlayerCharacterÒıÓÃ£¬ËùÒÔ²»ÊÇconst
 	virtual bool DetectPlayer();
 
-	// è®¡ç®—åˆ°ç©å®¶çš„è·ç¦»
+	// ¼ÆËãµ½Íæ¼ÒµÄ¾àÀë
 	float GetDistanceToPlayer() const;
 
-	// æ‰§è¡Œè¿½å‡»ç§»åŠ¨
+	// Ö´ĞĞ×·»÷ÒÆ¶¯
 	virtual void ChasePlayer(float DeltaTime);
 
-	// åœæ­¢ç§»åŠ¨
+	// Í£Ö¹ÒÆ¶¯
 	void StopMovement();
 
-	// çŠ¶æ€åˆ‡æ¢é€»è¾‘ï¼ˆæ ¹æ®å½“å‰æƒ…å†µå†³å®šä¸‹ä¸€ä¸ªçŠ¶æ€ï¼‰
+	// ×´Ì¬ÇĞ»»Âß¼­£¨¸ù¾İµ±Ç°Çé¿ö¾ö¶¨ÏÂÒ»¸ö×´Ì¬£©
 	virtual EEnemyAIState DetermineNextState() const;
 
 	/**
-	 * æ”»å‡»åŠ¨ç”»æ’­æ”¾å®Œæˆå›è°ƒ
+	 * ¹¥»÷¶¯»­²¥·ÅÍê³É»Øµ÷
 	 */
 	UFUNCTION()
 	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 protected:
-	// ========== æ”»å‡»ç³»ç»Ÿç›¸å…³æˆå‘˜ ==========
+	// ========== ¹¥»÷ÏµÍ³Ïà¹Ø³ÉÔ± ==========
 	
-	// æ”»å‡»åŠ¨ç”»è’™å¤ªå¥‡
+	// ¹¥»÷¶¯»­ÃÉÌ«Ææ
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	class UAnimMontage* AttackMontage;
 
-	// æ˜¯å¦æ­£åœ¨æ”»å‡»ï¼ˆç”¨äºé˜²æ­¢é‡å¤åˆ¤å®šï¼‰
+	// ÊÇ·ñÕıÔÚ¹¥»÷£¨ÓÃÓÚ·ÀÖ¹ÖØ¸´ÅĞ¶¨£©
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	bool bIsAttacking = false;
 
-	// æ”»å‡»å†·å´è®¡æ—¶å™¨
+	// ¹¥»÷ÀäÈ´¼ÆÊ±Æ÷
 	FTimerHandle AttackCooldownTimer;
 
-	// å½“å‰æ”»å‡»å†·å´å‰©ä½™æ—¶é—´ï¼ˆç”¨äºè°ƒè¯•å’ŒUIæ˜¾ç¤ºï¼‰
+	// µ±Ç°¹¥»÷ÀäÈ´Ê£ÓàÊ±¼ä£¨ÓÃÓÚµ÷ÊÔºÍUIÏÔÊ¾£©
 	float AttackCooldownRemaining = 0.0f;
 
-	// æœ¬æ¬¡æ”»å‡»ä¸­å·²å‘½ä¸­çš„ç›®æ ‡ï¼ˆé˜²æ­¢åŒä¸€æ”»å‡»åŠ¨ç”»ä¸­é‡å¤åˆ¤å®šï¼‰
+	// ±¾´Î¹¥»÷ÖĞÒÑÃüÖĞµÄÄ¿±ê£¨·ÀÖ¹Í¬Ò»¹¥»÷¶¯»­ÖĞÖØ¸´ÅĞ¶¨£©
 	UPROPERTY()
 	TArray<AActor*> AlreadyHitTargetsInThisAttack;
 
-	// ========== å—å‡»å’Œæ­»äº¡åŠ¨ç”»è’™å¤ªå¥‡ ==========
+	// ========== ÊÜ»÷ºÍËÀÍö¶¯»­ÃÉÌ«Ææ ==========
 	
-	// å—å‡»åŠ¨ç”»è’™å¤ªå¥‡
+	// ÊÜ»÷¶¯»­ÃÉÌ«Ææ
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	class UAnimMontage* HitMontage;
 
-	// æ­»äº¡åŠ¨ç”»è’™å¤ªå¥‡
+	// ËÀÍö¶¯»­ÃÉÌ«Ææ
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	class UAnimMontage* DeathMontage;
 };
