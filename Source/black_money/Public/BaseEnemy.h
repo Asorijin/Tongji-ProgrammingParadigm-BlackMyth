@@ -102,9 +102,13 @@ public:
 	// 检查是否无敌
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	bool IsInvulnerable() const { return CurrentHitState == EEnemyHitState::Invulnerable; }
-	// 鏄惁姝ｅ湪鏀诲嚮锛堢粰鍔ㄧ敾钃濆浘 / AnimInstance 璇诲彇锛?
+	// 鏄?鍚︽?ｅ湪鏀诲嚮锛堢粰鍔ㄧ敾钃濆浘 / AnimInstance 璇诲彇锛?
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	bool IsAttacking() const { return bIsAttacking; }
+
+	// 是否正在闪避（给动画蓝图 / AnimInstance 读取）
+	UFUNCTION(BlueprintCallable, Category = "Dodge")
+	bool IsDodging() const { return bIsDodging; }
 
 	// ========== AI系统相关方法 ==========
 	
@@ -147,6 +151,31 @@ public:
 	 * 检查是否可以攻击（冷却时间是否结束）
 	 */
 	bool CanAttack() const;
+
+	// ========== 闪避系统相关方法 ==========
+	
+	/**
+	 * 判断是否可以闪避
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Dodge")
+	bool CanDodge() const;
+
+	/**
+	 * 判断是否应该闪避（基于距离和概率）
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Dodge")
+	bool ShouldDodge() const;
+
+	/**
+	 * 执行闪避（播放闪避动画并执行闪避移动）
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Dodge")
+	void PerformDodge();
+
+	/**
+	 * 检测玩家是否正在攻击
+	 */
+	bool IsPlayerAttacking() const;
 
 protected:
 	// 是否已死亡
@@ -281,5 +310,55 @@ protected:
 	// 死亡动画蒙太奇
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	class UAnimMontage* DeathMontage;
+
+	// ========== 闪避系统相关成员 ==========
+	
+	// 闪避动画蒙太奇
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dodge")
+	class UAnimMontage* DodgeMontage;
+
+	// 是否正在闪避
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Dodge")
+	bool bIsDodging = false;
+
+	// 闪避期间是否无敌
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Dodge")
+	bool bInvulnerableDuringDodge = false;
+
+	// 闪避概率（0.0-1.0）
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dodge")
+	float DodgeProbability = 0.5f;
+
+	// 检测玩家攻击的范围
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dodge")
+	float DodgeRange = 300.0f;
+
+	// 闪避强度（移动速度）
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dodge")
+	float DodgeStrength = 800.0f;
+
+	// 闪避持续时间（秒）
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dodge")
+	float DodgeDuration = 0.3f;
+
+	// 闪避冷却时间（秒）
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dodge")
+	float DodgeCooldown = 2.0f;
+
+	// 闪避计时器
+	FTimerHandle DodgeTimerHandle;
+
+	// 闪避冷却计时器
+	FTimerHandle DodgeCooldownTimerHandle;
+
+	// 闪避蒙太奇结束回调
+	UFUNCTION()
+	void OnDodgeMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	// 结束闪避（备用方法）
+	void EndDodge();
+
+	// 闪避冷却结束回调
+	void OnDodgeCooldownEnd();
 };
 

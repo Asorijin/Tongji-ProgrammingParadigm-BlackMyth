@@ -36,6 +36,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	bool bIsAttacking;
 
+	// 是否正在闪避
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+	bool bIsDodging;
+
 	// 是否处于受击硬直/受击状态
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	bool bIsHit;

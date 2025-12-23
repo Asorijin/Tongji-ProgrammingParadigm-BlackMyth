@@ -122,17 +122,17 @@ const FVector UEventCenter::GetSpawnLocation() {
 }
 
 void UEventCenter::WriteLastState() {
-	// 1. 淇濆瓨 PawnLastLocation (鎷嗘垚 X/Y/Z)
+	// 1. 保存 PawnLastLocation (拆成 X/Y/Z)
 	TSharedPtr<FJsonObject> LocObj = MakeShareable(new FJsonObject);
 	LocObj->SetNumberField("X", pawnLastLocation.X);
 	LocObj->SetNumberField("Y", pawnLastLocation.Y);
 	LocObj->SetNumberField("Z", pawnLastLocation.Z);
 	LocObj->SetObjectField("PawnLastLocation", LocObj);
 
-	// 2. 淇濆瓨 LevelName
+	// 2. 保存 LevelName
 	LocObj->SetStringField("LevelName", levelName);
 
-	// 3. 淇濆瓨 ToolsNumber
+	// 3. 保存 ToolsNumber
 	TSharedPtr<FJsonObject> ToolsObj = MakeShareable(new FJsonObject);
 	ToolsObj->SetNumberField("hpTools", toolsNumber.hpTools);
 	ToolsObj->SetNumberField("mpTools", toolsNumber.mpTools);
