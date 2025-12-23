@@ -128,6 +128,8 @@ void Ablack_moneyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::Attack);
 		//绑定Q键->EarthQuake
 		EnhancedInputComponent->BindAction(SkillEarthQuakeAction,ETriggerEvent::Started,this,&Ablack_moneyCharacter::CastEarthQuake);
+		//绑定F键->拾取道具
+		EnhancedInputComponent->BindAction(PickUpAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::TriggerNearByInteractions);
 	}
 	else
 	{
@@ -546,7 +548,7 @@ void Ablack_moneyCharacter::BeginPlay() {
 		EventCenter = GI->GetEventCenter();
 	}
 
-	this->SetActorLocation(EventCenter->GetSpawnLocation());
+	//this->SetActorLocation(EventCenter->GetSpawnLocation());
 
 	// 绑定武器碰撞盒重叠事件
 	if (WeaponHitBox)

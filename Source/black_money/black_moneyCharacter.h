@@ -60,7 +60,9 @@ class Ablack_moneyCharacter : public ACharacter
 	//添加技能1-棒震大地（Q键）
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* SkillEarthQuakeAction;
-	
+	//绑定拾取道具动作
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* PickUpAction;
 public:
 	Ablack_moneyCharacter();
 
