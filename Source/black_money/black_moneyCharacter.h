@@ -107,6 +107,9 @@ protected:
 	// 每秒回蓝
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill|Mana")
 	float ManaRegenPerSecond = 2.0f;
+	// 蓝量回满所需时间累积器
+	float MpRegenAccumulator = 0.0f;
+
 
 	// 技能蓝耗
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill|Config")
@@ -179,7 +182,7 @@ private:
 
 	/** 闪避期间免伤标记 */
 	UPROPERTY(VisibleAnywhere, Category = "Dodge")
-	bool bInvulnerableDuringDodge = false;
+	bool bInvulnerableDuringDodge = true;
 
 	
 	//是否处于攻击状态
