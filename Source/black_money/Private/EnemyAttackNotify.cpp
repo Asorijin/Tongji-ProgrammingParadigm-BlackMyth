@@ -14,21 +14,21 @@ void UEnemyAttackNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 		return;
 	}
 
-	// è·å–æ‹¥æœ‰è¯¥ç½‘æ ¼çš„Actor
+	// »ñÈ¡ÓµÓĞ¸ÃÍø¸ñµÄActor
 	AActor* Owner = MeshComp->GetOwner();
 	if (!Owner)
 	{
 		return;
 	}
 
-	// å°è¯•è½¬æ¢ä¸ºBaseEnemy
+	// ³¢ÊÔ×ª»»ÎªBaseEnemy
 	ABaseEnemy* Enemy = Cast<ABaseEnemy>(Owner);
 	if (!Enemy)
 	{
 		return;
 	}
 
-	// è°ƒç”¨æ€ªç‰©çš„æ”»å‡»åˆ¤å®šæ–¹æ³•
+	// µ÷ÓÃ¹ÖÎïµÄ¹¥»÷ÅĞ¶¨·½·¨
 	Enemy->PerformAttack();
 }
 

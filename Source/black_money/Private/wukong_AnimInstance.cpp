@@ -55,5 +55,7 @@ void Uwukong_AnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		bIsTakingDamage = wukongCharacter->IsTakingDamage();
 		//同步死亡状态
 		bIsDead = wukongCharacter->IsDead();
+		//同步技能释放状态
+		bIsUsingSkill = wukongCharacter->IsCastingSkill();
 	}
 }

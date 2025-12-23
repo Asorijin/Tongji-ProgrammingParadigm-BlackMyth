@@ -57,6 +57,9 @@ class Ablack_moneyCharacter : public ACharacter
 	//添加攻击动作
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* AttackAction;
+	//添加技能1-棒震大地（Q键）
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SkillEarthQuakeAction;
 	
 public:
 	Ablack_moneyCharacter();
@@ -81,6 +84,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "State")
 	virtual void HandleDeath();
 
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	USphereComponent* DetectionSphere;
 
@@ -96,6 +100,42 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UCharacterConfig* characterConfig;
+
+	// 蓝量 / 技能数值
+protected:
+
+	// 每秒回蓝
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill|Mana")
+	float ManaRegenPerSecond = 2.0f;
+
+	// 技能蓝耗
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill|Config")
+	float EarthQuakeManaCost = 30.0f;
+
+	// 技能冷却时间（秒）
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill|Config")
+	float EarthQuakeCooldown = 10.0f;
+
+	// 距离上次释放该技能的时间（秒），用负值/大于冷却来表示可用
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill|State")
+	float EarthQuakeCooldownRemaining = 0.0f;
+
+	// 技能蒙太奇（震地动画）
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill|Animation", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* EarthQuakeMontage = nullptr;
+	public:
+		// 技能时长只读接口（给 UI / AnimBP 用）
+		UFUNCTION(BlueprintPure, Category = "Skill|State")
+		float GetEarthQuakeCooldownRemaining() const { return EarthQuakeCooldownRemaining; }
+
+private:
+	// 内部检查是否能放技能
+	bool CanCastEarthQuake() const;
+public:
+	// 真正结算震地伤害（可在 AnimNotify 里调用）
+	UFUNCTION(BlueprintCallable, Category = "Skill")
+
+	void DoEarthQuakeDamage();
 
 protected:
 
@@ -117,6 +157,9 @@ public:
 	FORCEINLINE bool IsTakingDamage() const { return bIsTakingDamage; }
 	//获取附近可交互物体
 	TSet<AActor*> nearbyInteraction;
+	// 技能：棒震大地
+	UFUNCTION(BlueprintCallable, Category = "Skill")
+	void CastEarthQuake();
 
 
 	void BeginPlay() override;
@@ -136,7 +179,7 @@ private:
 
 	/** 闪避期间免伤标记 */
 	UPROPERTY(VisibleAnywhere, Category = "Dodge")
-	bool bInvulnerableDuringDodge = true;
+	bool bInvulnerableDuringDodge = false;
 
 	
 	//是否处于攻击状态
@@ -147,7 +190,9 @@ private:
 	// 是否已死亡
 	UPROPERTY(VisibleAnywhere,  Category = "State")
 	bool bIsDead = false;
-	
+	// 是否处于释放技能中（例如棒震大地）
+	UPROPERTY(VisibleAnywhere, Category = "Skill|State")
+	bool bIsCastingSkill = false;
 
 protected:
 	// 武器碰撞回调
@@ -239,6 +284,12 @@ protected:
 		// 给 AnimInstance 用的只读接口
 		UFUNCTION(BlueprintPure, Category = "State")
 		bool IsDead() const { return bIsDead; }
+
+		UFUNCTION(BlueprintPure, Category = "Skill|State")
+		bool IsCastingSkill() const { return bIsCastingSkill; }
+		// 技能释放结束（在动画通知中调用）
+		UFUNCTION(BlueprintCallable, Category = "Skill|State")
+		void EndCastSkill() { bIsCastingSkill = false; }
 
 };
 

@@ -6,15 +6,21 @@
 #include "ToolHp.h"
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
+#include "Json.h"
+#include "Misc/FileHelper.h"
 #include "Engine/DamageEvents.h" 
 
-// å‰å‘å£°æ˜ï¼Œé¿å…å¾ªç¯ä¾èµ–
+// Ç°ÏòÉùÃ÷£¬±ÜÃâÑ­»·ÒÀÀµ
 class Ablack_moneyCharacter;
 
 UEventCenter::UEventCenter() {
 	
 }
 
+void UEventCenter::PostInitProperties() {
+	UObject::PostInitProperties();
+
+}
 void UEventCenter::GenerateMonster() {
 
 }
@@ -31,7 +37,7 @@ float UEventCenter::MakeDamage(
 		return 0.f;
 	}
 
-	// å¦‚æœæ²¡ä¼ æ§åˆ¶å™¨ï¼Œè€Œ DamageCauser æ˜¯ Pawnï¼Œå°±è‡ªåŠ¨å–å…¶ Controller
+	// Èç¹ûÃ»´«¿ØÖÆÆ÷£¬¶ø DamageCauser ÊÇ Pawn£¬¾Í×Ô¶¯È¡Æä Controller
 	if (!EventInstigator && DamageCauser)
 	{
 		if (APawn* PawnCauser = Cast<APawn>(DamageCauser))
@@ -42,17 +48,17 @@ float UEventCenter::MakeDamage(
 
 	
 	FDamageEvent DamageEvent;
-	// è®¾ç½®ä¼¤å®³ç±»å‹
+	// ÉèÖÃÉËº¦ÀàĞÍ
 	DamageEvent.DamageTypeClass = DamageTypeClass ? DamageTypeClass : TSubclassOf<UDamageType>(UDamageType::StaticClass());
 
-	// è°ƒç”¨ Actor çš„ TakeDamage
+	// µ÷ÓÃ Actor µÄ TakeDamage
 	const float ActualDamage = DamagedActor->TakeDamage(
 		DamageAmount,
 		DamageEvent,
 		EventInstigator,
 		DamageCauser);
 
-	// è¾“å‡ºæ—¥å¿—
+	// Êä³öÈÕÖ¾
 	if (ActualDamage > 0.f)
 	{
 		UE_LOG(LogTemp, Log, TEXT("EventCenter::MakeDamage - %s took %f damage from %s"),
@@ -69,34 +75,35 @@ void UEventCenter::UseTools(AActor* tool) {
 
 void UEventCenter::GetTools(AActor* tool, int toolNumber) {
 	if (tool->IsA(AToolHp::StaticClass())) {
-		if (toolsNumber)
+		if (toolsNumber.hpTools)
 		{
-			toolsNumber->hpTools += 1;
+			toolsNumber.hpTools += 1;
 		}
 	}
 	else {
-		// å…¶ä»–ç±»å‹å·¥å…·çš„å¤„ç†
+		// ÆäËûÀàĞÍ¹¤¾ßµÄ´¦Àí
 	}
 	tool->Destroy();
 }
 
 
+
 void UEventCenter::ChangeEquipment() {
-	// éœ€è¦å®ç°è£…å¤‡ç»“æ„
+	// ĞèÒªÊµÏÖ×°±¸½á¹¹
 }
 
 void UEventCenter::SwitchToLevel(const FString& LevelName, FVector SpawnLocation) {
 
 	if (UWorld* World = GetWorld())
 	{
-		// è·å–å½“å‰å…³å¡çš„çŸ­åç§°
+		// »ñÈ¡µ±Ç°¹Ø¿¨µÄ¶ÌÃû³Æ
 		FString CurrentLevelName = GetWorld()->GetMapName();
 		CurrentLevelName = FPaths::GetBaseFilename(CurrentLevelName);
 
-		// æ¯”è¾ƒç›®æ ‡å…³å¡åå’Œå½“å‰å…³å¡å
+		// ±È½ÏÄ¿±ê¹Ø¿¨ÃûºÍµ±Ç°¹Ø¿¨Ãû
 		if (CurrentLevelName.Equals(LevelName, ESearchCase::IgnoreCase))
 		{
-			// å·²ç»åœ¨ç›®æ ‡å…³å¡ï¼Œåªéœ€æ›´æ–°ç”Ÿæˆä½ç½®
+			// ÒÑ¾­ÔÚÄ¿±ê¹Ø¿¨£¬Ö»Ğè¸üĞÂÉú³ÉÎ»ÖÃ
 			pawnLastLocation = SpawnLocation;
 			UE_LOG(LogTemp, Log, TEXT("Already in level '%s', updated spawn location."), *LevelName);
 			return;
@@ -112,4 +119,79 @@ void UEventCenter::SwitchToLevel(const FString& LevelName, FVector SpawnLocation
 
 const FVector UEventCenter::GetSpawnLocation() {
     return pawnLastLocation;
+}
+
+void UEventCenter::WriteLastState() {
+	// 1. ä¿å­˜ PawnLastLocation (æ‹†æˆ X/Y/Z)
+	TSharedPtr<FJsonObject> LocObj = MakeShareable(new FJsonObject);
+	LocObj->SetNumberField("X", pawnLastLocation.X);
+	LocObj->SetNumberField("Y", pawnLastLocation.Y);
+	LocObj->SetNumberField("Z", pawnLastLocation.Z);
+	LocObj->SetObjectField("PawnLastLocation", LocObj);
+
+	// 2. ä¿å­˜ LevelName
+	LocObj->SetStringField("LevelName", levelName);
+
+	// 3. ä¿å­˜ ToolsNumber
+	TSharedPtr<FJsonObject> ToolsObj = MakeShareable(new FJsonObject);
+	ToolsObj->SetNumberField("hpTools", toolsNumber.hpTools);
+	ToolsObj->SetNumberField("mpTools", toolsNumber.mpTools);
+	LocObj->SetObjectField("ToolsNumber", ToolsObj);
+
+
+	FString outputString;
+	TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&outputString);
+	FJsonSerializer::Serialize(LocObj.ToSharedRef(), Writer);
+
+	if (!FFileHelper::SaveStringToFile(outputString, *filePath))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to save JSON to file: %s"), *filePath);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("Successfully saved character config to: %s"), *filePath);
+	}
+}
+
+void UEventCenter::ReadLastState() {
+	if (!FPlatformFileManager::Get().GetPlatformFile().FileExists(*filePath))
+	{
+		UE_LOG(LogTemp, Log, TEXT("Save file not found: %s"), *filePath);
+	}
+
+	FString JsonContent;
+	if (!FFileHelper::LoadFileToString(JsonContent, *filePath))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to read file: %s"), *filePath);
+	}
+
+	TSharedPtr<FJsonObject> JsonObject;
+	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonContent);
+
+	if (!FJsonSerializer::Deserialize(JsonReader, JsonObject) || !JsonObject.IsValid())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to parse JSON in file: %s"), *filePath);
+	}
+
+	if (JsonObject->HasField("PawnLastLocation") && JsonObject->GetObjectField("PawnLastLocation").IsValid())
+	{
+		TSharedPtr<FJsonObject> LocObj = JsonObject->GetObjectField("PawnLastLocation");
+		pawnLastLocation.X = LocObj->GetNumberField("X");
+		pawnLastLocation.Y = LocObj->GetNumberField("Y");
+		pawnLastLocation.Z = LocObj->GetNumberField("Z");
+	}
+
+	if (JsonObject->HasField("LevelName"))
+	{
+		levelName = JsonObject->GetStringField("LevelName");
+	}
+
+	if (JsonObject->HasField("ToolsNumber") && JsonObject->GetObjectField("ToolsNumber").IsValid())
+	{
+		TSharedPtr<FJsonObject> ToolsObj = JsonObject->GetObjectField("ToolsNumber");
+		toolsNumber.hpTools = static_cast<int32>(ToolsObj->GetNumberField("hpTools"));
+		toolsNumber.mpTools = static_cast<int32>(ToolsObj->GetNumberField("mpTools"));
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("Successfully loaded save data from: %s"), *filePath);
 }
