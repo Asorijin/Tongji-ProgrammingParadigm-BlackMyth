@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Components/WidgetComponent.h"
 #include "EnemyConfig.h"
 
 class USphereComponent;
-
 /**
  * 受击状态枚举
  * 必须在.generated.h之前定义，以便UE反射系统识别
@@ -68,6 +68,16 @@ protected:
 	// 检测范围组件（用于发现玩家）
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	USphereComponent* DetectionSphere;
+
+	// 交互触发器（球形碰撞）
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USphereComponent* InteractionTrigger;
+
+	// 浮动 UI 组件
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+	UWidgetComponent* InteractionWidget;
+
+	APlayerController* CachedPlayerController = nullptr;
 
 public:
 	// 获取怪物配置
@@ -279,6 +289,17 @@ protected:
 	 */
 	UFUNCTION()
 	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	// 重叠开始时调用
+	UFUNCTION()
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+		bool bFromSweep, const FHitResult& SweepResult);
+
+	// 重叠结束时调用
+	UFUNCTION()
+	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 protected:
 	// ========== 攻击系统相关成员 ==========

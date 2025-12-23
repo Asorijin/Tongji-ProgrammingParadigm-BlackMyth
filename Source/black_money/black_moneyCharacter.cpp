@@ -555,6 +555,7 @@ void Ablack_moneyCharacter::BeginPlay() {
 	{
 		WeaponHitBox->OnComponentBeginOverlap.AddDynamic(this,&Ablack_moneyCharacter::OnWeaponHitBoxBeginOverlap);
 	}
+
 }
 
 void Ablack_moneyCharacter::Tick(float deltaTime) {
@@ -696,9 +697,11 @@ const UCharacterConfig* Ablack_moneyCharacter::ShareCharacterConfig() {
 }
 
 void Ablack_moneyCharacter::TriggerNearByInteractions() {
-
-	AActor* firstObject = *nearbyInteraction.begin();
-
+	AActor* firstObject;
+	if (nearbyInteraction.Num())
+		firstObject = *nearbyInteraction.begin();
+	else
+		return;
 	if (firstObject->IsA(AToolHp::StaticClass())) {
 		Cast<Ublack_moneyGameInstance>(GetGameInstance())->GetEventCenter()->GetTools(firstObject,1);
 		nearbyInteraction.Remove(firstObject);
