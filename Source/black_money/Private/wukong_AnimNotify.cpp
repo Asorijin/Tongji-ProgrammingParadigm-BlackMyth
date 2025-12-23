@@ -45,7 +45,13 @@ void Uwukong_AnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 	case EStatusType::EndDodge:
 		Character->EndDodge();
 		break;
-
+	case EStatusType::EndSkill:
+		// 技能释放结束：清 bIsCastingSkill
+		Character->EndCastSkill();
+		break;
+	case EStatusType::EarthQuake:
+		Character->DoEarthQuakeDamage();
+		break;
 	default:
 		break;
 	}

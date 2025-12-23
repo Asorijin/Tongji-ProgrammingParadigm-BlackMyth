@@ -126,7 +126,8 @@ void Ablack_moneyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 		// 绑定 鼠标左键 -> Attack
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::Attack);
-
+		//绑定Q键->EarthQuake
+		EnhancedInputComponent->BindAction(SkillEarthQuakeAction,ETriggerEvent::Started,this,&Ablack_moneyCharacter::CastEarthQuake);
 	}
 	else
 	{
@@ -381,6 +382,159 @@ void Ablack_moneyCharacter::EndAttackHit()
 	WeaponHitBox->SetHiddenInGame(true);
 	AlreadyHitActors.Empty();
 }
+bool Ablack_moneyCharacter::CanCastEarthQuake() const
+{
+	// 死亡/闪避/受击时不能放
+	if (bIsDead || bIsDodging || bIsTakingDamage)
+	{
+		return false;
+	}
+
+	// 没有配置，直接不行
+	if (!characterConfig)
+	{
+		return false;
+	}
+
+	// 冷却中
+	if (EarthQuakeCooldownRemaining > 0.0f)
+	{
+		return false;
+	}
+
+	// 蓝量不足
+	if (characterConfig->_mp < EarthQuakeManaCost)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void Ablack_moneyCharacter::CastEarthQuake()
+{
+	if (!CanCastEarthQuake())
+	{
+		if (GEngine)
+		{
+			FString Reason = TEXT("Cannot cast EarthQuake");
+			if (!characterConfig)
+			{
+				Reason = TEXT("No characterConfig");
+			}
+			else if (EarthQuakeCooldownRemaining > 0.0f)
+			{
+				Reason = FString::Printf(TEXT("EarthQuake cooldown: %.1fs"), EarthQuakeCooldownRemaining);
+			}
+			else if (characterConfig->_mp < EarthQuakeManaCost)
+			{
+				Reason = FString::Printf(TEXT("MP not enough: %d / %d"),
+					characterConfig->_mp,
+					characterConfig->GetMaxMp());
+			}
+			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Cyan, Reason);
+		}
+		return;
+	}
+	// 标记进入“释放技能”状态
+	bIsCastingSkill = true;
+	// 扣蓝
+	characterConfig->_mp -= EarthQuakeManaCost;
+	characterConfig->_mp = FMath::Clamp(characterConfig->_mp, 0, characterConfig->GetMaxMp());
+
+	// 冷却开始
+	EarthQuakeCooldownRemaining = EarthQuakeCooldown;
+
+	// 播放技能蒙太奇
+	if (EarthQuakeMontage)
+	{
+		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+		{
+			// 释放技能时，可以视情况停止普通攻击蒙太奇
+			if (bIsAttacking && AttackMontage && AnimInstance->Montage_IsPlaying(AttackMontage))
+			{
+				AnimInstance->Montage_Stop(0.1f, AttackMontage);
+				bIsAttacking = false;
+				ComboIndex = 0;
+				bCanQueueNextCombo = false;
+			}
+
+			AnimInstance->Montage_Play(EarthQuakeMontage, 1.0f);
+		}
+	}
+
+	if (GEngine)
+	{
+		const FString Msg = FString::Printf(TEXT("Cast EarthQuake, MP=%d/%d"),
+			characterConfig->_mp,
+			characterConfig->GetMaxMp());
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, Msg);
+	}
+
+}
+//实际技能伤害及效果
+void Ablack_moneyCharacter::DoEarthQuakeDamage()
+{
+	if (!EventCenter || !characterConfig)
+	{
+		return;
+	}
+
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+
+	// 技能半径，可在蓝图里改，这里给个默认值
+	const float Radius = 400.0f;
+	const FVector Center = GetActorLocation();
+
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Pawn));
+
+	TArray<AActor*> OverlappingActors;
+	UKismetSystemLibrary::SphereOverlapActors(
+		World,
+		Center,
+		Radius,
+		ObjectTypes,
+		AActor::StaticClass(),
+		TArray<AActor*>(), // 不忽略
+		OverlappingActors
+	);
+
+	// 技能伤害倍率，例如普通攻击伤害 * 2
+	const float BaseAttack = static_cast<float>(characterConfig->_attack);
+	const float DamageValue = BaseAttack * 2.0f;
+
+	for (AActor* Actor : OverlappingActors)
+	{
+		if (!Actor || Actor == this)
+		{
+			continue;
+		}
+
+		// 只打带 Enemy 标签的
+		if (!Actor->ActorHasTag(FName("Enemy")))
+		{
+			continue;
+		}
+
+		EventCenter->MakeDamage(
+			Actor,
+			DamageValue,
+			GetController(),
+			this);
+
+		if (GEngine)
+		{
+			const FString HitMsg = FString::Printf(TEXT("EarthQuake hit %s, Damage=%.1f"),
+				*Actor->GetName(), DamageValue);
+			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Orange, HitMsg);
+		}
+	}
+}
 void Ablack_moneyCharacter::BeginPlay() {
 
 	Super::BeginPlay();
@@ -421,6 +575,29 @@ void Ablack_moneyCharacter::Tick(float deltaTime) {
 			}
 		}
 	}
+	// ===== 蓝量回复=====
+	if (characterConfig)
+	{
+		const int32 MaxMp = characterConfig->GetMaxMp();
+		if (MaxMp > 0 && ManaRegenPerSecond > 0.0f)
+		{
+			// 按秒回蓝，向下取整到 int32
+			const float RegenThisFrame = ManaRegenPerSecond * deltaTime;
+			characterConfig->_mp += static_cast<int32>(RegenThisFrame);
+			characterConfig->_mp = FMath::Clamp(characterConfig->_mp, 0, MaxMp);
+		}
+	}
+
+	// ===== 技能冷却计时 =====
+	if (EarthQuakeCooldownRemaining > 0.0f)
+	{
+		EarthQuakeCooldownRemaining -= deltaTime;
+		if (EarthQuakeCooldownRemaining < 0.0f)
+		{
+			EarthQuakeCooldownRemaining = 0.0f;
+		}
+	}
+
 }
 
 void Ablack_moneyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason) {
