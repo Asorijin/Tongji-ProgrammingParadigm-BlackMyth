@@ -11,7 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include"Animation/AnimMontage.h"
-#include "Tools.h"
+#include "ToolHp.h"
 #include "LandTemple.h"
 #include "black_moneyGameInstance.h"
 #include "Components/BoxComponent.h"
@@ -548,7 +548,7 @@ void Ablack_moneyCharacter::BeginPlay() {
 		EventCenter = GI->GetEventCenter();
 	}
 
-	//this->SetActorLocation(EventCenter->GetSpawnLocation());
+	this->SetActorLocation(EventCenter->GetSpawnLocation());
 
 	// 绑定武器碰撞盒重叠事件
 	if (WeaponHitBox)
@@ -699,14 +699,21 @@ void Ablack_moneyCharacter::TriggerNearByInteractions() {
 
 	AActor* firstObject = *nearbyInteraction.begin();
 
-	if (firstObject->IsA(TSubclassOf<ATools>())) {
+	if (firstObject->IsA(AToolHp::StaticClass())) {
 		Cast<Ublack_moneyGameInstance>(GetGameInstance())->GetEventCenter()->GetTools(firstObject,1);
+		nearbyInteraction.Remove(firstObject);
+		firstObject->Destroy();
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1, 1.0f, FColor::Cyan,
+				TEXT("Get A ToolHp"));
+		}
 	}
 	else if (firstObject->IsA(ALandTemple::StaticClass())) {
-
+		EventCenter->SwitchToLevel();
 	}
-	nearbyInteraction.Remove(firstObject);
-	firstObject->Destroy();
+	
 }
 
 float Ablack_moneyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -791,7 +798,7 @@ float Ablack_moneyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& 
 	return FinalDamage;
 }
 	// 根据攻击者位置计算受击方向对应的 Section 名
-	FName Ablack_moneyCharacter::GetHitSectionNameForCauser(const AActor* Victim, const AActor* DamageCauser)
+FName Ablack_moneyCharacter::GetHitSectionNameForCauser(const AActor* Victim, const AActor* DamageCauser)
 	{
 		// 默认前方受击
 		FName SectionName = TEXT("Hit_Front");

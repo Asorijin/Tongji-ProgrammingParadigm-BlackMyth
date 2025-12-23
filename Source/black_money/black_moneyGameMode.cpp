@@ -20,15 +20,6 @@ void Ablack_moneyGameMode::InitGame(const FString& MapName, const FString& Optio
 	AGameModeBase::InitGame(MapName, Options, ErrorMessage);
 	if (Ublack_moneyGameInstance* GI = Cast<Ublack_moneyGameInstance>(GetGameInstance())) {
 		UEventCenter* eventCenter = GI->GetEventCenter();
-		
-		if (UWorld* World = GetWorld())
-		{
-			// 获取当前关卡的短名称
-			FString CurrentLevelName = GetWorld()->GetMapName();
-			CurrentLevelName = FPaths::GetBaseFilename(CurrentLevelName);
-			eventCenter->SetLevelAndLocation(CurrentLevelName,eventCenter->GetSpawnLocation());
-		}
-
 		eventCenter->GenerateActors();
 	}
 }
