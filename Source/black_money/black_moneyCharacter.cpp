@@ -538,56 +538,42 @@ void Ablack_moneyCharacter::DoEarthQuakeDamage()
 void Ablack_moneyCharacter::BeginPlay() {
 
 	Super::BeginPlay();
-
 	characterConfig = NewObject<UCharacterConfig>();
 	characterConfig->Initialize();
-
-	// 绑定武器碰撞盒重叠事件
-	if (WeaponHitBox)
-	{
-		WeaponHitBox->OnComponentBeginOverlap.AddDynamic(this,&Ablack_moneyCharacter::OnWeaponHitBoxBeginOverlap);
-	}
-
 	// 获取事件中心
 	if (Ublack_moneyGameInstance* GI = Cast<Ublack_moneyGameInstance>(GetGameInstance()))
 	{
 		EventCenter = GI->GetEventCenter();
 	}
 
+	this->SetActorLocation(EventCenter->GetSpawnLocation());
+
+	// 绑定武器碰撞盒重叠事件
+	if (WeaponHitBox)
+	{
+		WeaponHitBox->OnComponentBeginOverlap.AddDynamic(this,&Ablack_moneyCharacter::OnWeaponHitBoxBeginOverlap);
+	}
 }
 
 void Ablack_moneyCharacter::Tick(float deltaTime) {
+	Super::Tick(deltaTime);
 
-	nearbyObjects = std::move(GetNearbyObjectsWithTag(searchTags, 500.0f));
+	// ===== 蓝量回复=====
+	if (characterConfig) {
+		const int32 MaxMp = characterConfig->GetMaxMp(); if (MaxMp > 0 && ManaRegenPerSecond > 0.0f) {
+			const float RegenThisFrame = ManaRegenPerSecond * deltaTime;
+			MpRegenAccumulator += RegenThisFrame;
 
-	for (const AActor* actor : nearbyObjects) {
-		if (actor->ActorHasTag(FName("LandTemple"))) {
-			if (GEngine)
+			// 只要累计超过 1，就转为整数加到 mp
+			const int32 IntGain = static_cast<int32>(MpRegenAccumulator);
+			if (IntGain > 0)
 			{
-				//FString Message = FString::Printf(TEXT("锟斤拷獾?%d 锟斤拷LandTem锟斤拷锟斤拷"), 1);
-
-				//GEngine->AddOnScreenDebugMessage(
-				//	-1,                    // Key (-1锟斤拷示锟皆讹拷锟斤拷锟斤拷)
-				//	1.0f,                  // 锟斤拷示时锟斤拷(锟斤拷)
-				//	FColor::Green,         // 锟斤拷色
-				//	Message                // 锟斤拷锟斤拷锟斤拷锟斤拷
-				//);
+				MpRegenAccumulator -= IntGain; // 剩余小数部分保留到下一帧
+				characterConfig->_mp += IntGain;
+				characterConfig->_mp = FMath::Clamp(characterConfig->_mp, 0, MaxMp);
 			}
 		}
 	}
-	// ===== 蓝量回复=====
-	if (characterConfig)
-	{
-		const int32 MaxMp = characterConfig->GetMaxMp();
-		if (MaxMp > 0 && ManaRegenPerSecond > 0.0f)
-		{
-			// 按秒回蓝，向下取整到 int32
-			const float RegenThisFrame = ManaRegenPerSecond * deltaTime;
-			characterConfig->_mp += static_cast<int32>(RegenThisFrame);
-			characterConfig->_mp = FMath::Clamp(characterConfig->_mp, 0, MaxMp);
-		}
-	}
-
 	// ===== 技能冷却计时 =====
 	if (EarthQuakeCooldownRemaining > 0.0f)
 	{
@@ -597,12 +583,43 @@ void Ablack_moneyCharacter::Tick(float deltaTime) {
 			EarthQuakeCooldownRemaining = 0.0f;
 		}
 	}
+	if (!GEngine || !characterConfig)
+	{
+		return;
+	}
+	//  受击状态兜底 ,防止僵直
+	if (bIsTakingDamage)
+	{
+		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+		{
+			if (!HitMontage || !AnimInstance->Montage_IsPlaying(HitMontage))
+			{
+				// 受击蒙太奇已经不在播放了，就强制结束受击状态
+				EndHit();
+			}
+		}
+		else
+		{
+			EndHit();
+		}
+	}
+	const int32 CurrentMp = characterConfig->_mp;
+	const int32 MaxMp = characterConfig->GetMaxMp();
+
+	const FString Msg = FString::Printf(TEXT("MP = %d / %d"), CurrentMp, MaxMp);
+
+	// Key 用 1，避免刷屏堆很多条
+	GEngine->AddOnScreenDebugMessage(
+		/*Key*/ 1,
+		/*Time*/ 0.1f,
+		FColor::Cyan,
+		Msg);
 
 }
 
 void Ablack_moneyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason) {
 	characterConfig->WriteConfigData();
-
+	EventCenter->WriteLastState();
 	ACharacter::EndPlay(EndPlayReason);
 }
 TArray<AActor*> Ablack_moneyCharacter::GetNearbyObjectsWithTag(TArray<FName> tagNames, float radius) const {
@@ -740,6 +757,9 @@ float Ablack_moneyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& 
 			 if (bIsAttacking)
 			 {
 			     AnimInstance->Montage_Stop(0.1f, AttackMontage);
+				 bIsAttacking = false;
+				 ComboIndex = 0;
+				 bCanQueueNextCombo = false;
 			 }
 
 			// 确保蒙太奇已在播放

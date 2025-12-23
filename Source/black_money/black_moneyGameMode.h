@@ -13,6 +13,8 @@ class Ablack_moneyGameMode : public AGameModeBase
 
 public:
 	Ablack_moneyGameMode();
+
+	void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 };
 
 

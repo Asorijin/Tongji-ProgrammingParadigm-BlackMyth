@@ -10,8 +10,8 @@ struct FToolsNumber {
 	GENERATED_USTRUCT_BODY()
 public:
 	UPROPERTY()
-	int32 hpTools;
-	int32 mpTools;
+	int32 hpTools = 0;
+	int32 mpTools = 0;
 };
 
 /**
@@ -24,43 +24,45 @@ class BLACK_MONEY_API UEventCenter : public UObject
 	GENERATED_BODY()
 
 private:
-	// 生成怪物（私有方法）
-	void GenerateMonster();
+	
 	
 
 	// 角色最后位置（用于关卡切换时保存位置）
 
 	FString filePath = FPaths::ProjectSavedDir() / TEXT("Config/GameConfigs/LastState.txt");
+
+	FString ActorsfilePath = FPaths::ProjectSavedDir() / TEXT("Config/GameConfigs");
 	// 瑙掕壊鏈�鍚庝綅缃紙鐢ㄤ簬鍏冲崱鍒囨崲鏃朵繚瀛樹綅缃級
 
-	FVector pawnLastLocation;
+	FVector pawnLastLocation = FVector();
 	
 	// 角色最后关卡
-	FString levelName;
+	FString levelName = "";
 
 
 	// 工具数量统计
-	FToolsNumber toolsNumber;
+	FToolsNumber toolsNumber = FToolsNumber();
 
 
 public:
 	UEventCenter();
 
-	void PostInitProperties() override;
+	// 生成场景物体及怪物
+	void GenerateActors();
 	/**
 	 * 切换关卡
 	 * 在调用该函数前，在角色的BeginPlay中调用，设置当前位置为SpawnLocation
 	 * @param LevelName 要切换到的关卡名称
 	 * @param SpawnLocation 记录的角色位置
 	 */
-	void SwitchToLevel(const FString& LevelName, FVector SpawnLocation);
+	void SwitchToLevel();
 
 	/**
 	 * 获取生成位置
 	 * @return 返回保存的角色位置
 	 */
 	const FVector GetSpawnLocation();
-
+	void SetLevelAndLocation(FString levelName, FVector location);
 	/**
 	 * 造成伤害（类似 UGameplayStatics::ApplyDamage）
 	 * @param DamagedActor   被伤害对象
@@ -94,13 +96,9 @@ public:
 	void GetTools(AActor* tool, int toolNumber);
 
 
-	/**
-	 * 更换装备
-	 */
-	void ChangeEquipment();
-
 	void WriteLastState();
 
 	void ReadLastState();
 
+	void ReadActorsPosition(TArray<FVector>& OutMonsterPositions, TArray<FVector>& OutTempleLandPositions, const FString& ActorFilePath);
 };
