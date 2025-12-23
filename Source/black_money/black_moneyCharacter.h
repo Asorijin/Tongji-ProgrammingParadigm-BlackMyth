@@ -136,7 +136,7 @@ private:
 
 	/** 闪避期间免伤标记 */
 	UPROPERTY(VisibleAnywhere, Category = "Dodge")
-	bool bInvulnerableDuringDodge = true;
+	bool bInvulnerableDuringDodge = false;
 
 	
 	//是否处于攻击状态

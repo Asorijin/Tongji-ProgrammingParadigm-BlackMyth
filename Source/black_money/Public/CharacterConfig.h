@@ -22,7 +22,7 @@ public:
 	int32 _hp = 100;
 	int32 _mp = 100;
 	int32 _attack = 30;
-	int32 _defence = 30;
+	int32 _defence = 5;
 	bool _fightState = false;
 
 	UCharacterConfig();
