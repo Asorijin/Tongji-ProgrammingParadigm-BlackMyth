@@ -538,22 +538,21 @@ void Ablack_moneyCharacter::DoEarthQuakeDamage()
 void Ablack_moneyCharacter::BeginPlay() {
 
 	Super::BeginPlay();
-
 	characterConfig = NewObject<UCharacterConfig>();
 	characterConfig->Initialize();
-
-	// 绑定武器碰撞盒重叠事件
-	if (WeaponHitBox)
-	{
-		WeaponHitBox->OnComponentBeginOverlap.AddDynamic(this,&Ablack_moneyCharacter::OnWeaponHitBoxBeginOverlap);
-	}
-
 	// 获取事件中心
 	if (Ublack_moneyGameInstance* GI = Cast<Ublack_moneyGameInstance>(GetGameInstance()))
 	{
 		EventCenter = GI->GetEventCenter();
 	}
 
+	this->SetActorLocation(EventCenter->GetSpawnLocation());
+
+	// 绑定武器碰撞盒重叠事件
+	if (WeaponHitBox)
+	{
+		WeaponHitBox->OnComponentBeginOverlap.AddDynamic(this,&Ablack_moneyCharacter::OnWeaponHitBoxBeginOverlap);
+	}
 }
 
 void Ablack_moneyCharacter::Tick(float deltaTime) {
@@ -620,7 +619,7 @@ void Ablack_moneyCharacter::Tick(float deltaTime) {
 
 void Ablack_moneyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason) {
 	characterConfig->WriteConfigData();
-
+	EventCenter->WriteLastState();
 	ACharacter::EndPlay(EndPlayReason);
 }
 TArray<AActor*> Ablack_moneyCharacter::GetNearbyObjectsWithTag(TArray<FName> tagNames, float radius) const {
