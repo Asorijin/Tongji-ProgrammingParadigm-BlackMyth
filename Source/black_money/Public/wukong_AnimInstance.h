@@ -46,6 +46,9 @@ public:
 	//是否死亡
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "State")
 	bool bIsDead;
+	//是否施放技能
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill")
+	bool bIsUsingSkill;
 
 	
 };

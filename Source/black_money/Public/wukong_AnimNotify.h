@@ -18,7 +18,9 @@ enum class EStatusType : uint8
 	EnableHit          UMETA(DisplayName = "Enable Hit"),            // 开启伤害判定
 	DisableHit         UMETA(DisplayName = "Disable Hit"),            // 关闭伤害判定
 	EndDodge           UMETA(DisplayName = "End Dodge"),            // 闪避结束
-	EndHit UMETA(DisplayName = "End Hit")                          // 受击结束
+	EndHit UMETA(DisplayName = "End Hit"),// 受击结束
+	EarthQuake UMETA(DisplayName = "Earth Quake"), // 地震
+	EndSkill           UMETA(DisplayName = "End Skill")// 技能结束
 
 };
 UCLASS()
@@ -47,6 +49,10 @@ public:
 			return TEXT("End Dodge");
 		case EStatusType::EndHit:
 			return TEXT("End Hit");
+		case EStatusType::EarthQuake:
+			return TEXT("Earth Quake");
+		case EStatusType::EndSkill:
+			return TEXT("End Skill");
 		default:
 			return Super::GetNotifyName_Implementation();
 		}
