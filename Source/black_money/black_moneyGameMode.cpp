@@ -21,7 +21,6 @@ Ablack_moneyGameMode::Ablack_moneyGameMode()
 	StatusBarIns = nullptr;  // 新增：初始化状态栏UI变量
 }
 
-<<<<<<< HEAD
 void Ablack_moneyGameMode::BeginPlay()
 {
 	Super::BeginPlay();
@@ -61,7 +60,7 @@ void Ablack_moneyGameMode::ShowStatusBar()
 		}
 	}
 }
-=======
+
 void Ablack_moneyGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) {
 	AGameModeBase::InitGame(MapName, Options, ErrorMessage);
 	if (Ublack_moneyGameInstance* GI = Cast<Ublack_moneyGameInstance>(GetGameInstance())) {
@@ -69,4 +68,4 @@ void Ablack_moneyGameMode::InitGame(const FString& MapName, const FString& Optio
 		eventCenter->GenerateActors();
 	}
 }
->>>>>>> cdf48d325f7a0fe666bcc49fb7d592300f9025a7
+

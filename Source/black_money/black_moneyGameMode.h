@@ -13,7 +13,8 @@ class Ablack_moneyGameMode : public AGameModeBase
 
 public:
 	Ablack_moneyGameMode();
-<<<<<<< HEAD
+	void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
+
 	// 新增：显示状态栏UI的函数（供启动菜单关闭时调用）
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void ShowStatusBar();
@@ -26,10 +27,6 @@ protected:
 private:
 	UUserWidget* StartUpMenuIns;
 	
-=======
-
-	void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
->>>>>>> cdf48d325f7a0fe666bcc49fb7d592300f9025a7
 };
 
 
