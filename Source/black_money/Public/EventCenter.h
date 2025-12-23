@@ -40,7 +40,7 @@ private:
 
 
 	// 工具数量统计
-	FToolsNumber* toolsNumber;
+	FToolsNumber toolsNumber;
 
 
 public:
