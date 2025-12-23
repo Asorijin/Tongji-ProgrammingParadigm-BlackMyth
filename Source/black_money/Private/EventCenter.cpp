@@ -86,14 +86,12 @@ void UEventCenter::GetTools(AActor* tool, int toolNumber) {
 	tool->Destroy();
 }
 
-<<<<<<< Updated upstream
+
 
 void UEventCenter::ChangeEquipment() {
 	// 需要实现装备结构
 }
 
-=======
->>>>>>> Stashed changes
 void UEventCenter::SwitchToLevel(const FString& LevelName, FVector SpawnLocation) {
 
 	if (UWorld* World = GetWorld())
