@@ -11,7 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include"Animation/AnimMontage.h"
-#include "Tools.h"
+#include "ToolHp.h"
 #include "LandTemple.h"
 #include "black_moneyGameInstance.h"
 #include "Components/BoxComponent.h"
@@ -128,6 +128,8 @@ void Ablack_moneyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::Attack);
 		//绑定Q键->EarthQuake
 		EnhancedInputComponent->BindAction(SkillEarthQuakeAction,ETriggerEvent::Started,this,&Ablack_moneyCharacter::CastEarthQuake);
+		//绑定F键->拾取道具
+		EnhancedInputComponent->BindAction(PickUpAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::TriggerNearByInteractions);
 	}
 	else
 	{
@@ -538,20 +540,20 @@ void Ablack_moneyCharacter::DoEarthQuakeDamage()
 void Ablack_moneyCharacter::BeginPlay() {
 
 	Super::BeginPlay();
-
 	characterConfig = NewObject<UCharacterConfig>();
 	characterConfig->Initialize();
+	// 获取事件中心
+	if (Ublack_moneyGameInstance* GI = Cast<Ublack_moneyGameInstance>(GetGameInstance()))
+	{
+		EventCenter = GI->GetEventCenter();
+	}
+
+	this->SetActorLocation(EventCenter->GetSpawnLocation());
 
 	// 绑定武器碰撞盒重叠事件
 	if (WeaponHitBox)
 	{
 		WeaponHitBox->OnComponentBeginOverlap.AddDynamic(this,&Ablack_moneyCharacter::OnWeaponHitBoxBeginOverlap);
-	}
-
-	// 获取事件中心
-	if (Ublack_moneyGameInstance* GI = Cast<Ublack_moneyGameInstance>(GetGameInstance()))
-	{
-		EventCenter = GI->GetEventCenter();
 	}
 
 }
@@ -620,7 +622,7 @@ void Ablack_moneyCharacter::Tick(float deltaTime) {
 
 void Ablack_moneyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason) {
 	characterConfig->WriteConfigData();
-
+	EventCenter->WriteLastState();
 	ACharacter::EndPlay(EndPlayReason);
 }
 TArray<AActor*> Ablack_moneyCharacter::GetNearbyObjectsWithTag(TArray<FName> tagNames, float radius) const {
@@ -695,17 +697,26 @@ const UCharacterConfig* Ablack_moneyCharacter::ShareCharacterConfig() {
 }
 
 void Ablack_moneyCharacter::TriggerNearByInteractions() {
-
-	AActor* firstObject = *nearbyInteraction.begin();
-
-	if (firstObject->IsA(TSubclassOf<ATools>())) {
+	AActor* firstObject;
+	if (nearbyInteraction.Num())
+		firstObject = *nearbyInteraction.begin();
+	else
+		return;
+	if (firstObject->IsA(AToolHp::StaticClass())) {
 		Cast<Ublack_moneyGameInstance>(GetGameInstance())->GetEventCenter()->GetTools(firstObject,1);
+		nearbyInteraction.Remove(firstObject);
+		firstObject->Destroy();
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1, 1.0f, FColor::Cyan,
+				TEXT("Get A ToolHp"));
+		}
 	}
 	else if (firstObject->IsA(ALandTemple::StaticClass())) {
-
+		EventCenter->SwitchToLevel();
 	}
-	nearbyInteraction.Remove(firstObject);
-	firstObject->Destroy();
+	
 }
 
 float Ablack_moneyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -790,7 +801,7 @@ float Ablack_moneyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& 
 	return FinalDamage;
 }
 	// 根据攻击者位置计算受击方向对应的 Section 名
-	FName Ablack_moneyCharacter::GetHitSectionNameForCauser(const AActor* Victim, const AActor* DamageCauser)
+FName Ablack_moneyCharacter::GetHitSectionNameForCauser(const AActor* Victim, const AActor* DamageCauser)
 	{
 		// 默认前方受击
 		FName SectionName = TEXT("Hit_Front");

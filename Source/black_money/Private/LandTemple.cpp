@@ -138,11 +138,11 @@ void ALandTemple::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* Othe
 {
     if (OtherActor && OtherActor != this)
     {
-        if (Cast<ACharacter>(OtherActor))
+        if (Cast<Ablack_moneyCharacter>(OtherActor))
         {
             InteractionWidget->SetVisibility(false);
 
-            if(Cast<Ablack_moneyCharacter>(OtherActor)->nearbyInteraction.Contains(this))
+            if(OtherActor && Cast<Ablack_moneyCharacter>(OtherActor)->nearbyInteraction.Contains(this))
                 Cast<Ablack_moneyCharacter>(OtherActor)->nearbyInteraction.Remove(this);
         }
     }

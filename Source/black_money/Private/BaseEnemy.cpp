@@ -17,6 +17,7 @@
 #include "AI/NavigationSystemBase.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimMontage.h"
+#include "UIEnemyHp.h"
 #include "black_money/black_moneyCharacter.h"
 
 ABaseEnemy::ABaseEnemy(const FObjectInitializer& ObjectInitializer)
@@ -58,6 +59,31 @@ ABaseEnemy::ABaseEnemy(const FObjectInitializer& ObjectInitializer)
 	DetectionSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	DetectionSphere->SetHiddenInGame(true);
 
+	// 创建交互触发器（球形）
+	InteractionTrigger = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionTrigger"));
+	InteractionTrigger->SetupAttachment(RootComponent);
+	InteractionTrigger->SetSphereRadius(700.0f);
+	InteractionTrigger->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	InteractionTrigger->SetCollisionResponseToAllChannels(ECR_Ignore);
+	InteractionTrigger->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+
+
+	// 绑定重叠事件（必须在构造函数中绑定！）
+	InteractionTrigger->OnComponentBeginOverlap.AddUniqueDynamic(this, &ABaseEnemy::OnOverlapBegin);
+	InteractionTrigger->OnComponentEndOverlap.AddUniqueDynamic(this, &ABaseEnemy::OnOverlapEnd);
+
+
+
+	// 创建 WidgetComponent（必须在构造函数中创建）
+	InteractionWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractionWidget"));
+	InteractionWidget->SetWidgetClass(UUIEnemyHp::StaticClass());
+	InteractionWidget->SetupAttachment(RootComponent);
+	InteractionWidget->SetWidgetSpace(EWidgetSpace::World); // 世界空间
+	InteractionWidget->SetDrawSize(FVector2D(200.0f, 50.0f));
+	InteractionWidget->SetPivot(FVector2D(0.5f, 0.0f)); // 底部居中对齐
+	InteractionWidget->SetRelativeLocation(FVector(0.0f, 0.0f, 100.0f)); // 在物体上方 100 单位
+	InteractionWidget->SetVisibility(false); // 初始隐藏
+
 	// 初始化占位符模型
 	InitializePlaceholderMesh();
 
@@ -87,13 +113,15 @@ void ABaseEnemy::BeginPlay()
 	Super::BeginPlay();
 
 	// 创建并初始化怪物配置对象
+	// 如果类默认值中没有创建，则在运行时创建
 	if (!EnemyConfig)
 	{
 		EnemyConfig = NewObject<UEnemyConfig>(this);
-		if (EnemyConfig)
-		{
-			EnemyConfig->Initialize();
-		}
+	}
+	// 确保配置对象已初始化（无论是否在类默认值中创建）
+	if (EnemyConfig)
+	{
+		EnemyConfig->Initialize();
 	}
 
 	// 初始化AI状态
@@ -107,7 +135,7 @@ void ABaseEnemy::BeginPlay()
 void ABaseEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	Cast<UUIEnemyHp>(InteractionWidget->GetUserWidgetObject())->_hp = EnemyConfig->CurrentHp;
 	// 如果已死亡，不更新AI和移动
 	if (bIsDead || CurrentAIState == EEnemyAIState::Dead)
 	{
@@ -1297,4 +1325,34 @@ void ABaseEnemy::EndDodge()
 void ABaseEnemy::OnDodgeCooldownEnd()
 {
 	DodgeCooldownTimerHandle.Invalidate();
+}
+
+void ABaseEnemy::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	// 检查是否是玩家角色（Pawn）
+	if (OtherActor && OtherActor != this)
+	{
+		if (OtherActor->IsA(Ablack_moneyCharacter::StaticClass()))
+		{
+			InteractionWidget->SetVisibility(true);
+
+			Cast<Ablack_moneyCharacter>(OtherActor)->nearbyInteraction.Add(this);
+		}
+	}
+}
+
+void ABaseEnemy::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor && OtherActor != this)
+	{
+		if (Cast<Ablack_moneyCharacter>(OtherActor))
+		{
+			InteractionWidget->SetVisibility(false);
+
+			if (OtherActor && Cast<Ablack_moneyCharacter>(OtherActor)->nearbyInteraction.Contains(this))
+				Cast<Ablack_moneyCharacter>(OtherActor)->nearbyInteraction.Remove(this);
+		}
+	}
 }
