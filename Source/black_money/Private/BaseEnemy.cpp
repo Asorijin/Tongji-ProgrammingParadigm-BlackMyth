@@ -87,13 +87,15 @@ void ABaseEnemy::BeginPlay()
 	Super::BeginPlay();
 
 	// 创建并初始化怪物配置对象
+	// 如果类默认值中没有创建，则在运行时创建
 	if (!EnemyConfig)
 	{
 		EnemyConfig = NewObject<UEnemyConfig>(this);
-		if (EnemyConfig)
-		{
-			EnemyConfig->Initialize();
-		}
+	}
+	// 确保配置对象已初始化（无论是否在类默认值中创建）
+	if (EnemyConfig)
+	{
+		EnemyConfig->Initialize();
 	}
 
 	// 初始化AI状态
