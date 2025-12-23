@@ -2,6 +2,8 @@
 
 #include "black_moneyGameMode.h"
 #include "black_moneyCharacter.h"
+#include "black_moneyGameInstance.h"
+#include "EventCenter.h"
 #include "UObject/ConstructorHelpers.h"
 
 Ablack_moneyGameMode::Ablack_moneyGameMode()
@@ -11,5 +13,22 @@ Ablack_moneyGameMode::Ablack_moneyGameMode()
 	if (PlayerPawnBPClass.Class != NULL)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
+	}
+}
+
+void Ablack_moneyGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) {
+	AGameModeBase::InitGame(MapName, Options, ErrorMessage);
+	if (Ublack_moneyGameInstance* GI = Cast<Ublack_moneyGameInstance>(GetGameInstance())) {
+		UEventCenter* eventCenter = GI->GetEventCenter();
+		
+		if (UWorld* World = GetWorld())
+		{
+			// 获取当前关卡的短名称
+			FString CurrentLevelName = GetWorld()->GetMapName();
+			CurrentLevelName = FPaths::GetBaseFilename(CurrentLevelName);
+			eventCenter->SetLevelAndLocation(CurrentLevelName,eventCenter->GetSpawnLocation());
+		}
+
+		eventCenter->GenerateActors();
 	}
 }
