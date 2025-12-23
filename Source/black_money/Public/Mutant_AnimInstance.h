@@ -47,6 +47,5 @@ public:
 	// ÊÇ·ñËÀÍö
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "State")
 	bool bIsDead;
-
 	
 };

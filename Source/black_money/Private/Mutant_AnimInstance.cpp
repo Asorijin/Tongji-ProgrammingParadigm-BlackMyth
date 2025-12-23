@@ -49,10 +49,10 @@ void UMutant_AnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	// 只计算平面速度
 	const FVector Velocity = MutantMovement->Velocity;
 	Speed = FVector(Velocity.X, Velocity.Y, 0.0f).Size();
-	// 攻击标志：BaseEnemy 里有 bIsAttacking，给它加一个 Getter（见下方）
+	// 攻击标志：BaseEnemy 里有 bIsAttacking
 	bIsAttacking = MutantEnemy->IsAttacking();
 	
-	// 闪避标志：BaseEnemy 里有 bIsDodging，给它加一个 Getter（见下方）
+	// 闪避标志：BaseEnemy 里有 bIsDodging
 	bIsDodging = MutantEnemy->IsDodging();
 
 	// 受击状态：Hit / Normal / Invulnerable
