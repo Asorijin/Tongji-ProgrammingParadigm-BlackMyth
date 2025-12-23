@@ -57,8 +57,8 @@ protected:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// 怪物配置对象
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy Config")
+	// 怪物配置对象（可在类默认值中编辑）
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced, Category = "Enemy Config")
 	UEnemyConfig* EnemyConfig;
 
 	// 攻击范围检测组件
