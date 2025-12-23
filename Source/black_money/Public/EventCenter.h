@@ -37,7 +37,7 @@ private:
 	FVector pawnLastLocation = FVector();
 	
 	// 角色最后关卡
-	FString levelName = "";
+	FString levelName = TEXT("/Game/ThirdPerson/Maps/Midgardr_Free");
 
 
 	// 工具数量统计

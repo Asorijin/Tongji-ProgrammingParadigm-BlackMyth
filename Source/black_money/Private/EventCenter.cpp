@@ -18,9 +18,10 @@ UEventCenter::UEventCenter() {
 }
 
 void UEventCenter::GenerateActors() {
+
 	TArray<FVector> monsterPositions, templeLandPositions;
 
-	FString nowPath = ActorsfilePath / levelName / TEXT("ActororPosition.txt");
+	FString nowPath = ActorsfilePath / FPaths::GetBaseFilename(levelName) / TEXT("ActororPosition.txt");
 
 	ReadActorsPosition(monsterPositions, templeLandPositions,nowPath);
 
@@ -93,7 +94,6 @@ void UEventCenter::SwitchToLevel() {
 	{
 		// 获取当前关卡的短名称
 		FString CurrentLevelName = GetWorld()->GetMapName();
-		CurrentLevelName = FPaths::GetBaseFilename(CurrentLevelName);
 
 		// 比较目标关卡名和当前关卡名
 		if (CurrentLevelName.Equals(levelName, ESearchCase::IgnoreCase))
