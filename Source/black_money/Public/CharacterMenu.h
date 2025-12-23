@@ -13,5 +13,5 @@ UCLASS()
 class BLACK_MONEY_API UCharacterMenu : public UUIBasePanel
 {
 	GENERATED_BODY()
-	
+
 };
