@@ -17,6 +17,7 @@
 #include "AI/NavigationSystemBase.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimMontage.h"
+#include "black_money/black_moneyCharacter.h"
 
 ABaseEnemy::ABaseEnemy(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -74,6 +75,11 @@ ABaseEnemy::ABaseEnemy(const FObjectInitializer& ObjectInitializer)
 	// 初始化受击和死亡动画蒙太奇
 	HitMontage = nullptr;
 	DeathMontage = nullptr;
+
+	// 初始化闪避系统相关变量
+	DodgeMontage = nullptr;
+	bIsDodging = false;
+	bInvulnerableDuringDodge = false;
 }
 
 void ABaseEnemy::BeginPlay()
@@ -162,6 +168,13 @@ void ABaseEnemy::ReceiveDamage(int32 DamageAmount, AActor* DamageCauser)
 	// 如果已死亡或处于无敌状态，不处理伤害
 	if (bIsDead || !EnemyConfig || CurrentHitState == EEnemyHitState::Invulnerable)
 	{
+		return;
+	}
+
+	// 如果正在闪避且处于无敌状态，忽略伤害
+	if (bInvulnerableDuringDodge)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Enemy %s: Damage blocked by dodge i-frame"), *GetName());
 		return;
 	}
 
@@ -644,6 +657,12 @@ void ABaseEnemy::UpdateAI(float DeltaTime)
 			// 玩家不存在，回到待机
 			SetAIState(EEnemyAIState::Idle);
 		}
+		// 检查是否应该闪避（在追击过程中）
+		else if (ShouldDodge())
+		{
+			PerformDodge();
+			return;  // 执行闪避，不继续追击
+		}
 		else if (IsPlayerInAttackRange() && CanAttack())
 		{
 			// 进入攻击范围，且可以攻击（攻击动画已设置），切换到攻击状态
@@ -694,7 +713,26 @@ void ABaseEnemy::UpdateAI(float DeltaTime)
 		break;
 
 	case EEnemyAIState::Dodge:
-		// TODO: 在阶段五实现闪避逻辑
+		// 闪避状态：等待闪避动画完成
+		// 闪避逻辑由PerformDodge和OnDodgeMontageEnded管理
+		// 这里只需要确保在闪避期间不执行其他行为
+		if (!bIsDodging)
+		{
+			// 如果闪避状态已结束但AI状态还没切换，强制切换
+			// 这通常不应该发生，但作为安全措施
+			if (IsPlayerInAttackRange())
+			{
+				SetAIState(EEnemyAIState::Attack);
+			}
+			else if (IsPlayerDetected())
+			{
+				SetAIState(EEnemyAIState::Chase);
+			}
+			else
+			{
+				SetAIState(EEnemyAIState::Idle);
+			}
+		}
 		break;
 
 	case EEnemyAIState::Hit:
@@ -1028,4 +1066,235 @@ void ABaseEnemy::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 
 	// 攻击动画结束后，根据当前情况决定下一个状态
 	// 这个逻辑会在UpdateAI中处理，这里不需要手动切换
+}
+
+// ========== 闪避系统实现 ==========
+
+bool ABaseEnemy::CanDodge() const
+{
+	// 已经死亡、正在闪避、正在受击硬直、冷却中，不能闪避
+	if (bIsDead || bIsDodging || CurrentHitState == EEnemyHitState::Hit)
+	{
+		return false;
+	}
+	
+	// 检查冷却时间
+	if (DodgeCooldownTimerHandle.IsValid())
+	{
+		return false;  // 冷却中
+	}
+	
+	// 检查是否在地面上
+	if (GetCharacterMovement() && !GetCharacterMovement()->IsMovingOnGround())
+	{
+		return false;
+	}
+	
+	return true;
+}
+
+bool ABaseEnemy::IsPlayerAttacking() const
+{
+	if (!PlayerCharacter)
+	{
+		return false;
+	}
+	
+	// 通过角色类的IsAttacking方法检测
+	if (Ablack_moneyCharacter* Player = Cast<Ablack_moneyCharacter>(PlayerCharacter))
+	{
+		return Player->IsAttacking();
+	}
+	
+	return false;
+}
+
+bool ABaseEnemy::ShouldDodge() const
+{
+	if (!CanDodge() || !PlayerCharacter)
+	{
+		return false;
+	}
+	
+	// 检查玩家是否在攻击
+	if (!IsPlayerAttacking())
+	{
+		return false;
+	}
+	
+	// 检查距离
+	float DistanceToPlayer = FVector::Dist(GetActorLocation(), PlayerCharacter->GetActorLocation());
+	if (DistanceToPlayer > DodgeRange)
+	{
+		return false;  // 距离太远，不需要闪避
+	}
+	
+	// 基于概率判断
+	float RandomValue = FMath::FRand();
+	return RandomValue <= DodgeProbability;
+}
+
+void ABaseEnemy::PerformDodge()
+{
+	if (!CanDodge())
+	{
+		return;
+	}
+	
+	// 检查闪避蒙太奇是否设置
+	if (!DodgeMontage)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PerformDodge: DodgeMontage is null!"));
+		return;
+	}
+	
+	// 获取动画实例
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (!AnimInstance)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PerformDodge: AnimInstance is null!"));
+		return;
+	}
+	
+	// 如果已经在播放闪避动画，不重复播放
+	if (AnimInstance->Montage_IsPlaying(DodgeMontage))
+	{
+		return;
+	}
+	
+	// 停止其他动画（如攻击动画）
+	if (AttackMontage && AnimInstance->Montage_IsPlaying(AttackMontage))
+	{
+		AnimInstance->Montage_Stop(0.1f, AttackMontage);
+	}
+	
+	// 设置闪避状态
+	bIsDodging = true;
+	bInvulnerableDuringDodge = true;
+	
+	// 计算闪避方向（远离玩家）
+	FVector DodgeDirection = FVector::ZeroVector;
+	if (PlayerCharacter)
+	{
+		FVector ToPlayer = PlayerCharacter->GetActorLocation() - GetActorLocation();
+		ToPlayer.Z = 0.0f;
+		ToPlayer.Normalize();
+		DodgeDirection = -ToPlayer;  // 远离玩家
+	}
+	
+	if (DodgeDirection.IsNearlyZero())
+	{
+		DodgeDirection = -GetActorForwardVector();
+	}
+	
+	DodgeDirection.Normalize();
+	
+	// 停止当前移动
+	StopMovement();
+	
+	// 执行闪避移动
+	LaunchCharacter(DodgeDirection * DodgeStrength, true, false);
+	
+	// 播放闪避动画蒙太奇
+	float PlayRate = 1.0f;
+	float PlayTime = AnimInstance->Montage_Play(DodgeMontage, PlayRate);
+	
+	if (PlayTime <= 0.0f)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Enemy %s failed to play dodge montage!"), *GetName());
+		bIsDodging = false;
+		bInvulnerableDuringDodge = false;
+		return;
+	}
+	
+	// 绑定蒙太奇结束回调
+	FOnMontageEnded MontageEndedDelegate;
+	MontageEndedDelegate.BindUObject(this, &ABaseEnemy::OnDodgeMontageEnded);
+	AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, DodgeMontage);
+	
+	// 设置AI状态为Dodge
+	SetAIState(EEnemyAIState::Dodge);
+	
+	// 设置闪避持续时间计时器（作为备用，防止蒙太奇回调失败）
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			DodgeTimerHandle,
+			this,
+			&ABaseEnemy::EndDodge,
+			DodgeDuration,
+			false
+		);
+	}
+	
+	UE_LOG(LogTemp, Log, TEXT("Enemy %s started dodge (PlayTime: %.2f)"), *GetName(), PlayTime);
+}
+
+void ABaseEnemy::OnDodgeMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	// 清除闪避标志
+	bIsDodging = false;
+	bInvulnerableDuringDodge = false;
+	
+	// 清除计时器
+	DodgeTimerHandle.Invalidate();
+	
+	// 设置闪避冷却
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			DodgeCooldownTimerHandle,
+			this,
+			&ABaseEnemy::OnDodgeCooldownEnd,
+			DodgeCooldown,
+			false
+		);
+	}
+	
+	// 闪避结束后，根据情况切换AI状态
+	if (bIsDead)
+	{
+		SetAIState(EEnemyAIState::Dead);
+	}
+	else if (IsPlayerInAttackRange())
+	{
+		SetAIState(EEnemyAIState::Attack);
+	}
+	else if (IsPlayerDetected())
+	{
+		SetAIState(EEnemyAIState::Chase);
+	}
+	else
+	{
+		SetAIState(EEnemyAIState::Idle);
+	}
+	
+	UE_LOG(LogTemp, Log, TEXT("Enemy %s dodge ended (Interrupted: %d)"), *GetName(), bInterrupted);
+}
+
+void ABaseEnemy::EndDodge()
+{
+	// 如果蒙太奇已经结束，这个方法可能不会被调用
+	// 但作为安全措施保留
+	if (bIsDodging)
+	{
+		bIsDodging = false;
+		bInvulnerableDuringDodge = false;
+		
+		// 强制停止闪避蒙太奇
+		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+		{
+			if (DodgeMontage && AnimInstance->Montage_IsPlaying(DodgeMontage))
+			{
+				AnimInstance->Montage_Stop(0.0f, DodgeMontage);
+			}
+		}
+		
+		OnDodgeMontageEnded(nullptr, false);
+	}
+}
+
+void ABaseEnemy::OnDodgeCooldownEnd()
+{
+	DodgeCooldownTimerHandle.Invalidate();
 }
