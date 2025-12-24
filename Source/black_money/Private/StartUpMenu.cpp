@@ -6,7 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "black_money/black_moneyGameMode.h"
 #include "GameFramework/PlayerController.h"
-
+#include "FUIPanelManager.h"
 
 void UStartUpMenu::NativeConstruct()
 {
@@ -34,11 +34,18 @@ void UStartUpMenu::NativeConstruct()
 		SetDelegate.BindUFunction(this, "SettingButtonClicked");
 		SetButton->OnClicked.Add(SetDelegate);
 	}
+
+	// 获取或创建
+	//UUIBasePanel* Panel = FUIPanelManager::GetOrCreatePanel(GetWorld(), UStartUpMenu::StaticClass());
+
+	// 或直接显示
+	//FUIPanelManager::ShowPanel(GetWorld(), UStartUpMenu::StaticClass());
 }
 
 void UStartUpMenu::StartButtonClicked()
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("Clicked"));
+
 	// 恢复世界运行
 	if (UWorld* World = GetWorld())
 	{
@@ -47,7 +54,7 @@ void UStartUpMenu::StartButtonClicked()
 		// 恢复输入模式为游戏+UI
 		if (APlayerController* PC = World->GetFirstPlayerController())
 		{
-			PC->SetInputMode(FInputModeGameAndUI());
+			PC->SetInputMode(FInputModeGameOnly());
 			PC->bShowMouseCursor = false; // 隐藏鼠标光标（根据需求调整）
 		}
 
@@ -91,22 +98,17 @@ void UStartUpMenu::QuitButtonClicked()
 // 新增：设置按钮逻辑（弹出设置界面）
 void UStartUpMenu::SettingButtonClicked()
 {
-	// 加载设置界面蓝图（请替换为你的设置界面蓝图路径）
-	if (UClass* SettingWidgetClass = LoadClass<UUserWidget>(nullptr, TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/BP_SettingMenu.BP_SettingMenu_C'")))
+	// 加载设置面板类（使用FUIPanelManager管理）
+	if (UClass* SettingWidgetClass = LoadClass<UUIBasePanel>(nullptr, TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/BP_SettingMenu.BP_SettingMenu_C'")))
 	{
-		// 获取玩家控制器
-		if (APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0))
+		// 通过PanelManager创建并显示设置面板
+		if (UWorld* World = GetWorld())
 		{
-			// 创建设置界面实例并添加到视口
-			UUserWidget* SettingMenuIns = CreateWidget(PC, SettingWidgetClass);
-			if (SettingMenuIns)
-			{
-				SettingMenuIns->AddToViewport();
-			}
+			FUIPanelManager::ShowPanel(World, SettingWidgetClass);
 		}
 	}
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("未找到设置界面蓝图，请检查路径"));
+		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("未找到设置面板资源，请检查路径"));
 	}
 }

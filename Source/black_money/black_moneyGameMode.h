@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "StartUpMenu.h"
+#include "FUIPanelManager.h"
 #include "GameFramework/GameModeBase.h"
 #include "black_moneyGameMode.generated.h"
 
@@ -18,6 +20,9 @@ public:
 	// 新增：显示状态栏UI的函数（供启动菜单关闭时调用）
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void ShowStatusBar();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<UStartUpMenu> StartUpMenuClass;
 
 	UUserWidget* StatusBarIns;    // 新增：角色状态栏UI
 
@@ -35,6 +40,7 @@ private:
 	UUserWidget* StartUpMenuIns;
 	
 	UAudioComponent* CurrentMusicComponent;
+
 };
 
 

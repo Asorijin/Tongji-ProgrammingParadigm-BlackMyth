@@ -60,7 +60,7 @@ void USettingMenu::OnVolumeSliderChanged(float NewValue)
 {
     if (VolumeText)
     {
-        // 修正：显示百分比（原代码漏乘100，导致显示0或1）
+        // 修正：显示百分比
         FString VolumeStr = FString::Printf(TEXT("%.0f%%"), NewValue);
         VolumeText->SetText(FText::FromString(VolumeStr));
     }

@@ -11,6 +11,8 @@ void Ublack_moneyGameInstance::Init() {
     eventCenter = NewObject<UEventCenter>(this);
 
     eventCenter->ReadLastState();
+
+    bIsFirstLaunch = true;
 }
 void Ublack_moneyGameInstance::Shutdown() {
     UGameInstance::Shutdown();

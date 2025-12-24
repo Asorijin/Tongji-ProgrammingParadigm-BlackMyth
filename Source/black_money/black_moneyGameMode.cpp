@@ -25,22 +25,48 @@ void Ablack_moneyGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 	// 展示界面，等待输入
-	if (UClass* CustomWidgetClass = LoadClass<UUserWidget>(nullptr, TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/BP_StartUpMenu.BP_StartUpMenu_C'")))
+	Ublack_moneyGameInstance* MyGI = Cast<Ublack_moneyGameInstance>(GetGameInstance());
+	if (MyGI && MyGI->bIsFirstLaunch)
 	{
-		if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+		if (UClass* CustomWidgetClass = LoadClass<UUserWidget>(nullptr, TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/BP_StartUpMenu.BP_StartUpMenu_C'")))
 		{
-			StartUpMenuIns = CreateWidget(PC, CustomWidgetClass);
-			if (StartUpMenuIns)
+			if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
 			{
-				StartUpMenuIns->AddToViewport();
-
-				// 暂停世界
-				UGameplayStatics::SetGamePaused(GetWorld(), true);
-				// 设置输入模式为仅UI（确保能点击按钮）
-				PC->SetInputMode(FInputModeUIOnly());
-				PC->bShowMouseCursor = true; // 显示鼠标光标
+				StartUpMenuIns = CreateWidget(PC, CustomWidgetClass);
+				if (StartUpMenuIns)
+				{
+					StartUpMenuIns->AddToViewport();
+					// 暂停世界
+					UGameplayStatics::SetGamePaused(GetWorld(), true);
+					// 设置输入模式为仅UI（确保能点击按钮）
+					PC->SetInputMode(FInputModeUIOnly());
+					PC->bShowMouseCursor = true; // 显示鼠标光标
+				}
 			}
 		}
+
+	
+		// 加载开始菜单面板类（需确保BP_StartUpMenu继承自UUIBasePanel）
+		//StartUpMenuClass = LoadClass<UUIBasePanel>(
+		//	nullptr,
+		//	TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/BP_StartUpMenu.BP_StartUpMenu_C'")
+		//);
+		//if (StartUpMenuClass)
+		//{
+		//	// 通过面板管理器获取/创建实例并显示
+		//	StartUpMenuIns = FUIPanelManager::GetOrCreatePanel(GetWorld(), StartUpMenuClass);
+		//	FUIPanelManager::ShowPanel(GetWorld(), StartUpMenuClass);
+		//	// 暂停游戏
+		//	UGameplayStatics::SetGamePaused(GetWorld(), true);
+		//	// 设置输入模式为仅UI，确保能点击按钮
+		//	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+		//	{
+		//		PC->SetInputMode(FInputModeUIOnly());
+		//		PC->bShowMouseCursor = true; // 显示鼠标光标
+		//	}
+		//	// 标记为非首次启动，后续关卡切换不再显示
+		//	MyGI->bIsFirstLaunch = false;
+		//}
 	}
 
 	if (DefaultMusic && GetWorld())
