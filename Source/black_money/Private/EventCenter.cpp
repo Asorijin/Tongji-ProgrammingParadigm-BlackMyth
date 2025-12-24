@@ -10,7 +10,7 @@
 #include "Misc/FileHelper.h"
 #include "Engine/DamageEvents.h" 
 
-// 前向声明，避免循环依赖
+// 鍓嶅悜澹版槑锛岄伩鍏嶅惊鐜緷璧?
 class Ablack_moneyCharacter;
 
 UEventCenter::UEventCenter() {
@@ -39,7 +39,7 @@ float UEventCenter::MakeDamage(
 		return 0.f;
 	}
 
-	// 如果没传控制器，而 DamageCauser 是 Pawn，就自动取其 Controller
+	// 濡傛灉娌′紶鎺у埗鍣紝鑰?DamageCauser 鏄?Pawn锛屽氨鑷姩鍙栧叾 Controller
 	if (!EventInstigator && DamageCauser)
 	{
 		if (APawn* PawnCauser = Cast<APawn>(DamageCauser))
@@ -50,17 +50,17 @@ float UEventCenter::MakeDamage(
 
 	
 	FDamageEvent DamageEvent;
-	// 设置伤害类型
+	// 璁剧疆浼ゅ绫诲瀷
 	DamageEvent.DamageTypeClass = DamageTypeClass ? DamageTypeClass : TSubclassOf<UDamageType>(UDamageType::StaticClass());
 
-	// 调用 Actor 的 TakeDamage
+	// 璋冪敤 Actor 鐨?TakeDamage
 	const float ActualDamage = DamagedActor->TakeDamage(
 		DamageAmount,
 		DamageEvent,
 		EventInstigator,
 		DamageCauser);
 
-	// 输出日志
+	// 杈撳嚭鏃ュ織
 	if (ActualDamage > 0.f)
 	{
 		UE_LOG(LogTemp, Log, TEXT("EventCenter::MakeDamage - %s took %f damage from %s"),
@@ -83,7 +83,7 @@ void UEventCenter::GetTools(AActor* tool, int toolNumber) {
 		}
 	}
 	else {
-		// 其他类型工具的处理
+		// 鍏朵粬绫诲瀷宸ュ叿鐨勫鐞?
 	}
 	tool->Destroy();
 }
@@ -92,10 +92,10 @@ void UEventCenter::SwitchToLevel() {
 
 	if (UWorld* World = GetWorld())
 	{
-		// 获取当前关卡的短名称
+		// 鑾峰彇褰撳墠鍏冲崱鐨勭煭鍚嶇О
 		FString CurrentLevelName = GetWorld()->GetMapName();
 
-		// 比较目标关卡名和当前关卡名
+		// 姣旇緝鐩爣鍏冲崱鍚嶅拰褰撳墠鍏冲崱鍚?
 		if (CurrentLevelName.Equals(levelName, ESearchCase::IgnoreCase))
 		{
 			UE_LOG(LogTemp, Log, TEXT("Already in level '%s', updated spawn location."), *levelName);
@@ -140,6 +140,7 @@ void UEventCenter::WriteLastState() {
 	FString outputString;
 	TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&outputString);
 	FJsonSerializer::Serialize(RootObj.ToSharedRef(), Writer);
+
 
 	if (!FFileHelper::SaveStringToFile(outputString, *filePath))
 	{
