@@ -29,8 +29,6 @@ public:
 	强烈不建议调用该方法，建议通过引擎获取GameInstance调用对应方法
 	*/
 	UEventCenter* GetEventCenter() const { return eventCenter; }
-<<<<<<< HEAD
-
 
 	UPROPERTY(VisibleAnywhere, Category = "Launch")
 	bool bIsFirstLaunch;
@@ -38,6 +36,5 @@ public:
 
 	virtual void Init() override;
     virtual void Shutdown() override;
-=======
->>>>>>> bd214ed4390b14a17c404e6808c277451f38b824
+
 };
