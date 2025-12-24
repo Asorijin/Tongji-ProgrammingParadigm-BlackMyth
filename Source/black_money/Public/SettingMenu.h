@@ -6,6 +6,7 @@
 #include "UIBasePanel.h"
 #include "Components/Slider.h"
 #include "Components/TextBlock.h"
+#include "Engine/PostProcessVolume.h"
 #include "SettingMenu.generated.h"
 
 /**
