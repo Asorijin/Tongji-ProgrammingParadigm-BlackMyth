@@ -41,13 +41,12 @@ void Ablack_moneyGameMode::BeginPlay()
 					// 设置输入模式为仅UI（确保能点击按钮）
 					PC->SetInputMode(FInputModeUIOnly());
 					PC->bShowMouseCursor = true; // 显示鼠标光标
-
 					MyGI->bIsFirstLaunch = false;
 				}
 			}
 		}
 
-		// 加载开始菜单面板类（需确保BP_StartUpMenu继承自UUIBasePanel）
+		//// 加载开始菜单面板类（需确保BP_StartUpMenu继承自UUIBasePanel）
 		//StartUpMenuClass = LoadClass<UUIBasePanel>(
 		//	nullptr,
 		//	TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/BP_StartUpMenu.BP_StartUpMenu_C'")
