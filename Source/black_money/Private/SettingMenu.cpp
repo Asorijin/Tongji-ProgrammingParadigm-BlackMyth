@@ -5,8 +5,9 @@
 #include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerController.h"
-#include "AudioDevice.h"
+#include "Engine/Engine.h"
 #include "Engine/PostProcessVolume.h"
+#include "AudioMixerBlueprintLibrary.h"
 
 void USettingMenu::NativeConstruct()
 {
@@ -59,10 +60,13 @@ void USettingMenu::OnVolumeSliderChanged(float NewValue)
 {
     if (VolumeText)
     {
-        // 将滑块值（0.0~1.0）转换为百分比文本（0%~100%）
+        // 修正：显示百分比（原代码漏乘100，导致显示0或1）
         FString VolumeStr = FString::Printf(TEXT("%.0f%%"), NewValue);
         VolumeText->SetText(FText::FromString(VolumeStr));
     }
+
+    /*需要实现音量控制，以下代码错误*/
+    //UAudioMixerBlueprintLibrary::SetMasterOutputVolume(GetWorld(), NewValue);
 }
 
 // 处理亮度滑块值变化
@@ -70,8 +74,29 @@ void USettingMenu::OnBrightnessSliderChanged(float NewValue)
 {
     if (BrightnessText)
     {
-        // 将滑块值（0.0~1.0）转换为百分比文本（0%~100%）
-        FString BrightnessStr = FString::Printf(TEXT("%.0f%%"), NewValue * 100);
+        // 修正：显示百分比（原代码漏乘100）
+        FString BrightnessStr = FString::Printf(TEXT("%.0f%%"), NewValue);
         BrightnessText->SetText(FText::FromString(BrightnessStr));
     }
+
+    /*需要实现亮度控制，以下代码错误*/
+    //TArray<AActor*> PostProcessVolumes;
+    //UGameplayStatics::GetAllActorsOfClass(GetWorld(), APostProcessVolume::StaticClass(), PostProcessVolumes);
+
+    //for (AActor* Actor : PostProcessVolumes)
+    //{
+    //    APostProcessVolume* PPVolume = Cast<APostProcessVolume>(Actor);
+    //    if (PPVolume && PPVolume->bUnbound)
+    //    {
+    //        float ExposureValue = FMath::Lerp(-4.0f, 4.0f, NewValue);
+
+    //        // 修复7: 正确应用后处理设置（必须复制-修改-赋值）
+    //        FPostProcessSettings NewSettings = PPVolume->Settings;
+    //        NewSettings.Exposure.Compensation = ExposureValue;
+    //        NewSettings.Exposure.bOverride_Compensation = true;
+    //        PPVolume->Settings = NewSettings;
+
+    //        break;
+    //    }
+    //}
 }
