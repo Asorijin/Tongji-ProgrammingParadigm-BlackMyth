@@ -28,5 +28,4 @@ public:
 	强烈不建议调用该方法，建议通过引擎获取GameInstance调用对应方法
 	*/
 	UEventCenter* GetEventCenter() const { return eventCenter; }
-
 };
