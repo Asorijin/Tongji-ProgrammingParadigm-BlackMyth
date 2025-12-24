@@ -92,16 +92,25 @@ void UEventCenter::SwitchToLevel() {
 
 	if (UWorld* World = GetWorld())
 	{
-		// 鑾峰彇褰撳墠鍏冲崱鐨勭煭鍚嶇О
-		FString CurrentLevelName = GetWorld()->GetMapName();
+		FString PIEMapName = GetWorld()->GetMapName();
+		FString RawMapName = PIEMapName;
 
-		// 姣旇緝鐩爣鍏冲崱鍚嶅拰褰撳墠鍏冲崱鍚?
+		// 移除所有 UEDPIE_x_ 前缀（正则或字符串处理）
+		if (RawMapName.StartsWith(TEXT("UEDPIE_")))
+		{
+			RawMapName = RawMapName.Mid(9);
+		}
+
+		// 拼接回原始路径
+		FString CurrentLevelName = TEXT("/Game/ThirdPerson/Maps/") + RawMapName;
+
 		if (CurrentLevelName.Equals(levelName, ESearchCase::IgnoreCase))
 		{
 			UE_LOG(LogTemp, Log, TEXT("Already in level '%s', updated spawn location."), *levelName);
 			return;
 		}
-
+		UE_LOG(LogTemp, Log, TEXT("Diff! '%s'"), *levelName);
+		UE_LOG(LogTemp, Log, TEXT("Diff! '%s'"), *CurrentLevelName);
 		UGameplayStatics::OpenLevel(World, FName(*levelName));
 	}
 	else
@@ -148,7 +157,7 @@ void UEventCenter::WriteLastState() {
 	}
 	else
 	{
-		UE_LOG(LogTemp, Log, TEXT("Successfully saved character config to: %s"), *filePath);
+		UE_LOG(LogTemp, Log, TEXT("Successfully Write lastState to: %s"), *filePath);
 	}
 }
 
@@ -194,7 +203,7 @@ void UEventCenter::ReadLastState() {
 		toolsNumber.mpTools = static_cast<int32>(ToolsObj->GetNumberField("mpTools"));
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("Successfully loaded save data from: %s"), *filePath);
+	UE_LOG(LogTemp, Log, TEXT("Successfully Read lastState from: %s"), *filePath);
 }
 
 void UEventCenter::ReadActorsPosition(TArray<FVector>& OutMonsterPositions, TArray<FVector>& OutTempleLandPositions, const FString& ActorFilePath)
