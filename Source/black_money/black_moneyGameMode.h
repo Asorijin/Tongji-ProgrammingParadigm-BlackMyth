@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "StartUpMenu.h"
+#include "FUIPanelManager.h"
 #include "GameFramework/GameModeBase.h"
 #include "black_moneyGameMode.generated.h"
 
@@ -19,6 +21,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void ShowStatusBar();
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<UStartUpMenu> StartUpMenuClass;
+
 	UUserWidget* StatusBarIns;    // ÐÂÔö£º½ÇÉ«×´Ì¬À¸UI
 
 protected:
@@ -27,6 +32,7 @@ protected:
 private:
 	UUserWidget* StartUpMenuIns;
 	
+
 };
 
 

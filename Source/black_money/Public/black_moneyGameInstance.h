@@ -14,8 +14,9 @@ class BLACK_MONEY_API Ublack_moneyGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 protected:
-	virtual void Init() override;
-	virtual void Shutdown() override;
+	/*¸Ä³Épublic*/
+	//virtual void Init() override;
+	//virtual void Shutdown() override;
 
 	UPROPERTY()
 	UEventCenter* eventCenter;
@@ -29,4 +30,11 @@ public:
 	*/
 	UEventCenter* GetEventCenter() const { return eventCenter; }
 
+
+	UPROPERTY(VisibleAnywhere, Category = "Launch")
+	bool bIsFirstLaunch;
+
+
+	virtual void Init() override;
+    virtual void Shutdown() override;
 };
