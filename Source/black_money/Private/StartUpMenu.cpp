@@ -98,17 +98,53 @@ void UStartUpMenu::QuitButtonClicked()
 // 新增：设置按钮逻辑（弹出设置界面）
 void UStartUpMenu::SettingButtonClicked()
 {
-	// 加载设置面板类（使用FUIPanelManager管理）
-	if (UClass* SettingWidgetClass = LoadClass<UUIBasePanel>(nullptr, TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/BP_SettingMenu.BP_SettingMenu_C'")))
+	UClass* SettingWidgetClass = LoadClass<UUIBasePanel>(
+		nullptr,
+		TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/BP_SettingMenu.BP_SettingMenu_C'")
+	);
+
+	// 2. 检查蓝图类是否加载成功
+	if (!SettingWidgetClass)
 	{
-		// 通过PanelManager创建并显示设置面板
-		if (UWorld* World = GetWorld())
-		{
-			FUIPanelManager::ShowPanel(World, SettingWidgetClass);
-		}
+		//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("设置面板资源加载失败！请检查：1.路径是否正确 2.BP_SettingMenu是否继承UUIBasePanel"));
+		return;
+	}
+	// 3. 获取世界上下文（空指针检查）
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("获取World失败，无法创建设置面板"));
+		return;
+	}
+	// 4. 核心修正：先通过PanelManager创建/获取面板实例，再显示（原函数缺少这步）
+	UUIBasePanel* SettingPanelIns = FUIPanelManager::GetOrCreatePanel(World, SettingWidgetClass);
+	if (SettingPanelIns)
+	{
+		// 5. 显示面板（确保实例存在后调用ShowPanel）
+		FUIPanelManager::ShowPanel(World, SettingWidgetClass);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("success"));
 	}
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("未找到设置面板资源，请检查路径"));
+		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("error"));
 	}
 }
+
+//void UStartUpMenu::SettingButtonClicked()
+//{
+//	if (UClass* SettingWidgetClass = LoadClass<UUserWidget>(nullptr, TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/BP_SettingMenu.BP_SettingMenu_C'")))
+//	{
+//		if (APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0))
+//		{
+//			UUserWidget* SettingMenuIns = CreateWidget(PC, SettingWidgetClass);
+//			if (SettingMenuIns)
+//			{
+//				SettingMenuIns->AddToViewport();
+//			}
+//		}
+//	}
+//	else
+//	{
+//		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("未找到设置面板资源，请检查路径"));
+//	}
+//}

@@ -12,8 +12,11 @@ UUIBasePanel* FUIPanelManager::GetOrCreatePanel(UWorld* World, TSubclassOf<UUIBa
 
     if (!CachedInstance)
     {
-        CachedInstance = NewObject<UUIBasePanel>(GetTransientPackage(), Class);
-        CachedInstance->AddToRoot(); 
+        CachedInstance = CreateWidget<UUIBasePanel>(World, Class);
+        if (CachedInstance)
+        {
+            CachedInstance->AddToRoot();
+        }
     }
 
     return CachedInstance;

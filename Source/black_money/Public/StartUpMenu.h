@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UIBasePanel.h"
+#include "SettingMenu.h"
 #include "StartUpMenu.generated.h"
 
 /**
@@ -27,4 +28,5 @@ protected:
 	// 新增：设置按钮点击函数声明
 	UFUNCTION()
 	void SettingButtonClicked();
+
 };
