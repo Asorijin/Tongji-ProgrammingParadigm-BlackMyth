@@ -26,12 +26,20 @@ public:
 
 	UUserWidget* StatusBarIns;    // 新增：角色状态栏UI
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Audio")
+	USoundBase* DefaultMusic;
+
+	// 是否只对玩家生效
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trigger")
+	bool bOnlyAffectPlayer = true;
+
 protected:
 	virtual void BeginPlay() override;
 
 private:
 	UUserWidget* StartUpMenuIns;
 	
+	UAudioComponent* CurrentMusicComponent;
 
 };
 

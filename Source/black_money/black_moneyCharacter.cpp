@@ -547,7 +547,7 @@ void Ablack_moneyCharacter::BeginPlay() {
 	{
 		EventCenter = GI->GetEventCenter();
 	}
-
+	EventCenter->SwitchToLevel();
 	this->SetActorLocation(EventCenter->GetSpawnLocation());
 
 	// °ó¶¨ÎäÆ÷Åö×²ºÐÖØµþÊÂ¼þ
@@ -714,6 +714,17 @@ void Ablack_moneyCharacter::TriggerNearByInteractions() {
 		}
 	}
 	else if (firstObject->IsA(ALandTemple::StaticClass())) {
+
+		FString ActorName = firstObject->GetActorNameOrLabel();
+		UE_LOG(LogTemp, Log, TEXT("Now Object Name: '%s' "), *ActorName);
+
+		if (ActorName == FString("JumpToLevel1")) {
+			EventCenter->SetLevelAndLocation(TEXT("/Game/ThirdPerson/Maps/Midgardr_Free"), FVector(870,670,200));
+		}
+		else if (ActorName == FString("JumpToLevel0")) {
+			EventCenter->SetLevelAndLocation(TEXT("/Game/ThirdPerson/Maps/ThirdPersonMap"), FVector(1000, 1500, 100));
+			
+		}
 		EventCenter->SwitchToLevel();
 	}
 	
@@ -855,7 +866,6 @@ FName Ablack_moneyCharacter::GetHitSectionNameForCauser(const AActor* Victim, co
 
 		return SectionName;
 	}
-
 
 	void Ablack_moneyCharacter::HandleDeath()
 	{
