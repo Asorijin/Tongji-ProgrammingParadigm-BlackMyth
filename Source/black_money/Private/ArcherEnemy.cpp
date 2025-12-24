@@ -15,7 +15,7 @@ AArcherEnemy::AArcherEnemy(const FObjectInitializer& ObjectInitializer)
 	// 设置攻击范围检测组件半径（远程攻击，范围更大）
 	if (AttackRangeSphere)
 	{
-		AttackRangeSphere->SetSphereRadius(500.0f);
+		AttackRangeSphere->SetSphereRadius(1000.0f);
 	}
 
 	// 设置检测范围组件半径（更远的检测范围）
@@ -48,7 +48,7 @@ void AArcherEnemy::BeginPlay()
 		// 移动和攻击属性：高移动速度、高攻击速度、远程攻击范围
 		EnemyConfig->MoveSpeed = 200.0f;
 		EnemyConfig->AttackSpeed = 0.8f;      // 每秒约1.25次攻击
-		EnemyConfig->AttackRange = 500.0f;     // 远程攻击范围
+		EnemyConfig->AttackRange = 1000.0f;    // 远程攻击范围（原来的两倍）
 		EnemyConfig->DetectionRange = 1200.0f; // 更远的检测范围
 
 		// 确保当前生命值不超过最大生命值
