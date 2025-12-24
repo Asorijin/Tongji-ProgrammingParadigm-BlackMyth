@@ -128,7 +128,7 @@ protected:
 	// 技能蒙太奇（震地动画）
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill|Animation", meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* EarthQuakeMontage = nullptr;
-	public:
+public:
 		// 技能时长只读接口（给 UI / AnimBP 用）
 		UFUNCTION(BlueprintPure, Category = "Skill|State")
 		float GetEarthQuakeCooldownRemaining() const { return EarthQuakeCooldownRemaining; }
@@ -172,6 +172,8 @@ public:
 	void Tick(float deltaTime) override;
 
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+	const UCharacterConfig* ShareCharacterConfig();
 private:
 	/** 闪避强度（水平冲量） */
 	UPROPERTY(EditAnywhere, Category = "Dodge")
@@ -254,7 +256,8 @@ protected:
 	//改变音乐
 	void ChangeMusic(FName musicName);
 
-	const UCharacterConfig* ShareCharacterConfig();
+	/*需要在CharacterMenu中调用，改为public*/
+	//const UCharacterConfig* ShareCharacterConfig();
 
 	//按F触发与物体互动事件，需要绑定按键
 	void TriggerNearByInteractions();
