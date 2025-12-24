@@ -20,6 +20,7 @@ protected:
 
 	UPROPERTY()
 	UEventCenter* eventCenter;
+
 public:
 
 	

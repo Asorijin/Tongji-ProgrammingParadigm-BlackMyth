@@ -117,11 +117,11 @@ void UStartUpMenu::SettingButtonClicked()
 		return;
 	}
 	// 4. 核心修正：先通过PanelManager创建/获取面板实例，再显示（原函数缺少这步）
-	UUIBasePanel* SettingPanelIns = FUIPanelManager::GetOrCreatePanel(World, SettingWidgetClass);
+	UUIBasePanel* SettingPanelIns = FUIPanelManager::GetOrCreatePanel(World, SettingWidgetClass,FString("SettingWidget"));
 	if (SettingPanelIns)
 	{
 		// 5. 显示面板（确保实例存在后调用ShowPanel）
-		FUIPanelManager::ShowPanel(World, SettingWidgetClass);
+		FUIPanelManager::ShowPanel(World, SettingWidgetClass, FString("SettingWidget"));
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("success"));
 	}
 	else

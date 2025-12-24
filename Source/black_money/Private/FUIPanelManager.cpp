@@ -1,17 +1,18 @@
 #include "FUIPanelManager.h"
 #include "CoreMinimal.h"
 #include "UIBasePanel.h" 
-TMap<UClass*, UUIBasePanel*> FUIPanelManager::PanelInstances;
-UUIBasePanel* FUIPanelManager::GetOrCreatePanel(UWorld* World, TSubclassOf<UUIBasePanel> PanelClass)
+TMap<FString, UUIBasePanel*> FUIPanelManager::PanelInstances;
+UUIBasePanel* FUIPanelManager::GetOrCreatePanel(UWorld* World, TSubclassOf<UUIBasePanel> PanelClass,FString ClassName)
 {
     if (!World || !PanelClass)
         return nullptr;
 
     UClass* Class = PanelClass.Get();
-    UUIBasePanel*& CachedInstance = PanelInstances.FindOrAdd(Class);
+    UUIBasePanel*& CachedInstance = PanelInstances.FindOrAdd(ClassName);
 
     if (!CachedInstance)
     {
+        UE_LOG(LogTemp, Warning, TEXT("Creating NEW panel: %s"), *ClassName);
         CachedInstance = CreateWidget<UUIBasePanel>(World, Class);
         if (CachedInstance)
         {
@@ -22,9 +23,9 @@ UUIBasePanel* FUIPanelManager::GetOrCreatePanel(UWorld* World, TSubclassOf<UUIBa
     return CachedInstance;
 }
 
-void FUIPanelManager::ShowPanel(UWorld* World, TSubclassOf<UUIBasePanel> PanelClass)
+void FUIPanelManager::ShowPanel(UWorld* World, TSubclassOf<UUIBasePanel> PanelClass,FString ClassName)
 {
-    if (UUIBasePanel* Panel = GetOrCreatePanel(World, PanelClass))
+    if (UUIBasePanel* Panel = GetOrCreatePanel(World, PanelClass,ClassName))
     {
         Panel->AddToViewport();
         Panel->SetVisibility(ESlateVisibility::Visible);
@@ -32,17 +33,16 @@ void FUIPanelManager::ShowPanel(UWorld* World, TSubclassOf<UUIBasePanel> PanelCl
     }
 }
 
-void FUIPanelManager::HidePanel(TSubclassOf<UUIBasePanel> PanelClass)
+void FUIPanelManager::HidePanel(FString ClassName)
 {
-    if (!PanelClass) return;
+    if (!ClassName.Len()) return;
 
-    UClass* Class = PanelClass.Get();
-    if (UUIBasePanel** Found = PanelInstances.Find(Class))
+    if (UUIBasePanel** Found = PanelInstances.Find(ClassName))
     {
         if (*Found)
         {
+            UE_LOG(LogTemp, Warning, TEXT("Hiding panel: %s"), *ClassName);
             (*Found)->SetVisibility(ESlateVisibility::Collapsed);
-            (*Found)->RemoveFromParent();
             // (*Found)->NativeOnHide();
         }
 
