@@ -130,6 +130,7 @@ void Ablack_moneyGameMode::ShowStatusBar()
 	//}
 }
 
+/*
 void Ablack_moneyGameMode::ShowPauseMenu(bool bShow)
 {
 	UWorld* World = GetWorld();
@@ -137,7 +138,7 @@ void Ablack_moneyGameMode::ShowPauseMenu(bool bShow)
 	{
 		return;
 	}
-
+	
 	if (bShow)
 	{
 		// 加载暂停菜单面板
@@ -181,6 +182,97 @@ void Ablack_moneyGameMode::ShowPauseMenu(bool bShow)
 		}
 	}
 }
+*/
+
+
+void Ablack_moneyGameMode::ShowPauseMenu(bool bShow)
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ShowPauseMenu: World is null!"));
+		return;
+	}
+
+	if (bShow)
+	{
+		// 初始化PauseMenuClass（只加载一次，避免重复加载）
+		if (!PauseMenuClass)
+		{
+			// 修复LoadClass参数：第一个参数用GetOuter()而非nullptr，路径简化（UE推荐写法）
+			static const FString PauseMenuPath = TEXT("/Game/UI/BP_PauseMenu.BP_PauseMenu_C");
+			PauseMenuClass = LoadClass<UUIBasePanel>(GetOuter(), *PauseMenuPath);
+
+			if (!PauseMenuClass)
+			{
+				UE_LOG(LogTemp, Error, TEXT("ShowPauseMenu: 加载PauseMenu失败，路径：%s"), *PauseMenuPath);
+				return;
+			}
+		}
+
+		APlayerController* PC = World->GetFirstPlayerController();
+		if (!PC)
+		{
+			UE_LOG(LogTemp, Error, TEXT("ShowPauseMenu: 找不到PlayerController!"));
+			return;
+		}
+
+		// 获取/创建面板实例（检查返回值）
+		PauseMenuIns = FUIPanelManager::GetOrCreatePanel(World, PauseMenuClass, FString("PauseMenu"));
+		if (PauseMenuIns)
+		{
+			FUIPanelManager::ShowPanel(World, PauseMenuClass, FString("PauseMenu"));
+
+			// 暂停游戏（核心修复：明确暂停）
+			UGameplayStatics::SetGamePaused(World, true);
+
+			// 完善输入模式配置（避免UI交互崩溃）
+			FInputModeUIOnly InputModeUI;
+			InputModeUI.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways); // 锁定鼠标到视口
+			InputModeUI.SetWidgetToFocus(PauseMenuIns->TakeWidget()); // 聚焦到暂停菜单Widget
+			PC->SetInputMode(InputModeUI);
+
+			// 启用鼠标交互
+			PC->bShowMouseCursor = true;
+			PC->bEnableClickEvents = true;
+			PC->bEnableMouseOverEvents = true;
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("ShowPauseMenu: 创建PauseMenu实例失败!"));
+		}
+	}
+	else
+	{
+		// 隐藏暂停菜单（增加World检查）
+		if (PauseMenuIns && World)
+		{
+			FUIPanelManager::HidePanel(FString("PauseMenu"));
+			PauseMenuIns->RemoveFromParent();
+			PauseMenuIns = nullptr;
+		}
+
+		APlayerController* PC = World->GetFirstPlayerController();
+		if (PC)
+		{
+			// 恢复游戏暂停状态（核心修复！之前缺失这行导致崩溃）
+			UGameplayStatics::SetGamePaused(World, false);
+
+			// 恢复输入模式
+			FInputModeGameAndUI InputModeGame;
+			PC->SetInputMode(InputModeGame);
+
+			// 隐藏鼠标并关闭交互
+			PC->bShowMouseCursor = false;
+			PC->bEnableClickEvents = false;
+			PC->bEnableMouseOverEvents = false;
+
+			// 确保玩家控制器重新获得焦点
+			PC->SetPause(false);
+		}
+	}
+}
+
 
 void Ablack_moneyGameMode::TogglePause()
 {

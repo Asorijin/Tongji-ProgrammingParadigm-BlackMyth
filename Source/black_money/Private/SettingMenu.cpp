@@ -9,6 +9,7 @@
 #include "Engine/PostProcessVolume.h"
 #include "FUIPanelManager.h"
 #include "AudioMixerBlueprintLibrary.h"
+#include "black_moneyGameInstance.h"
 
 void USettingMenu::NativeConstruct()
 {
@@ -48,6 +49,32 @@ void USettingMenu::NativeConstruct()
     {
         BrightnessText = BrightText;
     }
+
+    // 从GameInstance加载保存的设置
+    LoadSettingsFromGameInstance();
+}
+
+// 从GameInstance加载设置
+void USettingMenu::LoadSettingsFromGameInstance()
+{
+    if (Ublack_moneyGameInstance* GameInstance = Cast<Ublack_moneyGameInstance>(GetGameInstance()))
+    {
+        // 加载音量设置
+        float SavedVolume = GameInstance->GetSavedVolume();
+        if (VolumeSlider)
+        {
+            VolumeSlider->SetValue(SavedVolume);
+            OnVolumeSliderChanged(SavedVolume); // 更新显示
+        }
+
+        // 加载亮度设置
+        float SavedBrightness = GameInstance->GetSavedBrightness();
+        if (BrightnessSlider)
+        {
+            BrightnessSlider->SetValue(SavedBrightness);
+            OnBrightnessSliderChanged(SavedBrightness); // 更新显示
+        }
+    }
 }
 
 void USettingMenu::QuitButtonClicked()
@@ -70,8 +97,14 @@ void USettingMenu::OnVolumeSliderChanged(float NewValue)
         VolumeText->SetText(FText::FromString(VolumeStr));
     }
 
+    // 保存到GameInstance（新增代码）
+    if (Ublack_moneyGameInstance* GameInstance = Cast<Ublack_moneyGameInstance>(GetGameInstance()))
+    {
+        GameInstance->SetSavedVolume(NewValue);
+    }
+
     /*需要实现音量控制，以下代码错误*/
-    //UAudioMixerBlueprintLibrary::SetMasterOutputVolume(GetWorld(), NewValue);
+    
 }
 
 // 处理亮度滑块值变化
@@ -83,21 +116,12 @@ void USettingMenu::OnBrightnessSliderChanged(float NewValue)
         BrightnessText->SetText(FText::FromString(BrightnessStr));
     }
 
+    // 保存到GameInstance（新增代码）
+    if (Ublack_moneyGameInstance* GameInstance = Cast<Ublack_moneyGameInstance>(GetGameInstance()))
+    {
+        GameInstance->SetSavedBrightness(NewValue);
+    }
+
     /*需要实现亮度控制，以下代码错误*/
-    //TArray<AActor*> PostProcessVolumes;
-    //UGameplayStatics::GetAllActorsOfClass(GetWorld(), APostProcessVolume::StaticClass(), PostProcessVolumes);
-    //for (AActor* Actor : PostProcessVolumes)
-    //{
-    //    APostProcessVolume* PPVolume = Cast<APostProcessVolume>(Actor);
-    //    if (PPVolume && PPVolume->bUnbound)
-    //    {
-    //        float ExposureValue = FMath::Lerp(-4.0f, 4.0f, NewValue);
-    //        // 修复7: 正确应用后处理设置（必须复制-修改-赋值）
-    //        FPostProcessSettings NewSettings = PPVolume->Settings;
-    //        NewSettings.Exposure.Compensation = ExposureValue;
-    //        NewSettings.Exposure.bOverride_Compensation = true;
-    //        PPVolume->Settings = NewSettings;
-    //        break;
-    //    }
-    //}
+
 }

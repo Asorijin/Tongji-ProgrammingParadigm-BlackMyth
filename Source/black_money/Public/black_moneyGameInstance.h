@@ -14,16 +14,12 @@ class BLACK_MONEY_API Ublack_moneyGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 protected:
-	/*改成public*/
-	//virtual void Init() override;
-	//virtual void Shutdown() override;
 
 	UPROPERTY()
 	UEventCenter* eventCenter;
 
 public:
 
-	
 	/*
 	在使用时，在需要使用的cpp文件中include EventCenter头文件，Cast转为UEventCenter再调用事件中心的方法
 	绝对不要随意在头文件中引用EventCenter头文件，出现循环引用改起来会很麻烦
@@ -34,8 +30,29 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Launch")
 	bool bIsFirstLaunch;
 
-
 	virtual void Init() override;
     virtual void Shutdown() override;
 
+
+	Ublack_moneyGameInstance();
+
+	// 获取音量设置
+	UFUNCTION(BlueprintCallable, Category = "Settings")
+	float GetSavedVolume() const { return SavedVolume; }
+
+	// 获取亮度设置
+	UFUNCTION(BlueprintCallable, Category = "Settings")
+	float GetSavedBrightness() const { return SavedBrightness; }
+
+	// 保存音量设置
+	void SetSavedVolume(float Volume);
+
+	// 保存亮度设置
+	void SetSavedBrightness(float Brightness);
+
+private:
+	// 存储音量值(0.0-100.0)
+	float SavedVolume;
+	// 存储亮度值(0.0-100.0)
+	float SavedBrightness;
 };

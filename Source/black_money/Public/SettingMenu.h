@@ -38,4 +38,7 @@ private:
 	// 文本控件指针（用于显示滑块值，新增）
 	UTextBlock* VolumeText;   // 显示音量值
 	UTextBlock* BrightnessText; // 显示亮度值
+
+	// 声明加载设置的函数（新增）
+	void LoadSettingsFromGameInstance();
 };
