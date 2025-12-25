@@ -65,9 +65,16 @@ class Ablack_moneyCharacter : public ACharacter
 	UInputAction* PickUpAction;
 
 
-	// 新增：暂停功能的输入动作
+	// 暂停功能的输入动作
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* PauseAction;
+	// 使用血量道具输入动作
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* UseHealthItemAction;
+	// 使用蓝量道具输入动作
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* UseManaItemAction;
+
 public:
 	Ablack_moneyCharacter();
 

@@ -136,6 +136,10 @@ void Ablack_moneyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	
 		// 绑定P键到暂停处理函数（"Pause"与输入映射名称一致）
 		EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::HandlePauseInput);
+		//绑定1键使用血量道具
+		EnhancedInputComponent->BindAction(UseHealthItemAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::UseToolHp);
+		//绑定2键使用蓝量道具
+		EnhancedInputComponent->BindAction(UseManaItemAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::UseToolMp);
 	}
 	else
 	{
