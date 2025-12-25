@@ -1,4 +1,5 @@
 #include "black_moneyCharacter.h"
+#include "black_moneyGameMode.h"
 #include "Engine/LocalPlayer.h"
 #include "Engine/AssetManager.h"
 #include "Camera/CameraComponent.h"
@@ -131,12 +132,30 @@ void Ablack_moneyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 		EnhancedInputComponent->BindAction(SkillEarthQuakeAction,ETriggerEvent::Started,this,&Ablack_moneyCharacter::CastEarthQuake);
 		//绑定F键->拾取道具
 		EnhancedInputComponent->BindAction(PickUpAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::TriggerNearByInteractions);
+	
+	
+		// 绑定P键到暂停处理函数（"Pause"与输入映射名称一致）
+		EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::HandlePauseInput);
 	}
 	else
 	{
 		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
 }
+
+void Ablack_moneyCharacter::HandlePauseInput()
+{
+	// 获取当前GameMode并调用暂停函数
+	if (UWorld* World = GetWorld())
+	{
+		Ablack_moneyGameMode* GameMode = Cast<Ablack_moneyGameMode>(World->GetAuthGameMode());
+		if (GameMode)
+		{
+			GameMode->TogglePause(); // 调用GameMode中实现的暂停逻辑
+		}
+	}
+}
+
 
 void Ablack_moneyCharacter::Move(const FInputActionValue& Value)
 {
@@ -557,6 +576,11 @@ void Ablack_moneyCharacter::BeginPlay() {
 		WeaponHitBox->OnComponentBeginOverlap.AddDynamic(this,&Ablack_moneyCharacter::OnWeaponHitBoxBeginOverlap);
 	}
 
+	// 获取GameMode并触发状态栏显示 CharacterMenu
+	if (Ablack_moneyGameMode* GameMode = Cast<Ablack_moneyGameMode>(UGameplayStatics::GetGameMode(GetWorld())))
+	{
+		GameMode->ShowStatusBar();  // 启动菜单关闭后，才显示状态栏
+	}
 }
 
 void Ablack_moneyCharacter::Tick(float deltaTime) {

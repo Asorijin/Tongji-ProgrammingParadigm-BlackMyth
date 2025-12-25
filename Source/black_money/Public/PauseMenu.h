@@ -14,4 +14,16 @@ class BLACK_MONEY_API UPauseMenu : public UUIBasePanel
 {
 	GENERATED_BODY()
 	
+	virtual void NativeConstruct() override;
+
+	UFUNCTION()
+	void ContinueButtonClicked();
+
+	// 新增：Quit按钮点击函数
+	UFUNCTION()
+	void QuitButtonClicked();
+
+	// 新增：设置按钮点击函数声明
+	UFUNCTION()
+	void SettingButtonClicked();
 };
