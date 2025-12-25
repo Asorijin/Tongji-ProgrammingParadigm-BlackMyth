@@ -54,9 +54,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Combat")
 	UAnimMontage* RoarMontage = nullptr;
 
-	// 第二阶段粒子效果
+	// 第二阶段粒子效果资源（用于配置）
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Combat")
 	UParticleSystem* Phase2ParticleEffect = nullptr;
+
+	// 第二阶段粒子效果组件（持续播放）
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Boss Combat")
+	class UParticleSystemComponent* Phase2ParticleComponent = nullptr;
 
 	// 第二阶段攻击伤害倍率（相对于基础攻击力）
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Combat", meta = (ClampMin = "1.0"))

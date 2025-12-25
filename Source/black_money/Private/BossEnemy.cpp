@@ -52,6 +52,11 @@ ABossEnemy::ABossEnemy(const FObjectInitializer& ObjectInitializer)
 	SkillAttackRange = 300.0f;
 	SkillCooldown = 10.0f;
 	SkillCooldownRemaining = 0.0f;
+
+	// 创建第二阶段粒子效果组件
+	Phase2ParticleComponent = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Phase2ParticleComponent"));
+	Phase2ParticleComponent->SetupAttachment(RootComponent);
+	Phase2ParticleComponent->bAutoActivate = false; // 初始不激活，等待进入第二阶段
 }
 
 void ABossEnemy::BeginPlay()
@@ -69,6 +74,13 @@ void ABossEnemy::BeginPlay()
 			EnemyConfig->CurrentHp = 500;
 		}
 		EnemyConfig->Initialize();
+	}
+
+	// 配置第二阶段粒子效果组件
+	if (Phase2ParticleComponent && Phase2ParticleEffect)
+	{
+		Phase2ParticleComponent->SetTemplate(Phase2ParticleEffect);
+		// 粒子组件初始不激活，等待进入第二阶段
 	}
 
 	// 初始化阶段
@@ -103,6 +115,12 @@ void ABossEnemy::ReceiveDamage(int32 DamageAmount, AActor* DamageCauser)
 	// 如果已经死亡或处于无敌状态，不积攒怒气
 	if (bIsDead || CurrentHitState == EEnemyHitState::Invulnerable)
 	{
+		// 如果死亡，停止第二阶段粒子效果
+		if (bIsDead && Phase2ParticleComponent && Phase2ParticleComponent->IsActive())
+		{
+			Phase2ParticleComponent->Deactivate();
+			UE_LOG(LogTemp, Log, TEXT("Boss %s died, Phase 2 particle effect deactivated"), *GetName());
+		}
 		return;
 	}
 
@@ -304,18 +322,6 @@ void ABossEnemy::PlayRoarAnimation()
 		MontageEndedDelegate.BindUObject(this, &ABossEnemy::OnRoarMontageEnded);
 		AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, RoarMontage);
 
-		// 播放粒子效果
-		if (Phase2ParticleEffect)
-		{
-			UGameplayStatics::SpawnEmitterAtLocation(
-				GetWorld(),
-				Phase2ParticleEffect,
-				GetActorLocation(),
-				GetActorRotation(),
-				true
-			);
-		}
-
 		UE_LOG(LogTemp, Log, TEXT("Boss %s playing roar animation"), *GetName());
 	}
 	else
@@ -331,6 +337,17 @@ void ABossEnemy::OnRoarMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	// 咆哮动画结束，进入第二阶段
 	CurrentPhase = EBossPhase::Phase2;
 	StartHealthRegen();
+
+	// 启动第二阶段粒子效果（持续播放）
+	if (Phase2ParticleComponent)
+	{
+		Phase2ParticleComponent->Activate();
+		UE_LOG(LogTemp, Log, TEXT("Boss %s Phase 2 particle effect activated"), *GetName());
+	}
+	else if (Phase2ParticleEffect)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Boss %s Phase2ParticleComponent is null, cannot activate particle effect"), *GetName());
+	}
 
 	UE_LOG(LogTemp, Log, TEXT("Boss %s roar animation ended, now in Phase 2"), *GetName());
 }
