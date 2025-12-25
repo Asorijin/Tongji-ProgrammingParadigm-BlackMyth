@@ -269,6 +269,10 @@ protected:
 
 	//按F触发与物体互动事件，需要绑定按键
 	void TriggerNearByInteractions();
+	//使用血量道具
+	void UseToolHp();
+	//使用法力道具
+	void UseToolMp();
 	public:
 		// 重写 UE 内置的 TakeDamage
 		virtual float TakeDamage(

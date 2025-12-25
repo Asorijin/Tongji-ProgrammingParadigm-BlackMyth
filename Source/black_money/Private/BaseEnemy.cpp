@@ -1336,8 +1336,6 @@ void ABaseEnemy::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Oth
 		if (OtherActor->IsA(Ablack_moneyCharacter::StaticClass()))
 		{
 			InteractionWidget->SetVisibility(true);
-
-			Cast<Ablack_moneyCharacter>(OtherActor)->nearbyInteraction.Add(this);
 		}
 	}
 }
@@ -1351,8 +1349,6 @@ void ABaseEnemy::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* Other
 		{
 			InteractionWidget->SetVisibility(false);
 
-			if (OtherActor && Cast<Ablack_moneyCharacter>(OtherActor)->nearbyInteraction.Contains(this))
-				Cast<Ablack_moneyCharacter>(OtherActor)->nearbyInteraction.Remove(this);
 		}
 	}
 }

@@ -83,7 +83,7 @@ public:
 	 * 使用道具
 	 * @param tool 道具指针
 	 */
-	void UseTools(AActor* tool);
+	bool UseTools(AActor* tool);
 
 	/**
 	 * 拾取道具
