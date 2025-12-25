@@ -17,13 +17,13 @@ class UUIBasePanel;
 class BLACK_MONEY_API FUIPanelManager
 {
 public:
-    static UUIBasePanel* GetOrCreatePanel(UWorld* World, TSubclassOf<UUIBasePanel> PanelClass);
+    static UUIBasePanel* GetOrCreatePanel(UWorld* World, TSubclassOf<UUIBasePanel> PanelClass, FString ClassName);
 
-    static void ShowPanel(UWorld* World, TSubclassOf<UUIBasePanel> PanelClass);
-    static void HidePanel(TSubclassOf<UUIBasePanel> PanelClass);
+    static void ShowPanel(UWorld* World, TSubclassOf<UUIBasePanel> PanelClass, FString ClassName);
+    static void HidePanel(FString ClassName);
 
     static void ClearAllPanels();
 
 private:
-    static TMap<UClass*, UUIBasePanel*> PanelInstances;
+    static TMap<FString, UUIBasePanel*> PanelInstances;
 };

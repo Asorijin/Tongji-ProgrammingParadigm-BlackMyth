@@ -747,7 +747,9 @@ void Ablack_moneyCharacter::TriggerNearByInteractions() {
 		}
 		else if (ActorName == FString("JumpToLevel0")) {
 			EventCenter->SetLevelAndLocation(TEXT("/Game/ThirdPerson/Maps/ThirdPersonMap"), FVector(1000, 1500, 100));
-			
+		}
+		else if (ActorName == FString("JumpToLevel2")) {
+			EventCenter->SetLevelAndLocation(TEXT("/Game/ThirdPerson/Maps/Demo_Scene"),FVector(1200,-3300,150));
 		}
 		EventCenter->SwitchToLevel();
 	}

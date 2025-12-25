@@ -22,6 +22,24 @@ AMusicTriggerVolume::AMusicTriggerVolume()
 void AMusicTriggerVolume::BeginPlay()
 {
     AActor::BeginPlay();
+    
+    if (DefaultMusic && GetWorld())
+    {
+        if (CurrentMusicComponent && CurrentMusicComponent->IsPlaying())
+        {
+            CurrentMusicComponent->Stop();
+        }
+
+        // 播放默认音乐（2D，全局背景音）
+        CurrentMusicComponent = UGameplayStatics::SpawnSound2D(GetWorld(), DefaultMusic);
+        if (CurrentMusicComponent)
+        {
+            CurrentMusicComponent->bAllowSpatialization = false; // 确保是 2D 背景音乐
+            CurrentMusicComponent->bAutoDestroy = true;          // 播放完自动销毁
+            CurrentMusicComponent->bOverrideAttenuation = true;
+            CurrentMusicComponent->AttenuationSettings = nullptr; // 无衰减
+        }
+    }
 }
 
 void AMusicTriggerVolume::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,

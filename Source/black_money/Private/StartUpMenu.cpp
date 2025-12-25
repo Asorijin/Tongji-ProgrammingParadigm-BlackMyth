@@ -89,7 +89,42 @@ void UStartUpMenu::QuitButtonClicked()
 	}
 }
 
-//// 新增：设置按钮逻辑（弹出设置界面）
+
+// 新增：设置按钮逻辑（弹出设置界面）
+void UStartUpMenu::SettingButtonClicked()
+{
+	UClass* SettingWidgetClass = LoadClass<UUIBasePanel>(
+		nullptr,
+		TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/BP_SettingMenu.BP_SettingMenu_C'")
+	);
+
+	// 2. 检查蓝图类是否加载成功
+	if (!SettingWidgetClass)
+	{
+		//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("设置面板资源加载失败！请检查：1.路径是否正确 2.BP_SettingMenu是否继承UUIBasePanel"));
+		return;
+	}
+	// 3. 获取世界上下文（空指针检查）
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("获取World失败，无法创建设置面板"));
+		return;
+	}
+	// 4. 核心修正：先通过PanelManager创建/获取面板实例，再显示（原函数缺少这步）
+	UUIBasePanel* SettingPanelIns = FUIPanelManager::GetOrCreatePanel(World, SettingWidgetClass,FString("SettingWidget"));
+	if (SettingPanelIns)
+	{
+		// 5. 显示面板（确保实例存在后调用ShowPanel）
+		FUIPanelManager::ShowPanel(World, SettingWidgetClass, FString("SettingWidget"));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("success"));
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("error"));
+	}
+}
+
 //void UStartUpMenu::SettingButtonClicked()
 //{
 //	UClass* SettingWidgetClass = LoadClass<UUIBasePanel>(

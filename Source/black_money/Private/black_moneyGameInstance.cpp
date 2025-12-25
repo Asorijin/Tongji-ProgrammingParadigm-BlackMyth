@@ -3,6 +3,7 @@
 #include "black_moneyGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
+#include "FUIPanelManager.h"
 #include "CharacterConfig.h"
 
 void Ublack_moneyGameInstance::Init() {
@@ -15,5 +16,6 @@ void Ublack_moneyGameInstance::Init() {
     bIsFirstLaunch = true;
 }
 void Ublack_moneyGameInstance::Shutdown() {
+    FUIPanelManager::ClearAllPanels();
     UGameInstance::Shutdown();
 }

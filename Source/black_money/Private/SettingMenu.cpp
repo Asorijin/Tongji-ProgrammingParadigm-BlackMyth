@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Engine/Engine.h"
 #include "Engine/PostProcessVolume.h"
+#include "FUIPanelManager.h"
 #include "AudioMixerBlueprintLibrary.h"
 
 void USettingMenu::NativeConstruct()
@@ -51,8 +52,12 @@ void USettingMenu::NativeConstruct()
 
 void USettingMenu::QuitButtonClicked()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("Quit"));
-	RemoveFromViewport();
+    UWorld* World = GetWorld();
+    if (!World)
+    {
+        return;
+    }
+    FUIPanelManager::HidePanel(FString("SettingWidget"));
 }
 
 // 处理音量滑块值变化
