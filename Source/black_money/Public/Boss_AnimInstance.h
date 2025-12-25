@@ -10,8 +10,25 @@ class ABossEnemy;
 class UCharacterMovementComponent;
 
 /**
+ * Boss动画状态枚举
+ * 用于动画蓝图的Switch节点，按优先级排序
+ */
+UENUM(BlueprintType)
+enum class EBossAnimationState : uint8
+{
+	Default         = 0,    // 基础状态（Idle/Walk）
+	Phase1Attack    = 1,    // Phase1攻击
+	Phase2Attack    = 2,    // Phase2攻击
+	SkillWindup     = 3,    // 技能前摇
+	SkillAttack     = 4,    // 技能攻击
+	Hit             = 5,    // 受击
+	PhaseTransition = 6,    // 阶段转换（咆哮）
+	Death           = 7     // 死亡
+};
+
+/**
  * Boss动画实例类
- * 用于管理Boss怪物的动画状态，包括阶段、怒气值、技能状态等
+ * 用于管理Boss相关的动画状态，包括阶段、怒气值、技能状态等
  */
 UCLASS()
 class BLACK_MONEY_API UBoss_AnimInstance : public UAnimInstance
@@ -22,7 +39,7 @@ public:
 	// 初始化动画实例
 	virtual void NativeInitializeAnimation() override;
 
-	// 每帧更新动画数据
+	// 每帧更新动画变量
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 	// Boss角色指针
@@ -40,6 +57,14 @@ public:
 	// 是否正在攻击
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	bool bIsAttacking;
+
+	// 是否正在第一阶段攻击
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+	bool bIsPhase1Attacking;
+
+	// 是否正在第二阶段攻击
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+	bool bIsPhase2Attacking;
 
 	// 是否正在闪避
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
@@ -64,5 +89,16 @@ public:
 	// 怒气值百分比（0.0 - 1.0）
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Boss")
 	float RagePercentage;
-};
 
+	// 当前动画状态（用于动画蓝图的Switch节点）
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Boss")
+	EBossAnimationState CurrentAnimationState = EBossAnimationState::Default;
+
+	// 当前动画状态（整数形式，用于动画蓝图的整数比较，0=Default, 1=Phase1Attack, 2=Phase2Attack, 3=SkillWindup, 4=SkillAttack, 5=Hit, 6=PhaseTransition, 7=Death）
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Boss")
+	int32 CurrentAnimationStateInt = 0;
+
+	// 获取当前动画状态（根据优先级判断）
+	UFUNCTION(BlueprintCallable, Category = "Boss Animation")
+	EBossAnimationState GetCurrentAnimationState() const;
+};

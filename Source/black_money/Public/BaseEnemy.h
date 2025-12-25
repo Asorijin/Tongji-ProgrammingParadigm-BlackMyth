@@ -10,7 +10,7 @@
 class USphereComponent;
 /**
  * 受击状态枚举
- * 必须在.generated.h之前定义，以便UE反射系统识别
+ * 定义在.generated.h之前，以便UE反射系统识别
  */
 UENUM(BlueprintType)
 enum class EEnemyHitState : uint8
@@ -38,9 +38,9 @@ enum class EEnemyAIState : uint8
 #include "BaseEnemy.generated.h"
 
 /**
- * 怪物基类
- * 所有怪物的基类，提供通用功能
- * 继承自ACharacter以支持移动和动画
+ * 基础敌人类
+ * 所有敌人的基类，提供通用功能
+ * 继承自ACharacter，支持移动和动画
  */
 UCLASS()
 class BLACK_MONEY_API ABaseEnemy : public ACharacter
@@ -69,11 +69,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	USphereComponent* DetectionSphere;
 
-	// 交互触发器（球形碰撞）
+	// 交互触发器（球形碰撞体）
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USphereComponent* InteractionTrigger;
 
-	// 浮动 UI 组件
+	// 显示 UI 组件
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
 	UWidgetComponent* InteractionWidget;
 
@@ -84,20 +84,20 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Enemy")
 	UEnemyConfig* GetEnemyConfig() const { return EnemyConfig; }
 
-	// 受击处理（通过事件中心调用）
-	// 注意：重写基类APawn的age函数，但使用不同的参数类型
-	// 为了避免与基类函数冲突，我们使用ReceiveDamage作为主要接口
+	// 受伤害函数（通过事件中心调用）
+	// 注意：重写父类APawn的TakeDamage，使用不同的参数
+	// 为了避免与父类函数冲突，使用ReceiveDamage作为主要接口
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	virtual void ReceiveDamage(int32 DamageAmount, AActor* DamageCauser = nullptr);
 
-	// 重写基类的TakeDamage函数，内部调用ReceiveDamage
+	// 重写父类TakeDamage函数，在内部调用ReceiveDamage
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
-	// 死亡处理
+	// 死亡函数
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	virtual void Die();
 
-	// 检查是否死亡
+	// 判断是否死亡
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	bool IsDead() const;
 
@@ -105,14 +105,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	EEnemyHitState GetHitState() const { return CurrentHitState; }
 
-	// 检查是否处于受击硬直状态
+	// 判断是否处于受击硬直状态
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	bool IsInHitStun() const { return CurrentHitState == EEnemyHitState::Hit; }
 
-	// 检查是否无敌
+	// 判断是否无敌
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	bool IsInvulnerable() const { return CurrentHitState == EEnemyHitState::Invulnerable; }
-	// 鏄?鍚︽?ｅ湪鏀诲嚮锛堢粰鍔ㄧ敾钃濆浘 / AnimInstance 璇诲彇锛?
+	
+	// 是否正在攻击（给动画蓝图 / AnimInstance 读取）
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	bool IsAttacking() const { return bIsAttacking; }
 
@@ -120,21 +121,21 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Dodge")
 	bool IsDodging() const { return bIsDodging; }
 
-	// ========== AI系统相关方法 ==========
+	// ========== AI系统相关函数 ==========
 	
 	// 获取当前AI状态
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	EEnemyAIState GetAIState() const { return CurrentAIState; }
 
-	// 设置AI状态（内部使用，子类可重写）
+	// 设置AI状态（内部使用，可被重写）
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	virtual void SetAIState(EEnemyAIState NewState);
 
-	// 检查是否在攻击范围内
+	// 判断是否在攻击范围内
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	bool IsPlayerInAttackRange() const;
 
-	// 检查是否检测到玩家
+	// 判断是否检测到玩家
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	bool IsPlayerDetected() const;
 
@@ -142,7 +143,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	class ACharacter* GetPlayerCharacter() const;
 
-	// ========== 攻击系统相关方法 ==========
+	// ========== 攻击系统相关函数 ==========
 	
 	/**
 	 * 执行攻击判定（由动画通知调用）
@@ -152,8 +153,8 @@ public:
 	virtual void PerformAttack();
 
 	/**
-	 * 开始攻击（播放攻击动画）
-	 * @return 是否成功开始攻击（如果正在冷却中则返回false）
+	 * 开始攻击，播放攻击动画
+	 * @return 是否成功开始攻击（攻击动画未设置或冷却中则返回false）
 	 */
 	virtual bool StartAttack();
 
@@ -162,7 +163,7 @@ public:
 	 */
 	bool CanAttack() const;
 
-	// ========== 闪避系统相关方法 ==========
+	// ========== 闪避系统相关函数 ==========
 	
 	/**
 	 * 判断是否可以闪避
@@ -177,7 +178,7 @@ public:
 	bool ShouldDodge() const;
 
 	/**
-	 * 执行闪避（播放闪避动画并执行闪避移动）
+	 * 执行闪避，播放闪避动画并执行闪避移动
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Dodge")
 	void PerformDodge();
@@ -204,10 +205,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	float InvulnerableDuration = 0.5f;
 
-	// 受击硬直计时器
+	// 受击硬直定时器
 	FTimerHandle HitStunTimerHandle;
 
-	// 无敌状态计时器
+	// 无敌状态定时器
 	FTimerHandle InvulnerableTimerHandle;
 
 	// ========== AI系统相关成员 ==========
@@ -220,7 +221,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	class ACharacter* PlayerCharacter = nullptr;
 
-	// AI更新间隔（秒，避免每帧都更新，优化性能）
+	// AI更新间隔（秒），不要每帧更新，优化性能
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	float AIUpdateInterval = 0.1f;
 
@@ -247,29 +248,29 @@ protected:
 
 
 	/**
-	 * 获取攻击范围内的受击目标（便捷方法，默认查找Player标签）
-	 * 参考角色类的GetNearbyObjectsWithTag方法实现
-	 * @param AttackRange 攻击范围半径（如果<=0，则使用AttackRangeSphere的半径）
-	 * @return 攻击范围内的受击对象列表（默认查找"Player"标签）
+	 * 获取攻击范围内的可攻击目标（根据标签，默认查找Player标签）
+	 * 参考角色类的GetNearbyObjectsWithTag实现
+	 * @param AttackRange 攻击范围半径（如果<=0则使用AttackRangeSphere的半径）
+	 * @return 攻击范围内的可攻击目标列表（默认查找"Player"标签）
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	TArray<AActor*> GetAttackTargetsInRange(float AttackRange = 0.0f) const;
 
 	/**
-	 * 获取攻击范围内的受击目标（完整版本，C++内部使用）
-	 * @param AttackRange 攻击范围半径（如果<=0，则使用AttackRangeSphere的半径）
+	 * 获取攻击范围内的可攻击目标（扩展版本，C++内部使用）
+	 * @param AttackRange 攻击范围半径（如果<=0则使用AttackRangeSphere的半径）
 	 * @param TargetTags 目标标签列表
-	 * @return 攻击范围内的受击对象列表
+	 * @return 攻击范围内的可攻击目标列表
 	 */
 	TArray<AActor*> GetAttackTargetsInRangeWithTags(float AttackRange, const TArray<FName>& TargetTags) const;
 
-	// ========== AI系统内部方法 ==========
+	// ========== AI系统内部函数 ==========
 	
 	// 更新AI状态（在Tick中调用）
 	virtual void UpdateAI(float DeltaTime);
 
 	// 检测玩家（在DetectionSphere范围内）
-	// 注意：此方法会更新PlayerCharacter引用，所以不是const
+	// 注意：此方法会设置PlayerCharacter引用，所以不是const
 	virtual bool DetectPlayer();
 
 	// 计算到玩家的距离
@@ -281,22 +282,22 @@ protected:
 	// 停止移动
 	void StopMovement();
 
-	// 状态切换逻辑（根据当前情况决定下一个状态）
+	// 状态切换逻辑，根据当前情况决定下一个状态
 	virtual EEnemyAIState DetermineNextState() const;
 
 	/**
-	 * 攻击动画播放完成回调
+	 * 攻击蒙太奇结束回调
 	 */
 	UFUNCTION()
 	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
-	// 重叠开始时调用
+	// 重叠开始时回调
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 		bool bFromSweep, const FHitResult& SweepResult);
 
-	// 重叠结束时调用
+	// 重叠结束时回调
 	UFUNCTION()
 	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
@@ -312,13 +313,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	bool bIsAttacking = false;
 
-	// 攻击冷却计时器
+	// 攻击冷却定时器
 	FTimerHandle AttackCooldownTimer;
 
 	// 当前攻击冷却剩余时间（用于调试和UI显示）
 	float AttackCooldownRemaining = 0.0f;
 
-	// 本次攻击中已命中的目标（防止同一攻击动画中重复判定）
+	// 本次攻击动画中已命中的目标（防止同一攻击动画中重复判定）
 	UPROPERTY()
 	TArray<AActor*> AlreadyHitTargetsInThisAttack;
 
@@ -366,20 +367,19 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dodge")
 	float DodgeCooldown = 2.0f;
 
-	// 闪避计时器
+	// 闪避定时器
 	FTimerHandle DodgeTimerHandle;
 
-	// 闪避冷却计时器
+	// 闪避冷却定时器
 	FTimerHandle DodgeCooldownTimerHandle;
 
 	// 闪避蒙太奇结束回调
 	UFUNCTION()
 	void OnDodgeMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
-	// 结束闪避（备用方法）
+	// 结束闪避（调用父类）
 	void EndDodge();
 
 	// 闪避冷却结束回调
 	void OnDodgeCooldownEnd();
 };
-
