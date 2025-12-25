@@ -10,7 +10,7 @@
 #include "Misc/FileHelper.h"
 #include "Engine/DamageEvents.h" 
 
-// 鍓嶅悜澹版槑锛岄伩鍏嶅惊鐜緷璧?
+// 前向声明，避免循环依赖
 class Ablack_moneyCharacter;
 
 UEventCenter::UEventCenter() {
@@ -39,7 +39,7 @@ float UEventCenter::MakeDamage(
 		return 0.f;
 	}
 
-	// 濡傛灉娌′紶鎺у埗鍣紝鑰?DamageCauser 鏄?Pawn锛屽氨鑷姩鍙栧叾 Controller
+	// 如果没有传控制器，且DamageCauser是Pawn，就自动获取Controller
 	if (!EventInstigator && DamageCauser)
 	{
 		if (APawn* PawnCauser = Cast<APawn>(DamageCauser))
@@ -50,17 +50,17 @@ float UEventCenter::MakeDamage(
 
 	
 	FDamageEvent DamageEvent;
-	// 璁剧疆浼ゅ绫诲瀷
+	// 设置伤害类型
 	DamageEvent.DamageTypeClass = DamageTypeClass ? DamageTypeClass : TSubclassOf<UDamageType>(UDamageType::StaticClass());
 
-	// 璋冪敤 Actor 鐨?TakeDamage
+	// 调用 Actor 的 TakeDamage
 	const float ActualDamage = DamagedActor->TakeDamage(
 		DamageAmount,
 		DamageEvent,
 		EventInstigator,
 		DamageCauser);
 
-	// 杈撳嚭鏃ュ織
+	// 输出日志
 	if (ActualDamage > 0.f)
 	{
 		UE_LOG(LogTemp, Log, TEXT("EventCenter::MakeDamage - %s took %f damage from %s"),
@@ -83,7 +83,7 @@ void UEventCenter::GetTools(AActor* tool, int toolNumber) {
 		}
 	}
 	else {
-		// 鍏朵粬绫诲瀷宸ュ叿鐨勫鐞?
+		// 其他类型工具的处理
 	}
 	tool->Destroy();
 }
