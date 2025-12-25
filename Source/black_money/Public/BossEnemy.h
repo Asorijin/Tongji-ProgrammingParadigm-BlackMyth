@@ -50,7 +50,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Combat")
 	UAnimMontage* Phase2AttackMontage = nullptr;
 
-	// 咆哮动画（阶段转换）
+	// 咆哮动画（阶段转换用）
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Combat")
 	UAnimMontage* RoarMontage = nullptr;
 
@@ -79,7 +79,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Boss Rage")
 	float CurrentRageValue = 0.0f;
 
-	// 最大怒气值（达到此值触发技能）
+	// 最大怒气值（达到此值可触发技能）
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Rage", meta = (ClampMin = "1.0"))
 	float MaxRageValue = 100.0f;
 
@@ -121,12 +121,12 @@ protected:
 	FTimerHandle SkillCooldownTimerHandle;
 
 public:
-	// ========== 重写父类方法 ==========
+	// ========== 重写父类函数 ==========
 	
-	// 重写受伤害函数，添加怒气值积攒
+	// 重写受伤害函数，添加怒气值系统
 	virtual void ReceiveDamage(int32 DamageAmount, AActor* DamageCauser = nullptr) override;
 
-	// 重写攻击函数，根据阶段使用不同的攻击动画和伤害
+	// 重写执行攻击函数，根据阶段使用不同的攻击力和伤害
 	virtual void PerformAttack() override;
 
 	// 重写开始攻击函数，根据阶段选择不同的攻击动画
@@ -135,9 +135,9 @@ public:
 	// 重写攻击蒙太奇结束回调（不需要UFUNCTION宏，继承父类的UFUNCTION）
 	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
-	// ========== Boss特有方法 ==========
+	// ========== Boss专用函数 ==========
 	
-	// 获取是否正在使用技能（供动画实例使用）
+	// 获取是否正在使用技能（用于动画蓝图实际使用）
 	UFUNCTION(BlueprintCallable, Category = "Boss Skill")
 	bool IsUsingSkill() const { return bIsUsingSkill; }
 
@@ -145,7 +145,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Boss Phase")
 	EBossPhase GetCurrentPhase() const { return CurrentPhase; }
 
-	// 检查并处理阶段转换
+	// 检查并触发阶段转换
 	UFUNCTION(BlueprintCallable, Category = "Boss Phase")
 	void CheckPhaseTransition();
 
@@ -161,7 +161,7 @@ public:
 	UFUNCTION()
 	void OnRoarMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
-	// ========== 怒气值系统方法 ==========
+	// ========== 怒气值系统函数 ==========
 	
 	// 获取当前怒气值
 	UFUNCTION(BlueprintCallable, Category = "Boss Rage")
@@ -174,6 +174,14 @@ public:
 	// 增加怒气值
 	UFUNCTION(BlueprintCallable, Category = "Boss Rage")
 	void AddRageValue(float Amount);
+
+	// 获取技能前摇蒙太奇（用于动画蓝图判断）
+	UFUNCTION(BlueprintCallable, Category = "Boss Skill")
+	UAnimMontage* GetSkillWindupMontage() const { return SkillWindupMontage; }
+
+	// 获取技能攻击蒙太奇（用于动画蓝图判断）
+	UFUNCTION(BlueprintCallable, Category = "Boss Skill")
+	UAnimMontage* GetSkillAttackMontage() const { return SkillAttackMontage; }
 
 	// 检查是否可以释放技能
 	UFUNCTION(BlueprintCallable, Category = "Boss Skill")
@@ -191,7 +199,7 @@ public:
 	UFUNCTION()
 	void OnSkillAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
-	// 执行技能伤害判定（在技能动画的特定帧调用）
+	// 执行技能伤害判定（在技能动画特定帧调用）
 	UFUNCTION(BlueprintCallable, Category = "Boss Skill")
 	void PerformSkillAttack();
 
@@ -214,7 +222,7 @@ public:
 	void TickHealthRegen();
 
 protected:
-	// AI更新函数（重写以处理阶段和技能逻辑）
+	// AI更新函数，重写以处理阶段和技能逻辑
 	virtual void UpdateAI(float DeltaTime) override;
 
 	// 获取当前阶段对应的攻击蒙太奇
@@ -223,4 +231,3 @@ protected:
 	// 获取当前阶段对应的攻击伤害
 	int32 GetCurrentPhaseAttackDamage() const;
 };
-
