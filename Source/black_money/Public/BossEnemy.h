@@ -54,19 +54,19 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Combat")
 	UAnimMontage* RoarMontage = nullptr;
 
-	// 第二阶段粒子效果资源（用于配置）
+	// 第二阶段粒子效果资源（在蓝图中配置）
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Combat")
 	UParticleSystem* Phase2ParticleEffect = nullptr;
 
-	// 第二阶段粒子效果组件（持续播放）
+	// 第二阶段粒子效果组件（运行时使用）
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Boss Combat")
 	class UParticleSystemComponent* Phase2ParticleComponent = nullptr;
 
-	// 第二阶段攻击伤害倍率（相对于基础攻击力）
+	// 第二阶段攻击伤害倍数（相对于基础攻击力）
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Combat", meta = (ClampMin = "1.0"))
 	float Phase2AttackMultiplier = 1.5f;
 
-	// 第二阶段生命回复速度（每秒回复的生命值）
+	// 第二阶段生命回复速度（每秒回复生命值）
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Combat", meta = (ClampMin = "0.0"))
 	float HealthRegenRate = 5.0f;
 
@@ -79,7 +79,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Boss Rage")
 	float CurrentRageValue = 0.0f;
 
-	// 最大怒气值（达到此值可触发技能）
+	// 最大怒气值（达到此值可释放技能）
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Rage", meta = (ClampMin = "1.0"))
 	float MaxRageValue = 100.0f;
 
@@ -101,11 +101,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Boss Skill")
 	bool bIsUsingSkill = false;
 
-	// 技能伤害（独立于普通攻击）
+	// 技能伤害（通常高于普通攻击）
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Skill", meta = (ClampMin = "0.0"))
 	int32 SkillDamage = 50;
 
-	// 技能攻击范围（跳跃落地后的伤害范围）
+	// 技能攻击范围（跳跃落地点伤害范围）
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Skill", meta = (ClampMin = "0.0"))
 	float SkillAttackRange = 300.0f;
 
@@ -123,13 +123,13 @@ protected:
 public:
 	// ========== 重写父类函数 ==========
 	
-	// 重写受伤害函数，添加怒气值系统
+	// 重写接收伤害函数，增加怒气值系统
 	virtual void ReceiveDamage(int32 DamageAmount, AActor* DamageCauser = nullptr) override;
 
-	// 重写执行攻击函数，根据阶段使用不同的攻击力和伤害
+	// 重写执行攻击函数，根据阶段使用不同的攻击伤害
 	virtual void PerformAttack() override;
 
-	// 重写开始攻击函数，根据阶段选择不同的攻击动画
+	// 重写开始攻击函数，根据阶段选择不同的攻击蒙太奇
 	virtual bool StartAttack() override;
 
 	// 重写攻击蒙太奇结束回调（不需要UFUNCTION宏，继承父类的UFUNCTION）
@@ -137,7 +137,7 @@ public:
 
 	// ========== Boss专用函数 ==========
 	
-	// 获取是否正在使用技能（用于动画蓝图实际使用）
+	// 获取是否正在使用技能（用于动画蓝图实现使用）
 	UFUNCTION(BlueprintCallable, Category = "Boss Skill")
 	bool IsUsingSkill() const { return bIsUsingSkill; }
 
@@ -145,7 +145,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Boss Phase")
 	EBossPhase GetCurrentPhase() const { return CurrentPhase; }
 
-	// 检查并触发阶段转换
+	// 检查并处理阶段转换
 	UFUNCTION(BlueprintCallable, Category = "Boss Phase")
 	void CheckPhaseTransition();
 
@@ -230,4 +230,7 @@ protected:
 
 	// 获取当前阶段对应的攻击伤害
 	int32 GetCurrentPhaseAttackDamage() const;
+
+	// 重写CanAttack，检查当前阶段的攻击蒙太奇
+	virtual bool CanAttack() const override;
 };

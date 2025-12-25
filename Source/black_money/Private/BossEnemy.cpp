@@ -15,19 +15,19 @@
 ABossEnemy::ABossEnemy(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	// Boss初始化：更大的碰撞体、更远的检测范围
+	// Boss初始化：设置碰撞体大小、较大的检测范围
 	GetCapsuleComponent()->InitCapsuleSize(60.0f, 120.0f);
 	
-	// 设置移动速度：Boss移动速度适中
+	// 设置移动速度，Boss移动速度较慢
 	GetCharacterMovement()->MaxWalkSpeed = 120.0f;
 	
-	// 设置更大的攻击范围
+	// 设置父类的攻击范围
 	if (AttackRangeSphere)
 	{
 		AttackRangeSphere->SetSphereRadius(200.0f);
 	}
 	
-	// 设置更大的检测范围
+	// 设置父类的检测范围
 	if (DetectionSphere)
 	{
 		DetectionSphere->SetSphereRadius(1500.0f);
@@ -56,9 +56,9 @@ ABossEnemy::ABossEnemy(const FObjectInitializer& ObjectInitializer)
 	SkillCooldown = 10.0f;
 	SkillCooldownRemaining = 0.0f;
 
-	// 配置闪避系统参数：Boss不闪避（将闪避概率设为0）
-	DodgeProbability = 0.0f;      // 0%闪避概率（Boss不闪避）
-	DodgeRange = 300.0f;           // 检测玩家攻击的范围
+	// 配置闪避系统，Boss不闪避，将闪避概率设为0
+	DodgeProbability = 0.0f;      // 0%闪避概率，Boss不闪避
+	DodgeRange = 300.0f;           // 闪避玩家的范围
 	DodgeStrength = 800.0f;       // 闪避时的移动力度
 	DodgeDuration = 0.3f;         // 闪避动画持续时间
 	DodgeCooldown = 2.0f;         // 闪避冷却时间
@@ -76,14 +76,14 @@ void ABossEnemy::BeginPlay()
 	// 配置Boss的EnemyConfig属性
 	if (EnemyConfig)
 	{
-		// Boss属性：高血量、高攻击、高防御
+		// Boss属性：高血量、高攻击力、高防御
 		EnemyConfig->MaxHp = 500;
 		EnemyConfig->CurrentHp = 500;
-		EnemyConfig->Attack = 25;      // 高攻击力，第一阶段25点，第二阶段37.5点（约38点）
+		EnemyConfig->Attack = 25;      // 高攻击力：第一阶段25点，第二阶段37.5点（约38点）
 		EnemyConfig->Defence = 10;     // 高防御力
 
 		// 配置移动速度和攻击速度，以及攻击范围
-		EnemyConfig->MoveSpeed = 120.0f;       // 适中的移动速度
+		EnemyConfig->MoveSpeed = 120.0f;       // 较慢的移动速度
 		EnemyConfig->AttackSpeed = 0.8f;       // 每秒1.25次攻击
 		EnemyConfig->AttackRange = 200.0f;     // 较大的攻击范围
 		EnemyConfig->DetectionRange = 1500.0f; // 很大的检测范围
@@ -98,11 +98,11 @@ void ABossEnemy::BeginPlay()
 		GetCharacterMovement()->MaxWalkSpeed = EnemyConfig ? EnemyConfig->MoveSpeed : 120.0f;
 	}
 
-	// 配置第二阶段粒子效果组件
+	// 配置第二阶段粒子效果资源
 	if (Phase2ParticleComponent && Phase2ParticleEffect)
 	{
 		Phase2ParticleComponent->SetTemplate(Phase2ParticleEffect);
-		// 粒子组件初始不激活，等待进入第二阶段
+		// 粒子效果初始不激活，等待进入第二阶段
 	}
 
 	// 初始化阶段
@@ -131,10 +131,10 @@ void ABossEnemy::Tick(float DeltaTime)
 
 void ABossEnemy::ReceiveDamage(int32 DamageAmount, AActor* DamageCauser)
 {
-	// 调用父类的受伤害函数
+	// 调用父类的伤害处理
 	Super::ReceiveDamage(DamageAmount, DamageCauser);
 
-	// 如果已经死亡或处于无敌状态，不积攒怒气
+	// 如果已经死亡或处于无敌状态，不增加怒气
 	if (bIsDead || CurrentHitState == EEnemyHitState::Invulnerable)
 	{
 		// 如果死亡，停止第二阶段粒子效果
@@ -146,7 +146,7 @@ void ABossEnemy::ReceiveDamage(int32 DamageAmount, AActor* DamageCauser)
 		return;
 	}
 
-	// 积攒怒气值（根据受到的伤害）
+	// 增加怒气值（每次受到伤害时）
 	float RageGain = DamageAmount * RagePerDamage;
 	AddRageValue(RageGain);
 
@@ -156,7 +156,7 @@ void ABossEnemy::ReceiveDamage(int32 DamageAmount, AActor* DamageCauser)
 
 void ABossEnemy::PerformAttack()
 {
-	// 如果已经死亡、处于受击硬直或正在使用技能，不执行攻击
+	// 如果已经死亡、正在受击硬直、正在使用技能，不执行攻击
 	if (bIsDead || CurrentHitState == EEnemyHitState::Hit || bIsUsingSkill)
 	{
 		return;
@@ -249,7 +249,7 @@ bool ABossEnemy::StartAttack()
 
 	if (PlayTime > 0.0f)
 	{
-		// 设置蒙太奇结束委托（使用lambda包装protected成员函数）
+		// 绑定蒙太奇结束委托，使用lambda包装protected成员函数
 		FOnMontageEnded MontageEndedDelegate;
 		MontageEndedDelegate.BindLambda([this](UAnimMontage* Montage, bool bInterrupted)
 		{
@@ -270,13 +270,13 @@ bool ABossEnemy::StartAttack()
 
 void ABossEnemy::CheckPhaseTransition()
 {
-	// 如果已经在第二阶段或正在转换，不需要检查
+	// 如果已经在第二阶段或阶段转换中，不需要检查
 	if (CurrentPhase == EBossPhase::Phase2 || CurrentPhase == EBossPhase::PhaseTransition)
 	{
 		return;
 	}
 
-	// 检查生命值是否低于50%
+	// 检查血量是否低于50%
 	if (EnemyConfig && EnemyConfig->GetHealthPercentage() <= 0.5f)
 	{
 		EnterPhase2();
@@ -295,7 +295,7 @@ void ABossEnemy::EnterPhase2()
 	// 设置阶段为转换中
 	CurrentPhase = EBossPhase::PhaseTransition;
 
-	// 停止当前所有动作
+	// 停止当前的所有动作
 	StopMovement();
 	if (bIsAttacking)
 	{
@@ -339,7 +339,7 @@ void ABossEnemy::PlayRoarAnimation()
 	float PlayTime = AnimInstance->Montage_Play(RoarMontage, 1.0f);
 	if (PlayTime > 0.0f)
 	{
-		// 设置蒙太奇结束委托
+		// 绑定蒙太奇结束委托
 		FOnMontageEnded MontageEndedDelegate;
 		MontageEndedDelegate.BindUObject(this, &ABossEnemy::OnRoarMontageEnded);
 		AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, RoarMontage);
@@ -360,7 +360,7 @@ void ABossEnemy::OnRoarMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	CurrentPhase = EBossPhase::Phase2;
 	StartHealthRegen();
 
-	// 启动第二阶段粒子效果（持续播放）
+	// 激活第二阶段粒子效果（持续播放）
 	if (Phase2ParticleComponent)
 	{
 		Phase2ParticleComponent->Activate();
@@ -386,7 +386,7 @@ void ABossEnemy::AddRageValue(float Amount)
 
 bool ABossEnemy::CanUseSkill() const
 {
-	// 检查条件：怒气值满、不在冷却、不在使用技能、不在受击硬直
+	// 需要怒气值满、技能冷却结束才能使用技能，不能受击硬直
 	return CurrentRageValue >= MaxRageValue 
 		&& SkillCooldownRemaining <= 0.0f 
 		&& !bIsUsingSkill 
@@ -407,7 +407,7 @@ void ABossEnemy::UseSkill()
 	bIsUsingSkill = true;
 	CurrentRageValue = 0.0f; // 清空怒气值
 
-	// 停止当前所有动作
+	// 停止当前的所有动作
 	StopMovement();
 	if (bIsAttacking)
 	{
@@ -423,7 +423,7 @@ void ABossEnemy::UseSkill()
 		bIsAttacking = false;
 	}
 
-	// 开始技能冷却（在前摇阶段就开始冷却）
+	// 开始技能冷却（前摇阶段就开始冷却）
 	SkillCooldownRemaining = SkillCooldown;
 	if (GetWorld())
 	{
@@ -443,7 +443,7 @@ void ABossEnemy::UseSkill()
 		float PlayTime = AnimInstance->Montage_Play(SkillWindupMontage, 1.0f);
 		if (PlayTime > 0.0f)
 		{
-			// 设置前摇蒙太奇结束委托
+			// 绑定前摇蒙太奇结束委托
 			FOnMontageEnded MontageEndedDelegate;
 			MontageEndedDelegate.BindUObject(this, &ABossEnemy::OnSkillWindupMontageEnded);
 			AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, SkillWindupMontage);
@@ -478,7 +478,7 @@ void ABossEnemy::OnSkillWindupMontageEnded(UAnimMontage* Montage, bool bInterrup
 		return;
 	}
 
-	// 前摇动画结束，播放攻击动画
+	// 前摇结束，播放技能攻击动画
 	if (!SkillAttackMontage)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Boss %s: SkillAttackMontage is null, ending skill"), *GetName());
@@ -492,7 +492,7 @@ void ABossEnemy::OnSkillWindupMontageEnded(UAnimMontage* Montage, bool bInterrup
 		float PlayTime = AnimInstance->Montage_Play(SkillAttackMontage, 1.0f);
 		if (PlayTime > 0.0f)
 		{
-			// 设置攻击蒙太奇结束委托
+			// 绑定攻击蒙太奇结束委托
 			FOnMontageEnded MontageEndedDelegate;
 			MontageEndedDelegate.BindUObject(this, &ABossEnemy::OnSkillAttackMontageEnded);
 			AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, SkillAttackMontage);
@@ -563,7 +563,7 @@ void ABossEnemy::StartHealthRegen()
 		return;
 	}
 
-	// 每秒回复一次生命值
+	// 每秒执行一次生命回复
 	if (GetWorld())
 	{
 		GetWorld()->GetTimerManager().SetTimer(
@@ -607,7 +607,7 @@ void ABossEnemy::TickHealthRegen()
 
 void ABossEnemy::UpdateAI(float DeltaTime)
 {
-	// 如果正在使用技能或处于阶段转换，不更新AI
+	// 如果正在使用技能或在阶段转换中，不更新AI
 	if (bIsUsingSkill || CurrentPhase == EBossPhase::PhaseTransition)
 	{
 		return;
@@ -648,3 +648,36 @@ void ABossEnemy::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	Super::OnAttackMontageEnded(Montage, bInterrupted);
 }
 
+bool ABossEnemy::CanAttack() const
+{
+	// 先调用父类的检查（检查死亡、受击状态、冷却等）
+	// 但需要跳过AttackMontage的检查，因为Boss使用Phase1AttackMontage和Phase2AttackMontage
+	// 所以我们手动检查这些条件
+	
+	// 检查死亡和受击状态
+	if (bIsDead || CurrentHitState == EEnemyHitState::Hit)
+	{
+		return false;
+	}
+
+	// 检查攻击冷却
+	if (GetWorld() && GetWorld()->GetTimerManager().IsTimerActive(AttackCooldownTimer))
+	{
+		return false;
+	}
+
+	// Boss特殊检查：如果正在使用技能，不能攻击
+	if (bIsUsingSkill)
+	{
+		return false;
+	}
+
+	// 检查当前阶段的攻击蒙太奇是否存在
+	UAnimMontage* CurrentAttackMontage = GetCurrentPhaseAttackMontage();
+	if (!CurrentAttackMontage)
+	{
+		return false;
+	}
+
+	return true;
+}
