@@ -33,6 +33,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trigger")
 	bool bOnlyAffectPlayer = true;
 
+
+	// ÇÐ»»ÔÝÍ£×´Ì¬µÄº¯Êý
+	void TogglePause();
+	// ÏÔÊ¾/Òþ²ØÔÝÍ£UI
+	void ShowPauseMenu(bool bShow);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -41,6 +47,11 @@ private:
 	
 	UAudioComponent* CurrentMusicComponent;
 
+
+	// ÔÝÍ£UIÊµÀý
+	UUserWidget* PauseMenuIns;
+	// ¼ÇÂ¼µ±Ç°ÊÇ·ñÔÝÍ£
+	bool bIsPaused;
 };
 
 

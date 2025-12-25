@@ -18,7 +18,9 @@ Ablack_moneyGameMode::Ablack_moneyGameMode()
 	}
 
 	StartUpMenuIns = nullptr;
-	StatusBarIns = nullptr;  // 新增：初始化状态栏UI变量
+	StatusBarIns = nullptr;
+	PauseMenuIns = nullptr;
+	bIsPaused = false;
 }
 
 void Ablack_moneyGameMode::BeginPlay()
@@ -35,7 +37,7 @@ void Ablack_moneyGameMode::BeginPlay()
 				StartUpMenuIns = CreateWidget(PC, CustomWidgetClass);
 				if (StartUpMenuIns)
 				{
-					StartUpMenuIns->AddToViewport();
+					StartUpMenuIns->AddToViewport(10);
 					// 暂停世界
 					UGameplayStatics::SetGamePaused(GetWorld(), true);
 					// 设置输入模式为仅UI（确保能点击按钮）
@@ -103,6 +105,59 @@ void Ablack_moneyGameMode::ShowStatusBar()
 			}
 		}
 	}
+}
+
+void Ablack_moneyGameMode::ShowPauseMenu(bool bShow)
+{
+	if (bShow)
+	{
+		// 加载暂停UI（替换为你的暂停UI蓝图路径）
+		if (UClass* PauseMenuClass = LoadClass<UUserWidget>(nullptr, TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/BP_PauseMenu.BP_PauseMenu_C'")))
+		{
+			if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+			{
+				PauseMenuIns = CreateWidget(PC, PauseMenuClass);
+				if (PauseMenuIns)
+				{
+					PauseMenuIns->AddToViewport();
+					// 暂停世界
+					UGameplayStatics::SetGamePaused(GetWorld(), true);
+					// 设置输入模式为仅UI（确保能点击按钮）
+					PC->SetInputMode(FInputModeUIOnly());
+					PC->bShowMouseCursor = true; // 显示鼠标光标
+				}
+			}
+		}
+	}
+	else
+	{
+		// 隐藏暂停UI
+		if (PauseMenuIns)
+		{
+			PauseMenuIns->RemoveFromViewport();
+			PauseMenuIns = nullptr;
+		}
+		// 恢复输入模式为游戏+UI（允许角色控制）
+		if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+		{
+			PC->SetInputMode(FInputModeGameAndUI());
+			PC->bShowMouseCursor = false;
+		}
+	}
+}
+
+void Ablack_moneyGameMode::TogglePause()
+{
+	bIsPaused = !bIsPaused;
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		// 切换游戏暂停状态
+		UGameplayStatics::SetGamePaused(World, bIsPaused);
+		// 显示/隐藏暂停UI
+		ShowPauseMenu(bIsPaused);
+	}
+
 }
 
 void Ablack_moneyGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) {

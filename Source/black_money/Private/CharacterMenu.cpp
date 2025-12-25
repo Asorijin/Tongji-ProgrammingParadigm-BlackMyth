@@ -76,7 +76,7 @@ void UCharacterMenu::UpdateCooldownDisplay()
     if (RemainingCooldown > 0.0f)
     {
         // 保留两位小数显示
-        CooldownText = FString::Printf(TEXT("%.2fs"), RemainingCooldown);
+        CooldownText = FString::Printf(TEXT("%.1f"), RemainingCooldown);
     }
 
     // 设置文本内容
