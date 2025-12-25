@@ -63,6 +63,11 @@ class Ablack_moneyCharacter : public ACharacter
 	//绑定拾取道具动作
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* PickUpAction;
+
+
+	// 新增：暂停功能的输入动作
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* PauseAction;
 public:
 	Ablack_moneyCharacter();
 
@@ -136,6 +141,9 @@ public:
 private:
 	// 内部检查是否能放技能
 	bool CanCastEarthQuake() const;
+
+	// 处理暂停输入的函数
+	void HandlePauseInput();
 public:
 	// 真正结算震地伤害（可在 AnimNotify 里调用）
 	UFUNCTION(BlueprintCallable, Category = "Skill")
