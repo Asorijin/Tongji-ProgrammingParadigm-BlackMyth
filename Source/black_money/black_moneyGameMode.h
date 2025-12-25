@@ -48,9 +48,14 @@ private:
 	
 	UAudioComponent* CurrentMusicComponent;
 
-
 	// 暂停UI实例
-	UUserWidget* PauseMenuIns;
+	//UUserWidget* PauseMenuIns;
+
+	 UPROPERTY()
+	UClass* PauseMenuClass; // 避免重复加载Class
+	UPROPERTY()
+	UUIBasePanel* PauseMenuIns; // 确保PauseMenuIns是类成员变量
+
 	// 记录当前是否暂停
 	bool bIsPaused;
 };
