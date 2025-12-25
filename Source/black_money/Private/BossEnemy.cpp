@@ -18,6 +18,9 @@ ABossEnemy::ABossEnemy(const FObjectInitializer& ObjectInitializer)
 	// Boss初始化：更大的碰撞体、更远的检测范围
 	GetCapsuleComponent()->InitCapsuleSize(60.0f, 120.0f);
 	
+	// 设置移动速度：Boss移动速度适中
+	GetCharacterMovement()->MaxWalkSpeed = 120.0f;
+	
 	// 设置更大的攻击范围
 	if (AttackRangeSphere)
 	{
@@ -53,6 +56,13 @@ ABossEnemy::ABossEnemy(const FObjectInitializer& ObjectInitializer)
 	SkillCooldown = 10.0f;
 	SkillCooldownRemaining = 0.0f;
 
+	// 配置闪避系统参数：Boss不闪避（将闪避概率设为0）
+	DodgeProbability = 0.0f;      // 0%闪避概率（Boss不闪避）
+	DodgeRange = 300.0f;           // 检测玩家攻击的范围
+	DodgeStrength = 800.0f;       // 闪避时的移动力度
+	DodgeDuration = 0.3f;         // 闪避动画持续时间
+	DodgeCooldown = 2.0f;         // 闪避冷却时间
+
 	// 创建第二阶段粒子效果组件
 	Phase2ParticleComponent = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Phase2ParticleComponent"));
 	Phase2ParticleComponent->SetupAttachment(RootComponent);
@@ -63,17 +73,29 @@ void ABossEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// 确保Boss有足够的生命值
+	// 配置Boss的EnemyConfig属性
 	if (EnemyConfig)
 	{
-		// Boss应该有更高的生命值，这里可以根据需要调整
-		// 如果EnemyConfig已经在蓝图中设置，则使用蓝图中的值
-		if (EnemyConfig->MaxHp <= 100)
-		{
-			EnemyConfig->MaxHp = 500; // 默认Boss生命值
-			EnemyConfig->CurrentHp = 500;
-		}
+		// Boss属性：高血量、高攻击、高防御
+		EnemyConfig->MaxHp = 500;
+		EnemyConfig->CurrentHp = 500;
+		EnemyConfig->Attack = 25;      // 高攻击力，第一阶段25点，第二阶段37.5点（约38点）
+		EnemyConfig->Defence = 10;     // 高防御力
+
+		// 配置移动速度和攻击速度，以及攻击范围
+		EnemyConfig->MoveSpeed = 120.0f;       // 适中的移动速度
+		EnemyConfig->AttackSpeed = 0.8f;       // 每秒1.25次攻击
+		EnemyConfig->AttackRange = 200.0f;     // 较大的攻击范围
+		EnemyConfig->DetectionRange = 1500.0f; // 很大的检测范围
+
+		// 初始化EnemyConfig，确保当前血量不超过最大血量
 		EnemyConfig->Initialize();
+	}
+
+	// 同步移动速度到角色移动组件
+	if (GetCharacterMovement())
+	{
+		GetCharacterMovement()->MaxWalkSpeed = EnemyConfig ? EnemyConfig->MoveSpeed : 120.0f;
 	}
 
 	// 配置第二阶段粒子效果组件

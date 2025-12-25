@@ -3,6 +3,7 @@
 
 #include "PauseMenu.h"
 #include "Components/Button.h"
+#include "FUIPanelManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerController.h"
 #include "StartUpMenu.h"
@@ -50,33 +51,35 @@ void UPauseMenu::ContinueButtonClicked()
             PC->bShowMouseCursor = false; // 隐藏鼠标
         }
 
-        // 关闭暂停菜单
-        if (IsInViewport())
-        {
-            RemoveFromViewport();
-        }
+        // 通过面板管理器隐藏暂停菜单
+        FUIPanelManager::HidePanel(FString("PauseMenu"));
     }
 }
 
 void UPauseMenu::SettingButtonClicked()
 {
-    // 完全仿照StartUpMenu的设置按钮逻辑
-    if (UClass* SettingWidgetClass = LoadClass<UUserWidget>(
+    // 通过面板管理器加载并显示设置菜单
+    UClass* SettingWidgetClass = LoadClass<UUIBasePanel>(
         nullptr,
-        TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/BP_SettingMenu.BP_SettingMenu_C'")))
+        TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/BP_SettingMenu.BP_SettingMenu_C'")
+    );
+
+    if (!SettingWidgetClass)
     {
-        if (APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0))
-        {
-            UUserWidget* SettingMenuIns = CreateWidget(PC, SettingWidgetClass);
-            if (SettingMenuIns)
-            {
-                SettingMenuIns->AddToViewport();
-            }
-        }
+        return;
     }
-    else
+
+    UWorld* World = GetWorld();
+    if (!World)
     {
-        GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("未找到设置菜单资源，请检查路径"));
+        return;
+    }
+
+    // 获取或创建设置面板实例并显示
+    UUIBasePanel* PSettingPanelIns = FUIPanelManager::GetOrCreatePanel(World, SettingWidgetClass, FString("PSettingWidget"));
+    if (PSettingPanelIns)
+    {
+        FUIPanelManager::ShowPanel(World, SettingWidgetClass, FString("PSettingWidget"));
     }
 }
 
@@ -84,35 +87,35 @@ void UPauseMenu::QuitButtonClicked()
 {
     if (UWorld* World = GetWorld())
     {
-        // 关闭当前暂停菜单
-        if (IsInViewport())
+        // 通过面板管理器隐藏暂停菜单
+        FUIPanelManager::HidePanel(FString("PauseMenu"));
+
+        // 显示启动菜单
+        UClass* StartUpMenuClass = LoadClass<UStartUpMenu>(
+            nullptr,
+            TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/BP_StartUpMenu.BP_StartUpMenu_C'")
+        );
+
+        if (!StartUpMenuClass)
         {
-            RemoveFromViewport();
+            return;
         }
 
-        // 显示开始菜单
-        if (UClass* StartUpMenuClass = LoadClass<UStartUpMenu>(
-            nullptr,
-            TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/BP_StartUpMenu.BP_StartUpMenu_C'"))) // 请替换为你的StartUpMenu蓝图路径
+        if (APlayerController* PC = World->GetFirstPlayerController())
         {
-            if (APlayerController* PC = World->GetFirstPlayerController())
+            // 切换输入模式为UI模式
+            PC->SetInputMode(FInputModeUIOnly());
+            PC->bShowMouseCursor = true;
+
+            // 通过面板管理器获取或创建启动菜单并显示
+            UUIBasePanel* StartUpPanelIns = FUIPanelManager::GetOrCreatePanel(World, StartUpMenuClass, FString("StartUpMenu"));
+            if (StartUpPanelIns)
             {
-                // 切换输入模式为UI模式
-                PC->SetInputMode(FInputModeUIOnly());
-                PC->bShowMouseCursor = true;
-                // 创建并显示开始菜单
-                UStartUpMenu* StartUpMenuIns = CreateWidget<UStartUpMenu>(PC, StartUpMenuClass);
-                if (StartUpMenuIns)
-                {
-                    StartUpMenuIns->AddToViewport();
-                }
-                // 确保游戏处于暂停状态（开始菜单通常需要暂停游戏）
-                UGameplayStatics::SetGamePaused(World, true);
+                FUIPanelManager::ShowPanel(World, StartUpMenuClass, FString("StartUpMenu"));
             }
-        }
-        else
-        {
-            GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("未找到开始菜单资源，请检查路径"));
+
+            // 确保游戏处于暂停状态
+            UGameplayStatics::SetGamePaused(World, true);
         }
     }
 }
