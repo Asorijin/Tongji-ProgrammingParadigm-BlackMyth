@@ -12,6 +12,7 @@
 #include "InputActionValue.h"
 #include"Animation/AnimMontage.h"
 #include "ToolHp.h"
+#include "ToolMp.h"
 #include "LandTemple.h"
 #include "black_moneyGameInstance.h"
 #include "Components/BoxComponent.h"
@@ -623,6 +624,7 @@ void Ablack_moneyCharacter::Tick(float deltaTime) {
 void Ablack_moneyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason) {
 	characterConfig->WriteConfigData();
 	EventCenter->WriteLastState();
+	nearbyInteraction.Empty();
 	ACharacter::EndPlay(EndPlayReason);
 }
 TArray<AActor*> Ablack_moneyCharacter::GetNearbyObjectsWithTag(TArray<FName> tagNames, float radius) const {
@@ -698,20 +700,19 @@ const UCharacterConfig* Ablack_moneyCharacter::ShareCharacterConfig() {
 
 void Ablack_moneyCharacter::TriggerNearByInteractions() {
 	AActor* firstObject;
+	UE_LOG(LogTemp, Log, TEXT("Now Object Name: '%d' "), nearbyInteraction.Num());
 	if (nearbyInteraction.Num())
 		firstObject = *nearbyInteraction.begin();
 	else
 		return;
+	
 	if (firstObject->IsA(AToolHp::StaticClass())) {
-		Cast<Ublack_moneyGameInstance>(GetGameInstance())->GetEventCenter()->GetTools(firstObject,1);
 		nearbyInteraction.Remove(firstObject);
-		firstObject->Destroy();
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(
-				-1, 1.0f, FColor::Cyan,
-				TEXT("Get A ToolHp"));
-		}
+		Cast<Ublack_moneyGameInstance>(GetGameInstance())->GetEventCenter()->GetTools(firstObject,1);
+	}
+	else if (firstObject->IsA(AToolMp::StaticClass())) {
+		nearbyInteraction.Remove(firstObject);
+		Cast<Ublack_moneyGameInstance>(GetGameInstance())->GetEventCenter()->GetTools(firstObject, 1);
 	}
 	else if (firstObject->IsA(ALandTemple::StaticClass())) {
 
@@ -730,6 +731,29 @@ void Ablack_moneyCharacter::TriggerNearByInteractions() {
 		EventCenter->SwitchToLevel();
 	}
 	
+}
+
+void Ablack_moneyCharacter::UseToolHp() {
+	if (EventCenter->UseTools(Cast<AToolHp>(AToolHp::StaticClass()))) {
+		
+		if (characterConfig->_hp + 10 > characterConfig->GetMaxHp()) {
+			characterConfig->_hp =characterConfig->GetMaxHp();
+		}
+		else {
+			characterConfig->_hp += 10;
+		}
+	}
+}
+
+void Ablack_moneyCharacter::UseToolMp() {
+	if (EventCenter->UseTools(Cast<AToolMp>(AToolMp::StaticClass()))) {
+		if (characterConfig->_mp + 10 > characterConfig->GetMaxMp()) {
+			characterConfig->_mp = characterConfig->GetMaxMp();
+		}
+		else {
+			characterConfig->_mp += 10;
+		}
+	}
 }
 
 float Ablack_moneyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -869,7 +893,7 @@ FName Ablack_moneyCharacter::GetHitSectionNameForCauser(const AActor* Victim, co
 		return SectionName;
 	}
 
-	void Ablack_moneyCharacter::HandleDeath()
+void Ablack_moneyCharacter::HandleDeath()
 	{
 		// 已经处理过死亡就不再重复
 		if (bIsDead)

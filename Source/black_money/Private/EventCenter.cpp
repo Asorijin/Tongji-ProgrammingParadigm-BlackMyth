@@ -4,6 +4,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "BaseEnemy.h"
 #include "ToolHp.h"
+#include "ToolMp.h"
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
 #include "Json.h"
@@ -71,19 +72,38 @@ float UEventCenter::MakeDamage(
 
 	return ActualDamage;
 }
-void UEventCenter::UseTools(AActor* tool) {
-
+bool UEventCenter::UseTools(AActor* tool) {
+	if (UWorld* world = GetWorld()) {
+		if (tool->IsA(AToolHp::StaticClass())&&toolsNumber.hpTools > 0) {
+			toolsNumber.hpTools -= 1;
+			return true;
+		}
+		else if (tool->IsA(AToolMp::StaticClass()) && toolsNumber.mpTools > 0) {
+			toolsNumber.mpTools -= 1;
+			return true;
+		}
+	}
+	return false;
 }
 
 void UEventCenter::GetTools(AActor* tool, int toolNumber) {
 	if (tool->IsA(AToolHp::StaticClass())) {
-		if (toolsNumber.hpTools)
+		toolsNumber.hpTools += 1;
+		if (GEngine)
 		{
-			toolsNumber.hpTools += 1;
+			GEngine->AddOnScreenDebugMessage(
+				-1, 1.0f, FColor::Cyan,
+				TEXT("Get A ToolHp"));
 		}
 	}
-	else {
-		// 其他类型工具的处理
+	else if(tool->IsA(AToolMp::StaticClass())){
+		toolsNumber.mpTools += 1;
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1, 1.0f, FColor::Cyan,
+				TEXT("Get A ToolMp"));
+		}
 	}
 	tool->Destroy();
 }
