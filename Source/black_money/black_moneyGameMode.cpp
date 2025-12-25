@@ -37,7 +37,7 @@ void Ablack_moneyGameMode::BeginPlay()
 				StartUpMenuIns = CreateWidget(PC, CustomWidgetClass);
 				if (StartUpMenuIns)
 				{
-					StartUpMenuIns->AddToViewport(10);
+					StartUpMenuIns->AddToViewport();
 					// 暂停世界
 					UGameplayStatics::SetGamePaused(GetWorld(), true);
 					// 设置输入模式为仅UI（确保能点击按钮）
