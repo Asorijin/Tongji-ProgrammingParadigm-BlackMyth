@@ -129,62 +129,6 @@ void Ablack_moneyGameMode::ShowStatusBar()
 	//	}
 	//}
 }
-
-/*
-void Ablack_moneyGameMode::ShowPauseMenu(bool bShow)
-{
-	UWorld* World = GetWorld();
-	if (!World)
-	{
-		return;
-	}
-	
-	if (bShow)
-	{
-		// 加载暂停菜单面板
-		UClass* PauseMenuClass = LoadClass<UUIBasePanel>(
-			nullptr,
-			TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/BP_PauseMenu.BP_PauseMenu_C'")
-		);
-
-		if (!PauseMenuClass)
-		{
-			return;
-		}
-
-		if (APlayerController* PC = World->GetFirstPlayerController())
-		{
-			// 获取/创建面板实例
-			PauseMenuIns = FUIPanelManager::GetOrCreatePanel(World, PauseMenuClass, FString("PauseMenu"));
-			if (PauseMenuIns)
-			{
-				FUIPanelManager::ShowPanel(World, PauseMenuClass, FString("PauseMenu"));
-				UGameplayStatics::SetGamePaused(World, true);
-				PC->SetInputMode(FInputModeUIOnly());
-				PC->bShowMouseCursor = true;
-			}
-		}
-	}
-	else
-	{
-		// 隐藏暂停菜单
-		if (PauseMenuIns)
-		{
-			FUIPanelManager::HidePanel(FString("PauseMenu"));
-			PauseMenuIns = nullptr;
-		}
-
-		// 恢复输入模式
-		if (APlayerController* PC = World->GetFirstPlayerController())
-		{
-			PC->SetInputMode(FInputModeGameAndUI());
-			PC->bShowMouseCursor = false;
-		}
-	}
-}
-*/
-
-
 void Ablack_moneyGameMode::ShowPauseMenu(bool bShow)
 {
 	UWorld* World = GetWorld();

@@ -762,7 +762,7 @@ void Ablack_moneyCharacter::TriggerNearByInteractions() {
 }
 
 void Ablack_moneyCharacter::UseToolHp() {
-	if (EventCenter->UseTools(Cast<AToolHp>(AToolHp::StaticClass()))) {
+	if (EventCenter->UseTools(AToolHp::StaticClass())) {
 		
 		if (characterConfig->_hp + 10 > characterConfig->GetMaxHp()) {
 			characterConfig->_hp =characterConfig->GetMaxHp();
@@ -774,7 +774,7 @@ void Ablack_moneyCharacter::UseToolHp() {
 }
 
 void Ablack_moneyCharacter::UseToolMp() {
-	if (EventCenter->UseTools(Cast<AToolMp>(AToolMp::StaticClass()))) {
+	if (EventCenter->UseTools(AToolMp::StaticClass())) {
 		if (characterConfig->_mp + 10 > characterConfig->GetMaxMp()) {
 			characterConfig->_mp = characterConfig->GetMaxMp();
 		}

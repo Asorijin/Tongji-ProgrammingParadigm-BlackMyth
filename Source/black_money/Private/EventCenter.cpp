@@ -72,13 +72,13 @@ float UEventCenter::MakeDamage(
 
 	return ActualDamage;
 }
-bool UEventCenter::UseTools(AActor* tool) {
+bool UEventCenter::UseTools(UClass* tool) {
 	if (UWorld* world = GetWorld()) {
-		if (tool->IsA(AToolHp::StaticClass())&&toolsNumber.hpTools > 0) {
+		if (tool == AToolHp::StaticClass()&&toolsNumber.hpTools > 0) {
 			toolsNumber.hpTools -= 1;
 			return true;
 		}
-		else if (tool->IsA(AToolMp::StaticClass()) && toolsNumber.mpTools > 0) {
+		else if (tool == AToolMp::StaticClass() && toolsNumber.mpTools > 0) {
 			toolsNumber.mpTools -= 1;
 			return true;
 		}
