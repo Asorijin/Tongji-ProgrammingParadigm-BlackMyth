@@ -10,7 +10,7 @@ Ublack_moneyGameInstance::Ublack_moneyGameInstance()
 {
     // …Ë÷√ƒ¨»œ÷µ£®0-100∑∂Œß£©
     SavedVolume = 100.0f;
-    SavedBrightness = 100.0f;
+    SavedBrightness = 50.0f;
 }
 
 void Ublack_moneyGameInstance::Init() {
