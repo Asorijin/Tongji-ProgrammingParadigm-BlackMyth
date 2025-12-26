@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "EventCenter.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FToolsNumber {
 	GENERATED_USTRUCT_BODY()
 public:
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 hpTools = 0;
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 mpTools = 0;
 };
 
@@ -99,4 +99,9 @@ public:
 
 	void ReadActorsPosition(TArray<FVector>& OutMonsterPositions, TArray<FVector>& OutTempleLandPositions, const FString& ActorFilePath);
 
+	/**
+	 * 获取当前所有道具的数量信息
+	 */
+	UFUNCTION(BlueprintCallable, Category = "EventCenter|Tools")
+	const FToolsNumber& GetToolsNumber() const { return toolsNumber; }
 };

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "ToolHp.h"
+//#include "ToolHp.h"
 #include "CharacterConfig.generated.h"
 /**
  * 初步计划是Character类在初始化时使用该类（通过GameInstance间接，不可以直接Character类include该类）读取配置文件，初始化数值
