@@ -56,11 +56,8 @@ void UStartUpMenu::StartButtonClicked()
 
 		// 通过面板管理器隐藏启动菜单
 		FUIPanelManager::HidePanel(FString("StartUpMenu"));
+		this->RemoveFromViewport();
 
-		if (UGameViewportClient* ViewportClient = World->GetGameViewport())
-		{
-			ViewportClient->RemoveAllViewportWidgets();
-		}
 	}
 }
 

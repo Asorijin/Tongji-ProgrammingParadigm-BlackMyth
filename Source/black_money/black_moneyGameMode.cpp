@@ -202,7 +202,7 @@ void Ablack_moneyGameMode::ShowPauseMenu(bool bShow)
 		APlayerController* PC = World->GetFirstPlayerController();
 		if (PC)
 		{
-			// 恢复游戏暂停状态（核心修复！之前缺失这行导致崩溃）
+			// 恢复游戏暂停状态
 			UGameplayStatics::SetGamePaused(World, false);
 
 			// 恢复输入模式
