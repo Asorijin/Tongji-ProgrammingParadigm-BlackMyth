@@ -6,9 +6,14 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerController.h"
 #include "Engine/Engine.h"
+#include "Engine/World.h"
+#include "GameFramework/WorldSettings.h"
 #include "Engine/PostProcessVolume.h"
 #include "FUIPanelManager.h"
+#include "AudioDeviceManager.h"
+#include "AudioDevice.h"
 #include "AudioMixerBlueprintLibrary.h"
+#include "Sound/SoundClass.h"
 #include "black_moneyGameInstance.h"
 
 void USettingMenu::NativeConstruct()
@@ -52,6 +57,8 @@ void USettingMenu::NativeConstruct()
 
     // 从GameInstance加载保存的设置
     LoadSettingsFromGameInstance();
+
+    InitializeBrightness();
 }
 
 // 从GameInstance加载设置
@@ -103,8 +110,11 @@ void USettingMenu::OnVolumeSliderChanged(float NewValue)
         GameInstance->SetSavedVolume(NewValue);
     }
 
-    /*需要实现音量控制，以下代码错误*/
-    
+    float VolumeLevel = NewValue / 100.0f; // 转换为0-1范围
+    if (USoundClass* MasterSoundClass = LoadObject<USoundClass>(nullptr, TEXT("/Engine/EngineSounds/Master.Master")))
+    {
+        MasterSoundClass->Properties.Volume = VolumeLevel;
+    }
 }
 
 // 处理亮度滑块值变化
@@ -122,6 +132,41 @@ void USettingMenu::OnBrightnessSliderChanged(float NewValue)
         GameInstance->SetSavedBrightness(NewValue);
     }
 
-    /*需要实现亮度控制，以下代码错误*/
+    // 实际应用亮度到引擎（核心补充）
+    SetDisplayGamma(NewValue);
+}
 
+
+// 初始化亮度值（类似GammaWidget的Initialize）
+void USettingMenu::InitializeBrightness()
+{
+    if (GEngine)
+    {
+        // 从引擎获取当前伽马值并转换为滑块范围(0-100)
+        CurrentBrightness = (GEngine->DisplayGamma - 1.0f) / 4.0f * 100.0f;
+
+        // 同步滑块位置（如果亮度滑块存在）
+        if (BrightnessSlider)
+        {
+            BrightnessSlider->SetValue(CurrentBrightness);
+            OnBrightnessSliderChanged(CurrentBrightness);
+        }
+    }
+}
+
+// 设置显示伽马值（核心功能，类似GammaWidget的SetDisplayGamma）
+void USettingMenu::SetDisplayGamma(float InGamma)
+{
+    CurrentBrightness = InGamma;
+    if (GEngine)
+    {
+        // 将0-100的滑块值转换为引擎伽马值范围(1.0-5.0)
+        GEngine->DisplayGamma = 1.0f + (InGamma / 100.0f) * 4.0f;
+    }
+}
+
+// 获取当前亮度值（类似GammaWidget的GetDisplayGamma）
+float USettingMenu::GetDisplayGamma()
+{
+    return CurrentBrightness;
 }

@@ -88,7 +88,7 @@ void Ablack_moneyGameMode::BeginPlay()
 // 新增：实现显示状态栏的函数
 void Ablack_moneyGameMode::ShowStatusBar()
 {
-	// 加载并显示状态栏（请替换为你的状态栏蓝图路径）
+	// 暂时使用系统函数加载并显示状态栏
 	if (UClass* StatusBarClass = LoadClass<UUserWidget>(nullptr, TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/BP_CharacterMenu.BP_CharacterMenu_C'")))
 	{
 		if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
@@ -101,6 +101,8 @@ void Ablack_moneyGameMode::ShowStatusBar()
 		}
 	}
 
+	//// 别删！
+	//// 以下改用FUIPanelManager的方式实现，需要在之后替换
 	//// 使用PanelManager加载并显示状态条
 	//UClass* StatusBarClass = LoadClass<UUIBasePanel>(
 	//	nullptr,
@@ -129,6 +131,7 @@ void Ablack_moneyGameMode::ShowStatusBar()
 	//	}
 	//}
 }
+
 void Ablack_moneyGameMode::ShowPauseMenu(bool bShow)
 {
 	UWorld* World = GetWorld();
@@ -192,8 +195,8 @@ void Ablack_moneyGameMode::ShowPauseMenu(bool bShow)
 		if (PauseMenuIns && World)
 		{
 			FUIPanelManager::HidePanel(FString("PauseMenu"));
-			PauseMenuIns->RemoveFromParent();
-			PauseMenuIns = nullptr;
+			//PauseMenuIns->RemoveFromParent();
+			//PauseMenuIns = nullptr;
 		}
 
 		APlayerController* PC = World->GetFirstPlayerController();
@@ -216,7 +219,6 @@ void Ablack_moneyGameMode::ShowPauseMenu(bool bShow)
 		}
 	}
 }
-
 
 void Ablack_moneyGameMode::TogglePause()
 {

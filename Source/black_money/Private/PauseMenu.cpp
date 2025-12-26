@@ -15,6 +15,9 @@ void UPauseMenu::NativeConstruct()
     // 绑定继续按钮
     if (UButton* ContinueButton = CastChecked<UButton>(GetWidgetFromName(FName("Btn_Continue"))))
     {
+        // 先清除当前对象在该按钮上的所有现有绑定，避免重复绑定
+        ContinueButton->OnClicked.RemoveAll(this);
+
         FScriptDelegate ContinueDelegate;
         ContinueDelegate.BindUFunction(this, "ContinueButtonClicked");
         ContinueButton->OnClicked.Add(ContinueDelegate);
@@ -23,6 +26,9 @@ void UPauseMenu::NativeConstruct()
     // 绑定退出按钮（返回开始界面）
     if (UButton* QuitButton = CastChecked<UButton>(GetWidgetFromName(FName("Btn_PQuit"))))
     {
+        // 先清除当前对象在该按钮上的所有现有绑定
+        QuitButton->OnClicked.RemoveAll(this);
+
         FScriptDelegate QuitDelegate;
         QuitDelegate.BindUFunction(this, "QuitButtonClicked");
         QuitButton->OnClicked.Add(QuitDelegate);
@@ -31,6 +37,9 @@ void UPauseMenu::NativeConstruct()
     // 绑定设置按钮
     if (UButton* SetButton = CastChecked<UButton>(GetWidgetFromName(FName("Btn_PSetting"))))
     {
+        // 先清除当前对象在该按钮上的所有现有绑定
+        SetButton->OnClicked.RemoveAll(this);
+
         FScriptDelegate SetDelegate;
         SetDelegate.BindUFunction(this, "SettingButtonClicked");
         SetButton->OnClicked.Add(SetDelegate);

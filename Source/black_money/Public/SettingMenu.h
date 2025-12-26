@@ -41,4 +41,22 @@ private:
 
 	// 声明加载设置的函数（新增）
 	void LoadSettingsFromGameInstance();
+
+	// 添加新变量：用于控制亮度的后处理体积
+	UPROPERTY(EditAnywhere, Category = "Brightness")
+	class APostProcessVolume* PostProcessVolume;
+
+
+	// 当前亮度值（存储状态）
+	UPROPERTY()
+	float CurrentBrightness;
+
+	// 设置显示伽马值的辅助函数
+	void SetDisplayGamma(float InGamma);
+
+	// 获取当前亮度值（可选，便于外部读取）
+	float GetDisplayGamma();
+
+	// 从引擎初始化亮度值
+	void InitializeBrightness();
 };

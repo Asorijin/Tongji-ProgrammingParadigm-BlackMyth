@@ -132,9 +132,7 @@ void Ablack_moneyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 		EnhancedInputComponent->BindAction(SkillEarthQuakeAction,ETriggerEvent::Started,this,&Ablack_moneyCharacter::CastEarthQuake);
 		//绑定F键->拾取道具
 		EnhancedInputComponent->BindAction(PickUpAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::TriggerNearByInteractions);
-	
-	
-		// 绑定P键到暂停处理函数（"Pause"与输入映射名称一致）
+		// 绑定ESC和P键到暂停处理函数
 		EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::HandlePauseInput);
 		//绑定1键使用血量道具
 		EnhancedInputComponent->BindAction(UseHealthItemAction, ETriggerEvent::Started, this, &Ablack_moneyCharacter::UseToolHp);
