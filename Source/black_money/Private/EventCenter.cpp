@@ -10,6 +10,7 @@
 #include "Json.h"
 #include "Misc/FileHelper.h"
 #include "Engine/DamageEvents.h" 
+#include "FUIPanelManager.h"
 
 // 前向声明，避免循环依赖
 class Ablack_moneyCharacter;
@@ -112,6 +113,8 @@ void UEventCenter::SwitchToLevel() {
 
 	if (UWorld* World = GetWorld())
 	{
+		FUIPanelManager::ClearAllPanels();
+
 		FString PIEMapName = GetWorld()->GetMapName();
 		FString RawMapName = PIEMapName;
 

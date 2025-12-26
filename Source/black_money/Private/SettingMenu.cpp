@@ -6,9 +6,14 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerController.h"
 #include "Engine/Engine.h"
+#include "Engine/World.h"
+#include "GameFramework/WorldSettings.h"
 #include "Engine/PostProcessVolume.h"
 #include "FUIPanelManager.h"
+#include "AudioDeviceManager.h"
+#include "AudioDevice.h"
 #include "AudioMixerBlueprintLibrary.h"
+#include "Sound/SoundClass.h"
 #include "black_moneyGameInstance.h"
 
 void USettingMenu::NativeConstruct()
@@ -103,8 +108,11 @@ void USettingMenu::OnVolumeSliderChanged(float NewValue)
         GameInstance->SetSavedVolume(NewValue);
     }
 
-    /*需要实现音量控制，以下代码错误*/
-    
+    float VolumeLevel = NewValue / 100.0f; // 转换为0-1范围
+    if (USoundClass* MasterSoundClass = LoadObject<USoundClass>(nullptr, TEXT("/Engine/EngineSounds/Master.Master")))
+    {
+        MasterSoundClass->Properties.Volume = VolumeLevel;
+    }
 }
 
 // 处理亮度滑块值变化

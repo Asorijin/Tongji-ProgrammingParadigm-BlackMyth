@@ -49,8 +49,18 @@ void UStartUpMenu::StartButtonClicked()
 			PC->SetInputMode(FInputModeGameOnly());
 			PC->bShowMouseCursor = false;
 		}
+
+		//// 直接操作当前面板实例进行隐藏（关键修改）
+		//this->SetVisibility(ESlateVisibility::Collapsed); // 隐藏面板
+		//this->RemoveFromViewport(); // 从视口移除（确保不占用绘制资源）
+
 		// 通过面板管理器隐藏启动菜单
 		FUIPanelManager::HidePanel(FString("StartUpMenu"));
+
+		if (UGameViewportClient* ViewportClient = World->GetGameViewport())
+		{
+			ViewportClient->RemoveAllViewportWidgets();
+		}
 	}
 }
 
