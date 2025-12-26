@@ -19,6 +19,8 @@
 #include "Animation/AnimMontage.h"
 #include "UIEnemyHp.h"
 #include "black_money/black_moneyCharacter.h"
+#include "ToolHp.h"
+#include "ToolMp.h"
 
 ABaseEnemy::ABaseEnemy(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -286,6 +288,37 @@ void ABaseEnemy::Die()
 		{
 			AnimInstance->Montage_Play(DeathMontage, 1.0f);
 			UE_LOG(LogTemp, Log, TEXT("Enemy %s playing death animation"), *GetName());
+		}
+	}
+
+	// 掉落道具：随机从 ToolHp 和 ToolMp 中选择一个
+	if (GetWorld())
+	{
+		// 获取怪物死亡位置
+		FVector DeathLocation = GetActorLocation();
+		FRotator DeathRotation = FRotator::ZeroRotator;
+		
+		// 随机选择道具类型（0或1）
+		int32 RandomChoice = FMath::RandRange(0, 1);
+		
+		AActor* SpawnedTool = nullptr;
+		if (RandomChoice == 0)
+		{
+			// 生成 ToolHp（回血道具）
+			SpawnedTool = GetWorld()->SpawnActor<AToolHp>(DeathLocation, DeathRotation);
+			UE_LOG(LogTemp, Log, TEXT("Enemy %s dropped ToolHp at location %s"), *GetName(), *DeathLocation.ToString());
+		}
+		else
+		{
+			// 生成 ToolMp（回蓝道具）
+			SpawnedTool = GetWorld()->SpawnActor<AToolMp>(DeathLocation, DeathRotation);
+			UE_LOG(LogTemp, Log, TEXT("Enemy %s dropped ToolMp at location %s"), *GetName(), *DeathLocation.ToString());
+		}
+		
+		// 检查是否成功生成道具
+		if (!SpawnedTool)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Failed to spawn tool at enemy death location for %s"), *GetName());
 		}
 	}
 
