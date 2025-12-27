@@ -5,6 +5,7 @@
 #include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
 #include "black_money/black_moneyGameMode.h"
+#include "black_moneyGameInstance.h"
 #include "GameFramework/PlayerController.h"
 #include "FUIPanelManager.h"
 
@@ -41,6 +42,7 @@ void UStartUpMenu::StartButtonClicked()
 	// 恢复世界运行
 	if (UWorld* World = GetWorld())
 	{
+
 		UGameplayStatics::SetGamePaused(World, false);
 
 		// 设置输入模式为游戏模式
@@ -50,17 +52,11 @@ void UStartUpMenu::StartButtonClicked()
 			PC->bShowMouseCursor = false;
 		}
 
-		//// 直接操作当前面板实例进行隐藏（关键修改）
-		//this->SetVisibility(ESlateVisibility::Collapsed); // 隐藏面板
-		//this->RemoveFromViewport(); // 从视口移除（确保不占用绘制资源）
-
 		// 通过面板管理器隐藏启动菜单
 		FUIPanelManager::HidePanel(FString("StartUpMenu"));
 
-		if (UGameViewportClient* ViewportClient = World->GetGameViewport())
-		{
-			ViewportClient->RemoveAllViewportWidgets();
-		}
+		Cast<Ublack_moneyGameInstance>(GetGameInstance())->GetEventCenter()->ReadLastState();
+		Cast<Ublack_moneyGameInstance>(GetGameInstance())->GetEventCenter()->SwitchToLevel();
 	}
 }
 
@@ -71,9 +67,6 @@ void UStartUpMenu::QuitButtonClicked()
 	if (UWorld* World = GetWorld())
 	{
 		UGameplayStatics::SetGamePaused(World, true);
-
-		// 清理所有面板实例
-		FUIPanelManager::ClearAllPanels();
 
 		// 设置输入模式为仅UI（确保能操作UI）
 		if (APlayerController* PC = World->GetFirstPlayerController())

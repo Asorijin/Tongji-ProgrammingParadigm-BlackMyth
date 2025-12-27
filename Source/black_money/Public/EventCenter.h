@@ -35,7 +35,7 @@ private:
 	FVector pawnLastLocation = FVector();
 	
 	// 角色最后关�?
-	FString levelName = TEXT("/Game/ThirdPerson/Maps/Midgardr_Free");
+	FString levelName = TEXT("/Game/ThirdPerson/Maps/ThirdPersonMap");
 
 
 	// 工具数量统计
@@ -60,6 +60,7 @@ public:
 	 * @return 返回保存的角色位�?
 	 */
 	const FVector GetSpawnLocation();
+	const FString GetLevelName();
 	void SetLevelAndLocation(FString levelName, FVector location);
 	/**
 	 * 造成伤害（类�?UGameplayStatics::ApplyDamage�?
@@ -97,6 +98,6 @@ public:
 
 	void ReadLastState();
 
-	void ReadActorsPosition(TArray<FVector>& OutMonsterPositions, TArray<FVector>& OutTempleLandPositions, const FString& ActorFilePath);
+	void ReadActorsPosition(TArray<FVector>& OutMonsterPositions, const FString& ActorFilePath);
 
 };

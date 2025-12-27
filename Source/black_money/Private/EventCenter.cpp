@@ -21,12 +21,29 @@ UEventCenter::UEventCenter() {
 
 void UEventCenter::GenerateActors() {
 
-	TArray<FVector> monsterPositions, templeLandPositions;
+	TArray<FVector> monsterPositions;
 
-	FString nowPath = ActorsfilePath / FPaths::GetBaseFilename(levelName) / TEXT("ActororPosition.txt");
+	FString nowPath = ActorsfilePath / FPaths::GetBaseFilename(levelName) / TEXT("ActorPosition.txt");
 
-	ReadActorsPosition(monsterPositions, templeLandPositions,nowPath);
+	ReadActorsPosition(monsterPositions,nowPath);
 
+	UClass* Monster1 = LoadClass<AActor>(
+		nullptr,
+		TEXT("/Game/Enemies/BP_Archer.BP_Archer_C")
+	);
+	UClass* Monster2 = LoadClass<AActor>(
+		nullptr,
+		TEXT("/Game/Enemies/BP_Tank.BP_Tank_C")
+	);
+	UClass* Monster3 = LoadClass<AActor>(
+		nullptr,
+		TEXT("/Game/Enemies/BP_TestEnemy.BP_TestEnemy_C")
+	);
+	TArray<UClass*> Monsters = { Monster1,Monster2,Monster3 };
+	for (auto monsterPosition : monsterPositions) {
+		int32 RandomIndex = FMath::RandRange(0, 2);
+		GetWorld()->SpawnActor<ACharacter>(Monsters[RandomIndex], monsterPosition,FRotator());
+	}
 }
 
 float UEventCenter::MakeDamage(
@@ -113,8 +130,6 @@ void UEventCenter::SwitchToLevel() {
 
 	if (UWorld* World = GetWorld())
 	{
-		FUIPanelManager::ClearAllPanels();
-
 		FString PIEMapName = GetWorld()->GetMapName();
 		FString RawMapName = PIEMapName;
 
@@ -144,6 +159,9 @@ void UEventCenter::SwitchToLevel() {
 
 const FVector UEventCenter::GetSpawnLocation() {
     return pawnLastLocation;
+}
+const FString UEventCenter::GetLevelName() {
+	return levelName;
 }
 void UEventCenter::SetLevelAndLocation(FString name, FVector location) {
 	levelName = name;
@@ -229,11 +247,9 @@ void UEventCenter::ReadLastState() {
 	UE_LOG(LogTemp, Log, TEXT("Successfully Read lastState from: %s"), *filePath);
 }
 
-void UEventCenter::ReadActorsPosition(TArray<FVector>& OutMonsterPositions, TArray<FVector>& OutTempleLandPositions, const FString& ActorFilePath)
+void UEventCenter::ReadActorsPosition(TArray<FVector>& OutMonsterPositions,const FString& ActorFilePath)
 {
-	// 清空输出数组（可选，根据需求）
 	OutMonsterPositions.Empty();
-	OutTempleLandPositions.Empty();
 
 	// 检查文件是否存在
 	if (!FPlatformFileManager::Get().GetPlatformFile().FileExists(*ActorFilePath))
@@ -285,29 +301,4 @@ void UEventCenter::ReadActorsPosition(TArray<FVector>& OutMonsterPositions, TArr
 		}
 	}
 
-	if (TSharedPtr<FJsonValue> TempleLandsValue = JsonObject->TryGetField("TempleLands"))
-	{
-		if (TempleLandsValue->Type == EJson::Array)
-		{
-			const TArray<TSharedPtr<FJsonValue>>& TempleLandsArray = TempleLandsValue->AsArray();
-			for (const TSharedPtr<FJsonValue>& Element : TempleLandsArray)
-			{
-				if (Element.IsValid() && Element->Type == EJson::Object)
-				{
-					TSharedPtr<FJsonObject> LocObj = Element->AsObject();
-					FVector Pos;
-					Pos.X = LocObj->GetNumberField("X");
-					Pos.Y = LocObj->GetNumberField("Y");
-					Pos.Z = LocObj->GetNumberField("Z");
-					OutTempleLandPositions.Add(Pos);
-				}
-			}
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("'TempleLands' field is not an array!"));
-		}
-	}
-	UE_LOG(LogTemp, Log, TEXT("Loaded %d monsters and %d temple lands from %s"),
-		OutMonsterPositions.Num(), OutTempleLandPositions.Num(), *ActorFilePath);
 }
