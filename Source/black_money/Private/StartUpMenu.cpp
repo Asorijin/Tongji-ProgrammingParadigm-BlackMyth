@@ -54,7 +54,6 @@ void UStartUpMenu::StartButtonClicked()
 
 		// 通过面板管理器隐藏启动菜单
 		FUIPanelManager::HidePanel(FString("StartUpMenu"));
-		this->RemoveFromViewport();
 
 		Cast<Ublack_moneyGameInstance>(GetGameInstance())->GetEventCenter()->ReadLastState();
 		Cast<Ublack_moneyGameInstance>(GetGameInstance())->GetEventCenter()->SwitchToLevel();
