@@ -143,7 +143,7 @@ void USettingMenu::InitializeBrightness()
     if (GEngine)
     {
         // 从引擎获取当前伽马值并转换为滑块范围(0-100)
-        CurrentBrightness = (GEngine->DisplayGamma - 1.0f) / 4.0f * 100.0f;
+        CurrentBrightness = (GEngine->DisplayGamma - 1.2f) / 2.0f * 100.0f;
 
         // 同步滑块位置（如果亮度滑块存在）
         if (BrightnessSlider)
@@ -161,7 +161,7 @@ void USettingMenu::SetDisplayGamma(float InGamma)
     if (GEngine)
     {
         // 将0-100的滑块值转换为引擎伽马值范围(1.0-5.0)
-        GEngine->DisplayGamma = 1.0f + (InGamma / 100.0f) * 4.0f;
+        GEngine->DisplayGamma = 1.2f + (InGamma / 100.0f) * 2.0f;
     }
 }
 

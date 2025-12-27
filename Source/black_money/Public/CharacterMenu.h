@@ -32,6 +32,13 @@ private:
     UPROPERTY(meta = (BindWidget))
     class UTextBlock* EarthQuakeCooldownText;
 
+    // 新增：HP药水数量文本控件（用于在蓝图中绑定UI）
+    UPROPERTY(meta = (BindWidget))
+    class UTextBlock* HpPotionCountText;
+
+    UPROPERTY(meta = (BindWidget))
+    class UTextBlock* MpPotionCountText;
+
     // 玩家角色引用
     Ablack_moneyCharacter* PlayerCharacter;
 
@@ -41,4 +48,8 @@ private:
     void UpdateManaDisplay();
 
     void UpdateCooldownDisplay();
+
+    // 新增：更新HP药水数量显示
+    void UpdateHpPotionCountDisplay();
+    void UpdateMpPotionCountDisplay();
 };
