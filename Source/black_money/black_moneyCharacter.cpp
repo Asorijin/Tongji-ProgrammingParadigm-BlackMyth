@@ -161,7 +161,10 @@ void Ablack_moneyCharacter::HandlePauseInput()
 
 void Ablack_moneyCharacter::Move(const FInputActionValue& Value)
 {
-	
+	if (bIsCastingSkill)
+	{
+		return;
+	}
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
 	
@@ -198,6 +201,10 @@ void Ablack_moneyCharacter::Look(const FInputActionValue& Value)
 }
 // 闪避功能
 void Ablack_moneyCharacter::Dodge() { 
+	if (bIsCastingSkill)
+	{
+		return;
+	}
 	// 检查是否可以闪避 
 	if (!CanDodge()) { return; }
 	// 进入闪避状态
@@ -266,6 +273,16 @@ void Ablack_moneyCharacter::EndDodge()
 
 void Ablack_moneyCharacter::Attack()
 {
+	//死亡状态不能攻击
+	if(bIsDead)
+	{
+		return;
+	}
+	//施法中不能攻击
+	if (bIsCastingSkill)
+	{
+		return;
+	}
 	// 闪避中不能攻击
 	if (bIsDodging)
 	{
@@ -460,6 +477,7 @@ void Ablack_moneyCharacter::CastEarthQuake()
 		}
 		return;
 	}
+	
 	// 标记进入“释放技能”状态
 	bIsCastingSkill = true;
 	// 扣蓝
@@ -725,6 +743,10 @@ const UCharacterConfig* Ablack_moneyCharacter::ShareCharacterConfig() {
 }
 
 void Ablack_moneyCharacter::TriggerNearByInteractions() {
+	if (bIsCastingSkill)
+	{
+		return;
+	}
 	AActor* firstObject;
 	UE_LOG(LogTemp, Log, TEXT("Now Object Name: '%d' "), nearbyInteraction.Num());
 	if (nearbyInteraction.Num())
@@ -760,6 +782,10 @@ void Ablack_moneyCharacter::TriggerNearByInteractions() {
 }
 
 void Ablack_moneyCharacter::UseToolHp() {
+	if (bIsCastingSkill)
+	{
+		return;
+	}
 	if (EventCenter->UseTools(AToolHp::StaticClass())) {
 		
 		if (characterConfig->_hp + 10 > characterConfig->GetMaxHp()) {
@@ -772,6 +798,11 @@ void Ablack_moneyCharacter::UseToolHp() {
 }
 
 void Ablack_moneyCharacter::UseToolMp() {
+	if (bIsCastingSkill)
+	{
+		return;
+	}
+
 	if (EventCenter->UseTools(AToolMp::StaticClass())) {
 		if (characterConfig->_mp + 10 > characterConfig->GetMaxMp()) {
 			characterConfig->_mp = characterConfig->GetMaxMp();
