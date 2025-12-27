@@ -35,17 +35,20 @@ void FUIPanelManager::ShowPanel(UWorld* World, TSubclassOf<UUIBasePanel> PanelCl
 
 void FUIPanelManager::HidePanel(FString ClassName)
 {
-    if (!ClassName.Len()) return;
-
+    UE_LOG(LogTemp, Warning, TEXT("Panel Now Num: %d"), PanelInstances.Num());
     if (UUIBasePanel** Found = PanelInstances.Find(ClassName))
     {
         if (*Found)
         {
             UE_LOG(LogTemp, Warning, TEXT("Hiding panel: %s"), *ClassName);
             (*Found)->SetVisibility(ESlateVisibility::Collapsed);
-            // (*Found)->NativeOnHide();
         }
-
+        else {
+            UE_LOG(LogTemp, Warning, TEXT("Not Hide panel: %s"), *ClassName);
+        }
+    }
+    else {
+        UE_LOG(LogTemp, Warning, TEXT("Not Find panel: %s"), *ClassName);
     }
 }
 

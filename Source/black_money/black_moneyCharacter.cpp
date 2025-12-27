@@ -560,17 +560,19 @@ void Ablack_moneyCharacter::DoEarthQuakeDamage()
 	}
 }
 void Ablack_moneyCharacter::BeginPlay() {
-
 	Super::BeginPlay();
-	characterConfig = NewObject<UCharacterConfig>();
-	characterConfig->Initialize();
 	// 获取事件中心
 	if (Ublack_moneyGameInstance* GI = Cast<Ublack_moneyGameInstance>(GetGameInstance()))
 	{
 		EventCenter = GI->GetEventCenter();
 	}
-	EventCenter->SwitchToLevel();
+	
+	characterConfig = NewObject<UCharacterConfig>();
+	characterConfig->Initialize();
+	
 	this->SetActorLocation(EventCenter->GetSpawnLocation());
+	FString PIEMapName = GetWorld()->GetMapName();
+	FString RawMapName = PIEMapName;
 
 	// 绑定武器碰撞盒重叠事件
 	if (WeaponHitBox)
@@ -583,6 +585,7 @@ void Ablack_moneyCharacter::BeginPlay() {
 	{
 		GameMode->ShowStatusBar();  // 启动菜单关闭后，才显示状态栏
 	}
+
 }
 
 void Ablack_moneyCharacter::Tick(float deltaTime) {
@@ -648,51 +651,21 @@ void Ablack_moneyCharacter::Tick(float deltaTime) {
 }
 
 void Ablack_moneyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason) {
-	characterConfig->WriteConfigData();
-	EventCenter->WriteLastState();
+	if (!bIsDead)
+	{
+		if (IsValid(characterConfig))
+		{
+			characterConfig->WriteConfigData();
+		}
+
+		if (IsValid(EventCenter))
+		{
+			EventCenter->WriteLastState();
+		}
+		bIsDead = false; 
+	}
 	nearbyInteraction.Empty();
 	ACharacter::EndPlay(EndPlayReason);
-}
-TArray<AActor*> Ablack_moneyCharacter::GetNearbyObjectsWithTag(TArray<FName> tagNames, float radius) const {
-
-	TArray<AActor*> result;
-
-	UWorld* world = GetWorld();
-	FVector sphereCenter = GetActorLocation();
-	TArray<TEnumAsByte<EObjectTypeQuery>> objectTypes = {
-			UEngineTypes::ConvertToObjectType(ECC_WorldStatic),
-			UEngineTypes::ConvertToObjectType(ECC_WorldDynamic),
-			UEngineTypes::ConvertToObjectType(ECC_Pawn),
-			UEngineTypes::ConvertToObjectType(ECC_PhysicsBody)
-	};
-
-	if (!world || radius <= 0.0f) {
-		return result;
-	}
-
-	TArray<AActor*> OverlappingActors;
-	UKismetSystemLibrary::SphereOverlapActors(
-		world,
-		sphereCenter,
-		radius,
-		objectTypes,
-		AActor::StaticClass(),  
-		{},
-		OverlappingActors
-	);
-
-	// 筛选带有指定标签的对象
-	for (AActor* Actor : OverlappingActors)
-	{
-		for (const FName tagName : tagNames) {
-			if (Actor && Actor->ActorHasTag(tagName))
-			{
-				result.Add(Actor);
-			}
-		}
-	}
-
-	return result;
 }
 
 void Ablack_moneyCharacter::ChangeMusic(FName musicName) {
@@ -746,10 +719,7 @@ void Ablack_moneyCharacter::TriggerNearByInteractions() {
 		UE_LOG(LogTemp, Log, TEXT("Now Object Name: '%s' "), *ActorName);
 
 		if (ActorName == FString("JumpToLevel1")) {
-			EventCenter->SetLevelAndLocation(TEXT("/Game/ThirdPerson/Maps/Midgardr_Free"), FVector(870,670,200));
-		}
-		else if (ActorName == FString("JumpToLevel0")) {
-			EventCenter->SetLevelAndLocation(TEXT("/Game/ThirdPerson/Maps/ThirdPersonMap"), FVector(1000, 1500, 100));
+			EventCenter->SetLevelAndLocation(TEXT("/Game/ThirdPerson/Maps/Midgardr_Free"), FVector(-330,3500,150));
 		}
 		else if (ActorName == FString("JumpToLevel2")) {
 			EventCenter->SetLevelAndLocation(TEXT("/Game/ThirdPerson/Maps/Demo_Scene"),FVector(1200,-3300,150));
@@ -978,7 +948,17 @@ void Ablack_moneyCharacter::HandleDeath()
 				TEXT("Player Dead"));
 		}
 
-		// 在这里触发 GameOver UI、切关、回到主菜单等
-		// 例如：Cast<Ublack_moneyGameInstance>(GetGameInstance())->OnPlayerDead();
+		FTimerDelegate TimerCallback;
+		FTimerHandle DelayTimerHandle;
+		TimerCallback.BindLambda([this]()
+			{
+				Ublack_moneyGameInstance* GI = Cast<Ublack_moneyGameInstance>(GetGameInstance());
+				GI->bIsFirstLaunch = true;
+				GI->GetEventCenter()->SetLevelAndLocation(TEXT("/Game/ThirdPerson/Maps/ThirdPersonMap"), FVector());
+				GI->GetEventCenter()->SwitchToLevel();
+			});
+
+		GetWorld()->GetTimerManager().SetTimer(DelayTimerHandle, TimerCallback, 5.0f, false);
+		
 	}
 

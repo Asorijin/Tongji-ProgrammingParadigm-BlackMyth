@@ -258,16 +258,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "State", meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* DeathMontage;
 	float DodgePlayRate = 1.0f;
-	//根据指定TAG获取周围物体
-	TArray<AActor*> GetNearbyObjectsWithTag(TArray<FName> tagNames, float radius) const;
 
-	//获取到的指定TAG物体
-	TArray<AActor*> nearbyObjects;
-
-	//目标物体的TAG
-	TArray<FName> searchTags = {FName("LandTemple")};
-
-	
 	//改变音乐
 	void ChangeMusic(FName musicName);
 
