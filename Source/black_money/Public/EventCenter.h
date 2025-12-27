@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "EventCenter.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FToolsNumber {
 	GENERATED_USTRUCT_BODY()
 public:
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 hpTools = 0;
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 mpTools = 0;
 };
 
@@ -35,7 +35,7 @@ private:
 	FVector pawnLastLocation = FVector();
 	
 	// 瑙掕壊鏈�鍚庡叧鍗?
-	FString levelName = TEXT("/Game/ThirdPerson/Maps/Midgardr_Free");
+	FString levelName = TEXT("/Game/ThirdPerson/Maps/ThirdPersonMap");
 
 
 	// 宸ュ叿鏁伴噺缁熻
@@ -60,6 +60,7 @@ public:
 	 * @return 杩斿洖淇濆瓨鐨勮鑹蹭綅缃?
 	 */
 	const FVector GetSpawnLocation();
+	const FString GetLevelName();
 	void SetLevelAndLocation(FString levelName, FVector location);
 	/**
 	 * 閫犳垚浼ゅ锛堢被浼?UGameplayStatics::ApplyDamage锛?
@@ -97,6 +98,11 @@ public:
 
 	void ReadLastState();
 
-	void ReadActorsPosition(TArray<FVector>& OutMonsterPositions, TArray<FVector>& OutTempleLandPositions, const FString& ActorFilePath);
+	void ReadActorsPosition(TArray<FVector>& OutMonsterPositions, const FString& ActorFilePath);
 
+	/**
+	 * 获取当前所有道具的数量信息
+	 */
+	UFUNCTION(BlueprintCallable, Category = "EventCenter|Tools")
+	const FToolsNumber& GetToolsNumber() const { return toolsNumber; }
 };
