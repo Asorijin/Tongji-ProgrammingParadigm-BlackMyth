@@ -4,6 +4,8 @@
 #include "CharacterMenu.h"
 #include "Components/ProgressBar.h"
 #include "Kismet/GameplayStatics.h"
+#include "black_moneyGameInstance.h" 
+#include "EventCenter.h"
 
 void UCharacterMenu::NativeConstruct()
 {
@@ -27,6 +29,8 @@ void UCharacterMenu::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
     UpdateHealthDisplay();
     UpdateManaDisplay();
     UpdateCooldownDisplay();  // 技能冷却
+    UpdateHpPotionCountDisplay();
+    UpdateMpPotionCountDisplay();
 }
 
 void UCharacterMenu::UpdateHealthDisplay()
@@ -81,4 +85,47 @@ void UCharacterMenu::UpdateCooldownDisplay()
 
     // 设置文本内容
     EarthQuakeCooldownText->SetText(FText::FromString(CooldownText));
+}
+
+// 直接从 EventCenter 获取全局 HP 道具数量
+void UCharacterMenu::UpdateHpPotionCountDisplay()
+{
+    if (!HpPotionCountText)
+        return;
+
+    // 获取 GameInstance
+    Ublack_moneyGameInstance* GameInstance = Cast<Ublack_moneyGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+    if (!GameInstance) return;
+
+    // 获取 EventCenter
+    UEventCenter* EventCenter = GameInstance->GetEventCenter();
+    if (!EventCenter) return;
+
+    // 调用我们在 EventCenter 新写的接口 GetToolsNumber()
+    // 假设您在 EventCenter.h 中定义的结构体成员名为 hpTools
+    int32 TotalHpCount = EventCenter->GetToolsNumber().hpTools;
+
+    // 显示总数
+    HpPotionCountText->SetText(FText::FromString(FString::FromInt(TotalHpCount)));
+}
+
+// 直接从 EventCenter 获取全局 MP 道具数量
+void UCharacterMenu::UpdateMpPotionCountDisplay()
+{
+    if (!MpPotionCountText)
+        return;
+
+    // 获取 GameInstance (同样的过程)
+    Ublack_moneyGameInstance* GameInstance = Cast<Ublack_moneyGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+    if (!GameInstance) return;
+
+    // 获取 EventCenter
+    UEventCenter* EventCenter = GameInstance->GetEventCenter();
+    if (!EventCenter) return;
+
+    // 获取 mpTools
+    int32 TotalMpCount = EventCenter->GetToolsNumber().mpTools;
+
+    // 显示总数
+    MpPotionCountText->SetText(FText::FromString(FString::FromInt(TotalMpCount)));
 }
