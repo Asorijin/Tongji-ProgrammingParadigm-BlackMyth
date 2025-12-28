@@ -83,7 +83,7 @@ ABaseEnemy::ABaseEnemy(const FObjectInitializer& ObjectInitializer)
 	InteractionWidget->SetWidgetSpace(EWidgetSpace::World); // 世界空间
 	InteractionWidget->SetDrawSize(FVector2D(200.0f, 50.0f));
 	InteractionWidget->SetPivot(FVector2D(0.5f, 0.0f)); // 底部居中对齐
-	InteractionWidget->SetRelativeLocation(FVector(0.0f, 0.0f, 100.0f)); // 在物体上方 100 单位
+	InteractionWidget->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f)); // 在物体上方 100 单位
 	InteractionWidget->SetVisibility(false); // 初始隐藏
 
 	// 初始化占位符模型
