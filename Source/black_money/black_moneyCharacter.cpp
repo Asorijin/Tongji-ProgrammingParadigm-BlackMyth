@@ -80,7 +80,7 @@ Ablack_moneyCharacter::Ablack_moneyCharacter()
 	WeaponHitBox->SetCollisionResponseToAllChannels(ECR_Ignore);
 	WeaponHitBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);  //
 
-	WeaponHitBox->SetHiddenInGame(false);//显示碰撞盒，方便调试
+	WeaponHitBox->SetHiddenInGame(true);
 
 	// 显示检测范围，方便调试
 	DetectionSphere->SetHiddenInGame(false);
@@ -233,16 +233,6 @@ void Ablack_moneyCharacter::Dodge() {
 		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
 		{
 			AnimInstance->Montage_Play(DodgeMontage, DodgePlayRate);
-			if (GEngine)
-			{
-				
-				GEngine->AddOnScreenDebugMessage(
-					/*Key*/ -1,
-					/*Time*/ 2.0f,
-					FColor::Green,
-					TEXT("Dodge: Play ")
-				);
-			}
 			
 		}
 	}
@@ -456,25 +446,6 @@ void Ablack_moneyCharacter::CastEarthQuake()
 {
 	if (!CanCastEarthQuake())
 	{
-		if (GEngine)
-		{
-			FString Reason = TEXT("Cannot cast EarthQuake");
-			if (!characterConfig)
-			{
-				Reason = TEXT("No characterConfig");
-			}
-			else if (EarthQuakeCooldownRemaining > 0.0f)
-			{
-				Reason = FString::Printf(TEXT("EarthQuake cooldown: %.1fs"), EarthQuakeCooldownRemaining);
-			}
-			else if (characterConfig->_mp < EarthQuakeManaCost)
-			{
-				Reason = FString::Printf(TEXT("MP not enough: %d / %d"),
-					characterConfig->_mp,
-					characterConfig->GetMaxMp());
-			}
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Cyan, Reason);
-		}
 		return;
 	}
 	
@@ -569,12 +540,7 @@ void Ablack_moneyCharacter::DoEarthQuakeDamage()
 			GetController(),
 			this);
 
-		if (GEngine)
-		{
-			const FString HitMsg = FString::Printf(TEXT("EarthQuake hit %s, Damage=%.1f"),
-				*Actor->GetName(), DamageValue);
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Orange, HitMsg);
-		}
+		
 	}
 }
 void Ablack_moneyCharacter::BeginPlay() {
@@ -657,14 +623,6 @@ void Ablack_moneyCharacter::Tick(float deltaTime) {
 	const int32 CurrentMp = characterConfig->_mp;
 	const int32 MaxMp = characterConfig->GetMaxMp();
 
-	const FString Msg = FString::Printf(TEXT("MP = %d / %d"), CurrentMp, MaxMp);
-
-	// Key 用 1，避免刷屏堆很多条
-	GEngine->AddOnScreenDebugMessage(
-		/*Key*/ 1,
-		/*Time*/ 0.1f,
-		FColor::Cyan,
-		Msg);
 
 }
 
@@ -788,12 +746,7 @@ float Ablack_moneyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& 
 	// 闪避无敌,直接免伤
 	if (bInvulnerableDuringDodge)
 	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(
-				-1, 1.0f, FColor::Cyan,
-				TEXT("TakeDamage blocked by dodge i-frame"));
-		}
+		
 		return 0.0f;
 	}
 	// 标记处于受击中
