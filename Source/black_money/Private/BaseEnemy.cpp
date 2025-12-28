@@ -19,8 +19,6 @@
 #include "Animation/AnimMontage.h"
 #include "UIEnemyHp.h"
 #include "black_money/black_moneyCharacter.h"
-#include "ToolHp.h"
-#include "ToolMp.h"
 
 ABaseEnemy::ABaseEnemy(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -83,7 +81,7 @@ ABaseEnemy::ABaseEnemy(const FObjectInitializer& ObjectInitializer)
 	InteractionWidget->SetWidgetSpace(EWidgetSpace::World); // 世界空间
 	InteractionWidget->SetDrawSize(FVector2D(200.0f, 50.0f));
 	InteractionWidget->SetPivot(FVector2D(0.5f, 0.0f)); // 底部居中对齐
-	InteractionWidget->SetRelativeLocation(FVector(0.0f, 0.0f, 100.0f)); // 在物体上方 100 单位
+	InteractionWidget->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f)); // 在物体上方 100 单位
 	InteractionWidget->SetVisibility(false); // 初始隐藏
 
 	// 初始化占位符模型
@@ -291,12 +289,29 @@ void ABaseEnemy::Die()
 		}
 	}
 
-	// 掉落道具：随机从 ToolHp 和 ToolMp 中选择一个
+	// 掉落道具：随机从 ToolHp 和 ToolMp 中选择一个（使用蓝图类加载）
 	if (GetWorld())
 	{
 		// 获取怪物死亡位置
 		FVector DeathLocation = GetActorLocation();
 		FRotator DeathRotation = FRotator::ZeroRotator;
+		
+		// 加载道具蓝图类
+		UClass* ToolHpClass = LoadClass<AActor>(
+			nullptr,
+			TEXT("/Game/BP/SceneObjects/BP_ToolHp.BP_ToolHp_C")
+		);
+		UClass* ToolMpClass = LoadClass<AActor>(
+			nullptr,
+			TEXT("/Game/BP/SceneObjects/MyToolMp.MyToolMp_C")
+		);
+		
+		// 检查蓝图类是否加载成功
+		if (!ToolHpClass || !ToolMpClass)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Failed to load tool blueprint classes for enemy %s"), *GetName());
+			return;
+		}
 		
 		// 随机选择道具类型（0或1）
 		int32 RandomChoice = FMath::RandRange(0, 1);
@@ -305,13 +320,13 @@ void ABaseEnemy::Die()
 		if (RandomChoice == 0)
 		{
 			// 生成 ToolHp（回血道具）
-			SpawnedTool = GetWorld()->SpawnActor<AToolHp>(DeathLocation, DeathRotation);
+			SpawnedTool = GetWorld()->SpawnActor<AActor>(ToolHpClass, DeathLocation, DeathRotation);
 			UE_LOG(LogTemp, Log, TEXT("Enemy %s dropped ToolHp at location %s"), *GetName(), *DeathLocation.ToString());
 		}
 		else
 		{
 			// 生成 ToolMp（回蓝道具）
-			SpawnedTool = GetWorld()->SpawnActor<AToolMp>(DeathLocation, DeathRotation);
+			SpawnedTool = GetWorld()->SpawnActor<AActor>(ToolMpClass, DeathLocation, DeathRotation);
 			UE_LOG(LogTemp, Log, TEXT("Enemy %s dropped ToolMp at location %s"), *GetName(), *DeathLocation.ToString());
 		}
 		
