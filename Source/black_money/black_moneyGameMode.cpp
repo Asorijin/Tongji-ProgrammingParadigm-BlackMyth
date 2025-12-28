@@ -88,31 +88,15 @@ void Ablack_moneyGameMode::BeginPlay()
 // 新增：实现显示状态栏的函数
 void Ablack_moneyGameMode::ShowStatusBar()
 {
-	// 使用PanelManager加载并显示状态条
-	UClass* StatusBarClass = LoadClass<UUIBasePanel>(
-		nullptr,
-		TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/BP_CharacterMenu.BP_CharacterMenu_C'")
-	);
-
-	if (!StatusBarClass)
+	if (UClass* StatusBarClass = LoadClass<UUserWidget>(nullptr, TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/BP_CharacterMenu.BP_CharacterMenu_C'")))
 	{
-		return;
-	}
-
-	UWorld* World = GetWorld();
-	if (!World)
-	{
-		return;
-	}
-
-	if (APlayerController* PC = World->GetFirstPlayerController())
-	{
-		// 获取/创建面板实例
-		StatusBarIns = FUIPanelManager::GetOrCreatePanel(World, StatusBarClass, FString("StatusBar"));
-		if (StatusBarIns)
+		if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
 		{
-			// 显示面板，设置层级为-1
-			FUIPanelManager::ShowPanel(World, StatusBarClass, FString("StatusBar"));
+			StatusBarIns = CreateWidget(PC, StatusBarClass);
+			if (StatusBarIns)
+			{
+				StatusBarIns->AddToViewport(-1);  // 此时才显示状态栏
+			}
 		}
 	}
 }
