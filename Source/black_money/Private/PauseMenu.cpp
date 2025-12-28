@@ -99,32 +99,36 @@ void UPauseMenu::QuitButtonClicked()
         // 通过面板管理器隐藏暂停菜单
         FUIPanelManager::HidePanel(FString("PauseMenu"));
 
-        // 显示启动菜单
-        UClass* StartUpMenuClass = LoadClass<UStartUpMenu>(
+        UClass* StartWidgetClass = LoadClass<UUIBasePanel>(
             nullptr,
             TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/BP_StartUpMenu.BP_StartUpMenu_C'")
         );
 
-        if (!StartUpMenuClass)
+        // 检查蓝图类是否加载成功
+        if (!StartWidgetClass)
+        {
+            return;
+        }
+
+        if (!World)
         {
             return;
         }
 
         if (APlayerController* PC = World->GetFirstPlayerController())
         {
-            // 切换输入模式为UI模式
-            PC->SetInputMode(FInputModeUIOnly());
-            PC->bShowMouseCursor = true;
-
-            // 通过面板管理器获取或创建启动菜单并显示
-            UUIBasePanel* StartUpPanelIns = FUIPanelManager::GetOrCreatePanel(World, StartUpMenuClass, FString("StartUpMenu"));
-            if (StartUpPanelIns)
+            // 核心修正：先通过PanelManager创建/获取面板实例，再显示
+            UUIBasePanel* StartPanelIns = FUIPanelManager::GetOrCreatePanel(World, StartWidgetClass, FString("StartUpMenu"));
+            if (StartPanelIns)
             {
-                FUIPanelManager::ShowPanel(World, StartUpMenuClass, FString("StartUpMenu"));
-            }
+                // 显示面板（确保实例存在后调用ShowPanel）
+                FUIPanelManager::ShowPanel(World, StartWidgetClass, FString("StartUpMenu"));
 
-            // 确保游戏处于暂停状态
-            UGameplayStatics::SetGamePaused(World, true);
+                // 暂停世界
+                UGameplayStatics::SetGamePaused(GetWorld(), true);
+                PC->SetInputMode(FInputModeGameOnly());
+                PC->bShowMouseCursor = true;
+            }
         }
     }
 }

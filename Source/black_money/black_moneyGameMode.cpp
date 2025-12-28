@@ -196,7 +196,7 @@ void Ablack_moneyGameMode::ShowPauseMenu(bool bShow)
 		{
 			FUIPanelManager::HidePanel(FString("PauseMenu"));
 			//PauseMenuIns->RemoveFromParent();
-			//PauseMenuIns = nullptr;
+			PauseMenuIns = nullptr;
 		}
 
 		APlayerController* PC = World->GetFirstPlayerController();
