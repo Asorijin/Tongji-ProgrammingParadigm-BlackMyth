@@ -15,6 +15,8 @@ void UStartUpMenu::NativeConstruct()
 
 	if (UButton* StartButton = CastChecked<UButton>(GetWidgetFromName(FName("Btn_Start"))))
 	{
+		StartButton->OnClicked.RemoveAll(this);
+
 		FScriptDelegate StartDelegate;
 		StartDelegate.BindUFunction(this, "StartButtonClicked");
 		StartButton->OnClicked.Add(StartDelegate);
@@ -23,6 +25,8 @@ void UStartUpMenu::NativeConstruct()
 	// 新增：绑定Quit按钮
 	if (UButton* QuitButton = CastChecked<UButton>(GetWidgetFromName(FName("Btn_Quit"))))
 	{
+		QuitButton->OnClicked.RemoveAll(this);
+
 		FScriptDelegate QuitDelegate;
 		QuitDelegate.BindUFunction(this, "QuitButtonClicked");
 		QuitButton->OnClicked.Add(QuitDelegate);
@@ -31,6 +35,8 @@ void UStartUpMenu::NativeConstruct()
 	// 新增：绑定设置按钮
 	if (UButton* SetButton = CastChecked<UButton>(GetWidgetFromName(FName("Btn_Set"))))
 	{
+		SetButton->OnClicked.RemoveAll(this);
+
 		FScriptDelegate SetDelegate;
 		SetDelegate.BindUFunction(this, "SettingButtonClicked");
 		SetButton->OnClicked.Add(SetDelegate);
