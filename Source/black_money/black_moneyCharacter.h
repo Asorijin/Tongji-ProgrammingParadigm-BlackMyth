@@ -96,7 +96,7 @@ protected:
 	void Attack();
 	//¥¶¿ÌÀ¿Õˆ
 	UFUNCTION(BlueprintCallable, Category = "State")
-	virtual void HandleDeath();
+	void HandleDeath();
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)

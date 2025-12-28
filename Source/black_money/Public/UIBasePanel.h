@@ -14,24 +14,5 @@ class BLACK_MONEY_API UUIBasePanel : public UUserWidget
 {
 	GENERATED_BODY()
     
-public:
-    UFUNCTION(BlueprintCallable, Category = "UI")
-    virtual void ShowPanel()
-    {
-        AddToViewport();
-        SetVisibility(ESlateVisibility::Visible);
-        NativeOnShow();
-    }
-
-    UFUNCTION(BlueprintCallable, Category = "UI")
-    virtual void HidePanel()
-    {
-        SetVisibility(ESlateVisibility::Collapsed);
-        RemoveFromParent();
-        NativeOnHide();
-    }
-
-protected:
-    virtual void NativeOnShow() {}
-    virtual void NativeOnHide() {}
 };
+    
